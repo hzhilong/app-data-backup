@@ -1,0 +1,37 @@
+{
+  "id": "4827910",
+  "name": "app-data-backup",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "788026",
+      "name": "退出",
+      "font_class": "exit",
+      "unicode": "e647",
+      "unicode_decimal": 58951
+    },
+    {
+      "icon_id": "4179293",
+      "name": "应用数据",
+      "font_class": "app-data",
+      "unicode": "e608",
+      "unicode_decimal": 58888
+    },
+    {
+      "icon_id": "6865347",
+      "name": "设置",
+      "font_class": "setting",
+      "unicode": "e60f",
+      "unicode_decimal": 58895
+    },
+    {
+      "icon_id": "11641882",
+      "name": "关于",
+      "font_class": "about",
+      "unicode": "e622",
+      "unicode_decimal": 58914
+    }
+  ]
+}

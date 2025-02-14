@@ -1,0 +1,12 @@
+[*.{js,jsx,mjs,cjs,ts,tsx,mts,cts,vue}]
+charset = utf-8
+# 缩进风格和大小
+indent_size = 2
+indent_style = space
+# 始终在文件末尾插入一个新行
+insert_final_newline = true
+# 始终在文件末尾插入一个新行
+trim_trailing_whitespace = true
+
+end_of_line = lf
+max_line_length = 100

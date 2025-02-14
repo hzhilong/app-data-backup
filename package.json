@@ -1,0 +1,82 @@
+{
+  "name": "app-data-backup",
+  "version": "0.0.1",
+  "productName": "数据备份",
+  "description": "Windows 软件数据备份还原工具。Windows software data backup and restore tool.",
+  "author": {
+    "name": "hzhilong",
+    "email": "hzhilong777@outlook.com",
+    "url": "https://github.com/hzhilong/app-data-backup"
+  },
+  "private": true,
+  "main": "dist-electron/index.js",
+  "scripts": {
+    "dev": "vite",
+    "dev-e": "vite --config vite.electron.config.mjs",
+    "build": "vite build",
+    "build-e": "vite build --config vite.electron.config.mjs && electron-builder",
+    "preview": "vite preview",
+    "lint": "eslint . --fix",
+    "format": "prettier --write src/"
+  },
+  "dependencies": {
+    "element-plus": "^2.9.4",
+    "pinia": "^2.3.1",
+    "pinia-plugin-persistedstate": "^4.2.0",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/eslint-config-prettier": "^10.1.0",
+    "electron": "^34.1.1",
+    "electron-builder": "^25.1.8",
+    "eslint": "^9.18.0",
+    "eslint-plugin-vue": "^9.32.0",
+    "prettier": "^3.4.2",
+    "unplugin-auto-import": "^19.0.0",
+    "unplugin-vue-components": "^28.0.0",
+    "vite": "^6.0.11",
+    "vite-electron-plugin": "^0.8.3",
+    "vite-plugin-html": "^3.2.2",
+    "vite-plugin-vue-devtools": "^7.7.1"
+  },
+  "build": {
+    "appId": "io.github.hzhilong.appdatabackup",
+    "productName": "数据备份",
+    "asar": true,
+    "copyright": "Copyright © 2025 hzhilong",
+    "directories": {
+      "output": "release/${version}"
+    },
+    "files": [
+      "dist",
+      "dist-electron"
+    ],
+    "win": {
+      "icon": "public/favicon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "${productName}_${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "deleteAppDataOnUninstall": false,
+      "license": "LICENSE",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "installerIcon": "public/favicon.ico",
+      "uninstallerIcon": "public/favicon.ico"
+    },
+    "extends": null
+  }
+}

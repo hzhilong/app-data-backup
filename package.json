@@ -1,8 +1,9 @@
 {
   "name": "app-data-backup",
   "version": "0.0.1",
-  "productName": "数据备份",
+  "productName": "软件数据备份",
   "description": "Windows 软件数据备份还原工具。Windows software data backup and restore tool.",
+  "appDescription": "Windows 上免费且开源的软件数据备份还原工具。\n一键备份或还原数据指定数据，方便更换设备/系统时实现用户数据迁移。\n目前支持的软件较少，有需要新增的软件请到github上提issue，或者发邮件告知。",
   "author": {
     "name": "hzhilong",
     "email": "hzhilong777@outlook.com",
@@ -35,6 +36,8 @@
     "eslint": "^9.18.0",
     "eslint-plugin-vue": "^9.32.0",
     "prettier": "^3.4.2",
+    "sass": "^1.85.0",
+    "sass-loader": "^16.0.5",
     "unplugin-auto-import": "^19.0.0",
     "unplugin-vue-components": "^28.0.0",
     "vite": "^6.0.11",
@@ -44,7 +47,7 @@
   },
   "build": {
     "appId": "io.github.hzhilong.appdatabackup",
-    "productName": "数据备份",
+    "productName": "软件数据备份",
     "asar": true,
     "copyright": "Copyright © 2025 hzhilong",
     "directories": {

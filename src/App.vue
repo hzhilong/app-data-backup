@@ -3,39 +3,44 @@ import { RouterView } from 'vue-router'
 </script>
 
 <template>
-  <el-container>
-    <el-aside width="180px">
-      <el-menu class="menus" mode="vertical" :default-active="menus[0].viewPath">
+  <el-container class="app-container">
+    <el-aside class="left-side">
+      <div class="app-infos">
+        <div class="app-title"><img src="/favicon.ico" alt="favicon" />{{ appTitle }}</div>
+      </div>
+      <el-menu class="menus" mode="vertical" :default-active="menus[0].text">
         <el-menu-item
           class="menu"
-          :index="menu.viewPath"
+          :index="menu.text"
           v-for="menu in menus"
           :key="menu.text"
-          @click="menu.onclick !== undefined ? menu.onclick(menu) : {}"
+          @click="menu.onclick !== undefined ? menu.onclick(menu) : onClickMenu(menu)"
         >
           <span class="iconfont" :class="menu.iconClass"></span>
           <span>{{ menu.text }}</span>
         </el-menu-item>
       </el-menu>
     </el-aside>
-    <el-container>
-      <el-main>
-        <RouterView />
+    <el-container class="right-side">
+      <div class="top-bar">{{  }}</div>
+      <el-main class="content-wrapper">
+        <div class="content">
+          <RouterView />
+        </div>
       </el-main>
     </el-container>
   </el-container>
 </template>
 
 <script>
-
 export default {
   components: {},
   data: function () {
-    let _this = this
     return {
+      appTitle: import.meta.env.APP_PRODUCT_NAME,
       menus: [
         {
-          text: '数据备份',
+          text: '备份',
           iconClass: 'icon-app-data',
           viewPath: '/app/data-backup',
         },
@@ -60,22 +65,44 @@ export default {
       ],
     }
   },
+  computed: {
+    menuTitle: function () {
+      let menuTitle = this.$route.query.menuTitle
+      return menuTitle !== undefined ? menuTitle : this.getMenuTitle(this.menus[0])
+    },
+    appSubTitle: function () {
+      if (import.meta.env.MODE === 'production') {
+        return import.meta.env.APP_VERSION
+      } else {
+        return `${import.meta.env.APP_VERSION} ${import.meta.env.MODE}`
+      }
+    },
+  },
   mounted() {
     console.log(import.meta.env)
   },
   methods: {
-    exitApp: function () {
+    exitApp() {
       try {
-        window.require('electron').send('closeWindow')
-      }catch (e) {
-
-      }
+        window.require('electron').ipcRenderer.send('closeWindow')
+      } catch (e) {}
+    },
+    getMenuTitle(menu) {
+      return menu.menuTitle !== undefined ? menu.menuTitle : menu.text
+    },
+    onClickMenu(menu) {
+      this.$router.push({
+        path: menu.viewPath,
+        query: {
+          t: new Date().getTime(),
+          menuTitle: this.getMenuTitle(menu),
+        },
+      })
     },
   },
 }
 </script>
 
-<style scoped>
-@import 'assets/iconfont/iconfont.css';
-@import 'assets/home.css';
+<style scoped lang="scss">
+@use 'assets/scss/home';
 </style>

@@ -20,6 +20,16 @@ function getAppTitle(mode, env, packageJson) {
   }
 }
 
+function initEnvDefine(env, newEnv) {
+  let defineData = {}
+  Object.keys(newEnv).forEach((key) => {
+    console.log('key:', key)
+    env[key] = newEnv[key]
+    defineData['import.meta.env.' + key] = JSON.stringify(newEnv[key])
+  })
+  return defineData
+}
+
 // https://vite.dev/config/ or https://vitejs.cn/vite5-cn/guide/
 export default ({ mode }) => {
   // 环境变量前缀
@@ -28,18 +38,15 @@ export default ({ mode }) => {
   let envDir = path.resolve(__dirname, 'env')
   // 加载当前模式的所有环境变量
   const env = loadEnv(mode, envDir, '')
-  env.APP_PRODUCT_NAME = packageJson.productName
-  env.APP_VERSION = packageJson.version
-  env.APP_TITLE = getAppTitle(mode, env, packageJson)
-  let defineData = {
-    // __APP_NAME__: JSON.stringify(packageJson.productName),
-    // __APP_VERSION__: JSON.stringify(packageJson.version),
-    // __API_AUTHOR_NAME__: JSON.stringify(packageJson.author.name),
-    // __API_AUTHOR_URL__: JSON.stringify(packageJson.author.url),
-    'import.meta.env.APP_PRODUCT_NAME': JSON.stringify(env.APP_PRODUCT_NAME),
-    'import.meta.env.APP_VERSION': JSON.stringify(env.APP_VERSION),
-    'import.meta.env.APP_TITLE': JSON.stringify(env.APP_TITLE),
-  }
+  let defineData = initEnvDefine(env, {
+    APP_PRODUCT_NAME: packageJson.productName,
+    APP_DESCRIPTION: packageJson.appDescription,
+    APP_VERSION: packageJson.version,
+    APP_AUTHOR_NAME: packageJson.author.name,
+    APP_AUTHOR_EMAIL: packageJson.author.email,
+    APP_AUTHOR_URL: packageJson.author.url,
+    APP_TITLE: getAppTitle(mode, env, packageJson),
+  })
   console.log('========================================================')
   console.log('项目名称：', packageJson.productName)
   console.log('当前模式：', mode)
@@ -83,6 +90,14 @@ export default ({ mode }) => {
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
+      },
+    },
+    css: {
+      preprocessorOptions: {
+        scss: {
+          // 全局引入,但webstorm好像不识别,算了,手动在home.scss引入
+          // additionalData: '@import "@/assets/scss/global.scss";',
+        },
       },
     },
   }

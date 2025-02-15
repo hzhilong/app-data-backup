@@ -1,0 +1,24 @@
+@use "global" as *;
+@import '../iconfont/iconfont.css';
+
+body {
+  padding: 0;
+  margin: 0;
+  height: 100vh;
+  min-height: 100vh;
+  max-height: 100vh;
+  line-height: 1.6;
+  font-size: 14px;
+  // 浏览器在绘制文本时将着重考虑易读性，而不是渲染速度和几何精度。它会使字间距和连字有效。
+  text-rendering: optimizeLegibility;
+  // WebKit 字体抗锯齿
+  -webkit-font-smoothing: antialiased;
+  // macOS 字体灰度抗锯齿
+  -moz-osx-font-smoothing: grayscale;
+
+  #app {
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
+  }
+}

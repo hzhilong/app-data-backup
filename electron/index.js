@@ -11,12 +11,15 @@ import path from 'path'
 let mainWindow
 
 // 关闭GPU加速
-// app.disableHardwareAcceleration()
+app.disableHardwareAcceleration()
 
 // 创建窗口 https://www.electronjs.org/zh/docs/latest/api/browser-window
 const createWindow = () => {
   mainWindow = new BrowserWindow({
     autoHideMenuBar: true,
+    titleBarStyle: 'hidden',
+    // expose window controlls in Windows/Linux
+    ...(process.platform !== 'darwin' ? { titleBarOverlay: true } : {}),
     minWidth: 750,
     minHeight: 500,
     resizable: true,

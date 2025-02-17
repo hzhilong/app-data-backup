@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import { LoggedUserStore } from '@/stores/loggeduser'
+import { LoggedUserStore } from '@/stores/logged-user'
 import { mapActions } from 'pinia'
 
 export default {

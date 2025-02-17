@@ -1,6 +1,6 @@
 @use "global" as *;
 
-.about{
+.about {
   width: 100%;
   height: 100%;
   display: flex;
@@ -10,38 +10,78 @@
   font-size: 14px;
   padding: 14px;
 
-  .app-logo{
+  .app-logo {
     width: 80px;
     height: 80px;
+    display: inline-block;
+    transition: 0.3s ease, height 0.3s ease;
+    mask: url('@/assets/logo.svg') no-repeat center / contain;
+    -webkit-mask: url('@/assets/logo.svg') no-repeat center / contain;
+    background: $app-color-primary;
+    user-select: none;
+    cursor: pointer;
+
+    &:hover {
+      width: 100px;
+      height: 100px;
+      animation: rotate 3s linear infinite;
+    }
+
+    @keyframes rotate {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
   }
 
-  .app-title{
+  .app-title {
+    width: fit-content;
     font-size: 18px;
     font-weight: bold;
-    color: $app-color-menu-primary;
+    color: $app-color-primary;
     letter-spacing: 1px;
+    padding: 4px;
+    border-radius: 4px;
+    margin: 8px 0;
+    user-select: none;
+    cursor: pointer;
+
+    &:hover {
+      background: $app-color-hover;
+    }
   }
 
-  .infos{
+  .infos {
+    width: fit-content;
     display: flex;
     flex-direction: column;
     justify-items: start;
     margin-top: 10px;
 
-    .info{
+    .info {
       display: flex;
       align-items: flex-start;
       line-height: 1.4;
-      margin-bottom: 10px;
+      padding: 6px;
+      border-radius: 4px;
 
-      .title{
-        white-space:nowrap;
+      &:hover {
+        background: $app-color-hover;
+      }
+
+      .title {
+        white-space: nowrap;
         user-select: none;
       }
 
-      .desc{
+      .desc {
         white-space: pre-wrap;
+
       }
+
     }
   }
 

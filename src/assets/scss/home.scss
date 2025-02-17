@@ -13,7 +13,7 @@
     align-items: center;
     --el-aside-width: $app-left-side-width;
     width: $app-left-side-width;
-    box-shadow: 1px 0 3px $app-color-menu-border;
+    box-shadow: 1px 0 3px $app-color-border;
     user-select: none;
 
     .app-infos {
@@ -26,12 +26,16 @@
         align-items: center;
         font-size: 18px;
         font-weight: bold;
-        color: $app-color-menu-primary;
+        color: $app-color-primary;
 
-        img {
+        .app-logo {
           width: 24px;
           height: 24px;
           margin-right: 8px;
+          display: inline-block;
+          mask: url('@/assets/logo.svg') no-repeat center / contain;
+          -webkit-mask: url('@/assets/logo.svg') no-repeat center / contain;
+          background: $app-color-primary;
         }
       }
 
@@ -62,7 +66,7 @@
       }
 
       .el-menu-item.is-active {
-        color: #000;
+        color: $app-color-content-color;
       }
 
       .el-menu-item:hover:after, .el-menu-item.is-active:after {
@@ -72,13 +76,13 @@
         top: 8px;
         bottom: 8px;
         right: 8px;
-        background: $app-color-menu-hover;
+        background: $app-color-hover;
         border-radius: 8px;
         z-index: -1;
       }
 
       .el-menu-item.is-active:after {
-        background: $app-color-menu-active;
+        background: $app-color-active;
       }
     }
   }
@@ -100,8 +104,40 @@
       font-weight: bold;
       app-region: drag;
       box-sizing: border-box;
-      box-shadow: 3px 1px 3px $app-color-menu-border;
+      box-shadow: 3px 1px 3px $app-color-border;
       background: $app-color-content-background;
+      position: relative;
+
+      .top-bar-btns {
+        $btn-margin: 2px;
+        display: flex;
+        align-items: center;
+        app-region: no-drag;
+        position: absolute;
+        margin-right: $btn-margin;
+        top: 0;
+        right: 0;
+
+        .btn {
+          width: calc($app-top-bar-height - $btn-margin);
+          height: calc($app-top-bar-height - $btn-margin);
+          font-size: 16px;
+          text-align: center;
+
+          &:before {
+            vertical-align: middle;
+          }
+
+          &:hover {
+            background: $app-color-hover;
+          }
+
+          &:nth-child(3):hover {
+            background: #ff2323;
+          }
+
+        }
+      }
     }
 
     .content-wrapper {
@@ -119,6 +155,7 @@
         padding: $app-main-content-padding;
         background: $app-color-content-background;
         border-radius: 10px;
+        color: $app-color-content-color;
       }
     }
   }

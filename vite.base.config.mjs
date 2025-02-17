@@ -23,7 +23,6 @@ function getAppTitle(mode, env, packageJson) {
 function initEnvDefine(env, newEnv) {
   let defineData = {}
   Object.keys(newEnv).forEach((key) => {
-    console.log('key:', key)
     env[key] = newEnv[key]
     defineData['import.meta.env.' + key] = JSON.stringify(newEnv[key])
   })

@@ -6,6 +6,34 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "1299763",
+      "name": "最小化",
+      "font_class": "min",
+      "unicode": "e65a",
+      "unicode_decimal": 58970
+    },
+    {
+      "icon_id": "9430532",
+      "name": "关  闭",
+      "font_class": "close",
+      "unicode": "e639",
+      "unicode_decimal": 58937
+    },
+    {
+      "icon_id": "10156384",
+      "name": "最大化",
+      "font_class": "max2",
+      "unicode": "e653",
+      "unicode_decimal": 58963
+    },
+    {
+      "icon_id": "28410459",
+      "name": "窗口最大化",
+      "font_class": "max",
+      "unicode": "e65b",
+      "unicode_decimal": 58971
+    },
+    {
       "icon_id": "788026",
       "name": "退出",
       "font_class": "exit",

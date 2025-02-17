@@ -1,7 +1,7 @@
 <template>
   <div class="about">
-    <img class="app-logo" src="@/assets/logo.svg" />
-    <div class="app-title">{{ appTitle }}</div>
+    <div class="app-logo" @click="switchThemeColor"></div>
+    <div class="app-title" @click="setDefaultTheme">{{ appTitle }}</div>
     <div class="infos">
       <div class="info">
         <span class="title">版本：</span>
@@ -20,18 +20,21 @@
         <span class="desc">{{ env.APP_AUTHOR_EMAIL }}</span>
       </div>
       <div class="info">
-        <span class="title">开源：</span>
-        <span class="desc"
-          ><a href="" @click.prevent="browsePage(env.APP_AUTHOR_URL)">{{
+        <div class="title">开源：</div>
+        <div class="desc">
+          <a href="" @click.prevent="$appUtil.browsePage(env.APP_AUTHOR_URL)">{{
             env.APP_AUTHOR_URL
-          }}</a></span
-        >
+          }}</a>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { mapActions } from 'pinia'
+import { ThemeColorStore } from '@/stores/theme-color'
+
 export default {
   name: 'AboutView',
   data() {
@@ -50,16 +53,10 @@ export default {
     },
   },
   mounted() {
-    console.log(this.env)
+    console.log(this.colors)
   },
   methods: {
-    browsePage(url) {
-      try {
-        window.require('electron').shell.openExternal(url)
-      } catch (e) {
-        window.open(url, '_blank')
-      }
-    },
+    ...mapActions(ThemeColorStore, ['switchThemeColor', 'setDefaultTheme']),
   },
 }
 </script>

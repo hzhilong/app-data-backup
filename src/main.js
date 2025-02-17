@@ -7,11 +7,14 @@ import router from './router'
 
 import ElementPlus from 'element-plus'
 import './assets/scss/main.scss'
+import AppUtil from '@/utils/app-util'
 
 const app = createApp(App)
 // 挂载到全局属性
 // app.config.globalProperties.$env = import.meta.env;
 app.use(ElementPlus, { size: 'small', zIndex: 3000 })
+// 挂载到全局属性
+app.config.globalProperties.$appUtil = AppUtil
 
 let pinia = createPinia()
 pinia.use(piniaPluginPersistedState)

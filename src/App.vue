@@ -6,7 +6,10 @@ import { RouterView } from 'vue-router'
   <el-container class="app-container">
     <el-aside class="left-side">
       <div class="app-infos">
-        <div class="app-title"><img src="/favicon.ico" alt="favicon" />{{ appTitle }}</div>
+        <div class="app-title">
+          <div class="app-logo"></div>
+          {{ appTitle }}
+        </div>
       </div>
       <el-menu class="menus" mode="vertical" :default-active="menus[0].text">
         <el-menu-item
@@ -22,7 +25,22 @@ import { RouterView } from 'vue-router'
       </el-menu>
     </el-aside>
     <el-container class="right-side">
-      <div class="top-bar">{{  }}</div>
+      <div class="top-bar">
+        <div class="top-bar-btns">
+          <span class="btn iconfont icon-min" @click="$appUtil.minApp()"></span>
+          <span
+            class="btn iconfont"
+            :class="windowMax ? 'icon-max2' : 'icon-max'"
+            @click="
+              () => {
+                windowMax = !windowMax
+                $appUtil.maxApp()
+              }
+            "
+          ></span>
+          <span class="btn iconfont icon-close" @click="$appUtil.exitApp()"></span>
+        </div>
+      </div>
       <el-main class="content-wrapper">
         <div class="content">
           <RouterView />
@@ -37,6 +55,7 @@ export default {
   components: {},
   data: function () {
     return {
+      windowMax: false,
       appTitle: import.meta.env.APP_PRODUCT_NAME,
       menus: [
         {
@@ -59,7 +78,7 @@ export default {
           iconClass: 'icon-exit',
           viewPath: '/',
           onclick: (menu) => {
-            this.exitApp()
+            this.$appUtil.exitApp()
           },
         },
       ],
@@ -70,23 +89,9 @@ export default {
       let menuTitle = this.$route.query.menuTitle
       return menuTitle !== undefined ? menuTitle : this.getMenuTitle(this.menus[0])
     },
-    appSubTitle: function () {
-      if (import.meta.env.MODE === 'production') {
-        return import.meta.env.APP_VERSION
-      } else {
-        return `${import.meta.env.APP_VERSION} ${import.meta.env.MODE}`
-      }
-    },
   },
-  mounted() {
-    console.log(import.meta.env)
-  },
+  mounted() {},
   methods: {
-    exitApp() {
-      try {
-        window.require('electron').ipcRenderer.send('closeWindow')
-      } catch (e) {}
-    },
     getMenuTitle(menu) {
       return menu.menuTitle !== undefined ? menu.menuTitle : menu.text
     },

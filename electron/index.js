@@ -4,7 +4,7 @@
 
 // app 控制应用程序的事件生命周期（相当于应用程序）
 // BrowserWindow 创建并控制浏览器窗口（相当于打开桌面弹框）
-import { app, BrowserWindow, globalShortcut,ipcMain } from 'electron'
+import { app, BrowserWindow, globalShortcut, ipcMain } from 'electron'
 import path from 'path'
 
 // 定义全局变量获取 窗口实例
@@ -16,10 +16,12 @@ app.disableHardwareAcceleration()
 // 创建窗口 https://www.electronjs.org/zh/docs/latest/api/browser-window
 const createWindow = () => {
   mainWindow = new BrowserWindow({
+    // 隐藏菜单栏
     autoHideMenuBar: true,
+    // 隐藏标题
     titleBarStyle: 'hidden',
-    // expose window controlls in Windows/Linux
-    ...(process.platform !== 'darwin' ? { titleBarOverlay: true } : {}),
+    // 在 Windows/Linux 上添加窗口的控件
+    // ...(process.platform !== 'darwin' ? { titleBarOverlay: true } : {}),
     minWidth: 750,
     minHeight: 500,
     resizable: true,
@@ -27,12 +29,15 @@ const createWindow = () => {
       // 集成网页和 Node.js，也就是在渲染进程中，可以调用 Node.js 方法
       contextIsolation: false,
       nodeIntegration: true,
+      preload: path.join(path.resolve(), 'electron/preload.js'),
     },
     icon: path.join(path.resolve(), 'public/favicon.ico'),
-    preload: path.join(path.resolve(), 'preload.js'),
     show: false,
   })
-
+  if (process.platform === 'darwin') {
+    // 隐藏MacOS交通信号灯
+    mainWindow.setWindowButtonVisibility(false)
+  }
   // 在加载页面时，渲染进程第一次完成绘制时，如果窗口还没有被显示，渲染进程会发出 ready-to-show 事件
   // 解决启动后右下角黑边闪烁的问题
   mainWindow.once('ready-to-show', () => {
@@ -44,7 +49,22 @@ const createWindow = () => {
     mainWindow.webContents.openDevTools()
   })
 
-  ipcMain.on("closeWindow", (event, arg) => {
+  // 主窗口最小化
+  ipcMain.on('window-min', function () {
+    mainWindow.minimize()
+  })
+
+  // 主窗口最大化
+  ipcMain.on('window-max', function () {
+    if (mainWindow.isMaximized()) {
+      mainWindow.restore()
+    } else {
+      mainWindow.maximize()
+    }
+  })
+
+  // 关闭主窗口
+  ipcMain.on('window-close', function () {
     mainWindow.close()
   })
 

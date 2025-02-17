@@ -53,7 +53,6 @@ export default {
     },
   },
   mounted() {
-    console.log(this.colors)
   },
   methods: {
     ...mapActions(ThemeColorStore, ['switchThemeColor', 'setDefaultTheme']),

@@ -1,57 +1,139 @@
-<script setup></script>
+<script setup>
+import { RouterView } from 'vue-router'
+</script>
 
 <template>
-  <main>
-    <div>
-      <el-button type="primary" @click="del">del</el-button>
-      <el-button type="primary" @click="set">set</el-button>
-      <div v-if="currUser != null">当前: {{ `${currUser.mid} ${currUser.name}` }}</div>
-      <div v-for="user in loggedUsers" :key="user.mid">
-        <div>{{ user.mid }}</div>
-        <div>{{ user.name }}</div>
-        <div>{{ user.face }}</div>
-        <div>{{ user.cookie }}</div>
+  <el-container class="app-container">
+    <el-aside class="left-side">
+      <div class="app-infos">
+        <div class="app-title">
+          <div class="app-logo"></div>
+          {{ appTitle }}
+        </div>
       </div>
-    </div>
-  </main>
+      <el-menu class="menus" mode="vertical" :default-active="defaultMenuIndex">
+        <el-menu-item
+          class="menu"
+          :index="menu.viewPath"
+          v-for="menu in menus"
+          :key="menu.text"
+          @click="menu.onclick !== undefined ? menu.onclick(menu) : onClickMenu(menu)"
+        >
+          <span class="iconfont" :class="menu.iconClass"></span>
+          <span>{{ menu.text }}</span>
+        </el-menu-item>
+      </el-menu>
+    </el-aside>
+    <el-container class="right-side">
+      <div class="top-bar">
+        <div class="top-bar-btns">
+          <span class="btn iconfont icon-min" @click="$appUtil.minApp()"></span>
+          <span
+            class="btn iconfont"
+            :class="windowMax ? 'icon-max2' : 'icon-max'"
+            @click="
+              () => {
+                windowMax = !windowMax
+                $appUtil.maxApp()
+              }
+            "
+          ></span>
+          <span class="btn iconfont icon-close" @click="$appUtil.exitApp()"></span>
+        </div>
+      </div>
+      <el-main class="content-wrapper">
+        <div class="content">
+          <RouterView />
+        </div>
+      </el-main>
+    </el-container>
+  </el-container>
 </template>
 
 <script>
-import { LoggedUserStore } from '@/stores/logged-user'
-import { mapActions } from 'pinia'
+import { ThemeColorStore } from '@/stores/theme-color'
 
 export default {
-  components: {
-  },
-  data() {
-    return {}
+  components: {},
+  data: function () {
+    return {
+      windowMax: false,
+      appTitle: import.meta.env.APP_PRODUCT_NAME,
+      menus: [
+        {
+          text: '仪表盘',
+          iconClass: 'icon-app-data',
+          viewPath: '/dashboard',
+        },
+        {
+          text: '数据备份',
+          iconClass: 'icon-app-data',
+          viewPath: '/backup',
+        },
+        {
+          text: '数据还原',
+          iconClass: 'icon-app-data',
+          viewPath: '/res',
+        },
+        {
+          text: '应用管理',
+          iconClass: 'icon-app-data',
+          viewPath: '/man',
+        },
+        {
+          text: '设置',
+          iconClass: 'icon-setting',
+          viewPath: '/settings',
+        },
+        {
+          text: '关于',
+          iconClass: 'icon-about',
+          viewPath: '/about',
+        },
+        {
+          text: '退出',
+          iconClass: 'icon-exit',
+          viewPath: '/exit',
+          onclick: (menu) => {
+            this.$appUtil.exitApp()
+          },
+        },
+      ],
+    }
   },
   computed: {
-    loggedUsers() {
-      let loggedUserStore = LoggedUserStore()
-      return loggedUserStore.getLoggedUserList
+    defaultMenuIndex() {
+      // 当前页面所属菜单
+      const matchedItem = this.menus.find(item =>
+        item.viewPath === this.$route.path
+      )
+      return matchedItem ? matchedItem.viewPath : this.menus[0].viewPath
     },
-    currUser() {
-      let loggedUserStore = LoggedUserStore()
-      return loggedUserStore.getCurrUser
+    menuTitle: function () {
+      let menuTitle = this.$route.query.menuTitle
+      return menuTitle !== undefined ? menuTitle : this.getMenuTitle(this.menus[0])
     },
   },
+  created() {
+    ThemeColorStore().initThemeColor()
+  },
   methods: {
-    ...mapActions(LoggedUserStore, ['save', 'delete']),
-    async del() {
-      let id = Math.floor(Math.random() * 10)
-      this.delete('' + id)
+    getMenuTitle(menu) {
+      return menu.menuTitle !== undefined ? menu.menuTitle : menu.text
     },
-    async set() {
-      let id = Math.floor(Math.random() * 10)
-      let id2 = Math.floor(Math.random() * 1000)
-      this.save({
-        mid: `${id}`,
-        name: `name-${id}`,
-        face: `face-${id2}`,
-        cookie: `cookie-${id2}`,
+    onClickMenu(menu) {
+      this.$router.push({
+        path: menu.viewPath,
+        query: {
+          // t: new Date().getTime(),
+          menuTitle: this.getMenuTitle(menu),
+        },
       })
     },
   },
 }
 </script>
+
+<style scoped lang="scss">
+@use '@/assets/scss/home';
+</style>

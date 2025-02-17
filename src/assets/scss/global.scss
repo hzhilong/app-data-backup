@@ -1,14 +1,13 @@
 // 全局配置
 // // 通过 SCSS 变量引用 CSS 变量，方便动态修改
 $app-color-primary: var(--app-color-primary, #6284DF);
-$app-color-active: var(--app-color-active, #6284DF60);
 $app-color-hover: var(--app-color-hover, #6284DF20);
 $app-color-border: var(--app-color-border, #dcdfe6);
-$app-color-background: var(--app-color-background, #f2f2f2);
+$app-color-background: var(--app-color-background, #F5F7F9);
 $app-color-content-background: var(--app-color-content-background, #ffffff);
 $app-color-content-color: var(--app-color-content-color, #0a0a0a);
 
 $app-top-bar-height: var(--app-top-bar-height, 30px);
 $app-left-side-width: var(--app-left-side-width, 170px);
-$app-main-content-margin: var(--app-main-content-margin, 12px);
+$app-main-content-margin: var(--app-main-content-margin, 0px 4px 4px 0px);
 $app-main-content-padding: var(--app-main-content-padding, 10px);

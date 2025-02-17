@@ -5,6 +5,7 @@
   height: 100%;
   padding-top: 1px;
   display: flex;
+  background: $app-color-background;
 
   .left-side {
     height: 100%;
@@ -13,7 +14,6 @@
     align-items: center;
     --el-aside-width: $app-left-side-width;
     width: $app-left-side-width;
-    box-shadow: 1px 0 3px $app-color-border;
     user-select: none;
 
     .app-infos {
@@ -45,6 +45,7 @@
       flex: 1;
       border-right: unset;
       letter-spacing: 1px;
+      background: $app-color-background;
 
       .menu {
         width: calc($app-left-side-width - 10px);
@@ -54,6 +55,7 @@
         font-size: 16px;
         position: relative;
         z-index: 1;
+        transition: border-color var(--el-transition-duration), background-color var(--el-transition-duration);
 
         .iconfont {
           font-size: 18px;
@@ -66,7 +68,7 @@
       }
 
       .el-menu-item.is-active {
-        color: $app-color-content-color;
+        color: #FFF;
       }
 
       .el-menu-item:hover:after, .el-menu-item.is-active:after {
@@ -82,7 +84,7 @@
       }
 
       .el-menu-item.is-active:after {
-        background: $app-color-active;
+        background: $app-color-primary;
       }
     }
   }
@@ -104,8 +106,6 @@
       font-weight: bold;
       app-region: drag;
       box-sizing: border-box;
-      box-shadow: 3px 1px 3px $app-color-border;
-      background: $app-color-content-background;
       position: relative;
 
       .top-bar-btns {
@@ -143,7 +143,8 @@
     .content-wrapper {
       flex: 1;
       background: $app-color-background;
-      padding: $app-main-content-margin calc($app-main-content-margin + 1px) calc($app-main-content-margin + 1px) $app-main-content-margin;
+      //padding: $app-main-content-margin calc($app-main-content-margin + 1px) calc($app-main-content-margin + 1px) $app-main-content-margin;
+      padding: $app-main-content-margin;
       box-sizing: border-box;
       height: 100%;
       width: 100%;
@@ -156,6 +157,7 @@
         background: $app-color-content-background;
         border-radius: 10px;
         color: $app-color-content-color;
+        box-shadow: inset 0px 0px 4px 0px $app-color-border;
       }
     }
   }

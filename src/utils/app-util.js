@@ -8,7 +8,6 @@ export default {
     try {
       window.require('electron').ipcRenderer.send('window-max')
     } catch (e) {
-      console.log(e)
     }
   },
   minApp() {
@@ -17,7 +16,6 @@ export default {
     } catch (e) {}
   },
   browsePage(url) {
-    console.log(url)
     try {
       window.require('electron').shell.openExternal(url)
     } catch (e) {

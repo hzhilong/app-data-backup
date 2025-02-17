@@ -1,5 +1,4 @@
 import { fileURLToPath, URL } from 'node:url'
-
 import { loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { createHtmlPlugin } from 'vite-plugin-html'
@@ -12,46 +11,46 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 /**
  * 获取应用标题
  */
-function getAppTitle(mode, env, packageJson) {
+function getAppTitle(mode: string, packageJsonData: typeof packageJson): string {
   if (mode === 'production') {
-    return `${packageJson.productName} ${packageJson.version}`
+    return `${packageJsonData.productName} ${packageJsonData.version}`
   } else {
-    return `${packageJson.productName} ${packageJson.version} ${mode}`
+    return `${packageJsonData.productName} ${packageJsonData.version} ${mode}`
   }
 }
 
-function initEnvDefine(env, newEnv) {
-  let defineData = {}
+function initEnvDefine(env: Record<string, string>, newEnv: Record<string, string>) {
+  const defineData: Record<string, string> = {}
   Object.keys(newEnv).forEach((key) => {
     env[key] = newEnv[key]
-    defineData['import.meta.env.' + key] = JSON.stringify(newEnv[key])
+    defineData[`import.meta.env.${key}`] = JSON.stringify(newEnv[key])
   })
   return defineData
 }
 
 // https://vite.dev/config/ or https://vitejs.cn/vite5-cn/guide/
-export default ({ mode }) => {
+export default ({ mode }: { mode: string }) => {
   // 环境变量前缀
   const envPrefixes = ['VITE_', 'APP_']
   // 环境变量目录
-  let envDir = path.resolve(__dirname, 'env')
+  const envDir = path.resolve(__dirname, 'env')
   // 加载当前模式的所有环境变量
   const env = loadEnv(mode, envDir, '')
-  let defineData = initEnvDefine(env, {
+  const defineData = initEnvDefine(env, {
     APP_PRODUCT_NAME: packageJson.productName,
     APP_DESCRIPTION: packageJson.appDescription,
     APP_VERSION: packageJson.version,
     APP_AUTHOR_NAME: packageJson.author.name,
     APP_AUTHOR_EMAIL: packageJson.author.email,
     APP_AUTHOR_URL: packageJson.author.url,
-    APP_TITLE: getAppTitle(mode, env, packageJson),
+    APP_TITLE: getAppTitle(mode, packageJson),
   })
   console.log('========================================================')
   console.log('项目名称：', packageJson.productName)
   console.log('当前模式：', mode)
   console.log('当前环境变量：')
   Object.keys(env).forEach((key) => {
-    for (let envPrefix of envPrefixes) {
+    for (const envPrefix of envPrefixes) {
       if (key.startsWith(envPrefix)) {
         console.log(`   ${key} = ${env[key]}`)
       }

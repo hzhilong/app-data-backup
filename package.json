@@ -13,10 +13,13 @@
   "main": "dist-electron/index.js",
   "scripts": {
     "dev": "vite",
-    "dev-e": "vite --config vite.electron.config.mjs",
-    "build": "vite build",
-    "build-e": "vite build --config vite.electron.config.mjs && electron-builder",
+    "dev-e": "vite --config vite.electron.config.ts",
+    "build-only": "vite build",
+    "build-only-e": "vite build --config vite.electron.config.ts && electron-builder",
+    "build": "run-p type-check \"build-only {@}\" --",
+    "build-e": "run-p type-check \"build-only-e {@}\" --",
     "preview": "vite preview",
+    "type-check": "vue-tsc --build",
     "lint": "eslint . --fix",
     "format": "prettier --write src/"
   },
@@ -29,10 +32,14 @@
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
-    "typescript": "^5.2.2",
     "@eslint/js": "^9.18.0",
+    "@types/electron": "^1.4.38",
+    "@tsconfig/node22": "^22.0.0",
+    "@types/node": "^22.13.4",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue/eslint-config-prettier": "^10.1.0",
+    "@vue/eslint-config-typescript": "^14.3.0",
+    "@vue/tsconfig": "^0.7.0",
     "electron": "^34.1.1",
     "electron-builder": "^25.1.8",
     "eslint": "^9.18.0",
@@ -40,12 +47,16 @@
     "prettier": "^3.4.2",
     "sass": "^1.85.0",
     "sass-loader": "^16.0.5",
+    "typescript": "~5.7.3",
     "unplugin-auto-import": "^19.0.0",
     "unplugin-vue-components": "^28.0.0",
     "vite": "^6.0.11",
     "vite-electron-plugin": "^0.8.3",
     "vite-plugin-html": "^3.2.2",
-    "vite-plugin-vue-devtools": "^7.7.1"
+    "vite-plugin-vue-devtools": "^7.7.1",
+    "vue-tsc": "^2.2.0",
+    "jiti": "^2.4.2",
+    "npm-run-all2": "^7.0.2"
   },
   "build": {
     "appId": "io.github.hzhilong.appdatabackup",

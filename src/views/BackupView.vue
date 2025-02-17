@@ -1,7 +1,4 @@
-<script>
-export default {
-  name: 'Backup'
-}
+<script setup lang="ts">
 </script>
 
 <template>

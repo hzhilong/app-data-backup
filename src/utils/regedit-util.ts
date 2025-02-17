@@ -1,3 +1,4 @@
-const regedit = require('regedit').promisified
-regedit.setExternalVBSLocation('resources/regedit/vbs')
+import regeditBase from 'regedit'
 
+regeditBase.setExternalVBSLocation('resources/regedit/vbs')
+const regedit = regeditBase.promisified

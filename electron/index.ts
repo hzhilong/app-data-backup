@@ -8,7 +8,7 @@ import { app, BrowserWindow, globalShortcut, ipcMain } from 'electron'
 import path from 'path'
 
 // 定义全局变量获取 窗口实例
-let mainWindow
+let mainWindow: BrowserWindow
 
 // 关闭GPU加速
 app.disableHardwareAcceleration()
@@ -27,9 +27,9 @@ const createWindow = () => {
     resizable: true,
     webPreferences: {
       // 集成网页和 Node.js，也就是在渲染进程中，可以调用 Node.js 方法
-      contextIsolation: false,
-      nodeIntegration: true,
-      preload: path.join(path.resolve(), 'electron/preload.js'),
+      // contextIsolation: false,
+      // nodeIntegration: true,
+      preload: path.join(path.resolve(), 'electron/preload.ts'),
     },
     icon: path.join(path.resolve(), 'public/favicon.ico'),
     show: false,
@@ -70,10 +70,10 @@ const createWindow = () => {
 
   if (process.env.VITE_DEV_SERVER_URL) {
     // 开发
-    mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL).then((r) => {})
+    mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL).then(() => {})
   } else {
     // 生产
-    mainWindow.loadFile('dist/index.html').then((r) => {})
+    mainWindow.loadFile('dist/index.html').then(() => {})
   }
 }
 

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { RouterView } from 'vue-router'
 </script>
 
@@ -17,7 +17,7 @@ import { RouterView } from 'vue-router'
           :index="menu.viewPath"
           v-for="menu in menus"
           :key="menu.text"
-          @click="menu.onclick !== undefined ? menu.onclick(menu) : onClickMenu(menu)"
+          @click="menu.onclick !== undefined ? menu.onclick() : onClickMenu(menu)"
         >
           <span class="iconfont" :class="menu.iconClass"></span>
           <span>{{ menu.text }}</span>
@@ -50,15 +50,24 @@ import { RouterView } from 'vue-router'
   </el-container>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from 'vue'
 import { ThemeColorStore } from '@/stores/theme-color'
 
-export default {
+interface MenuItem {
+  text: string
+  menuTitle: string
+  iconClass: string
+  viewPath: string
+  onclick: () => void
+}
+
+export default defineComponent({
   components: {},
   data: function () {
     return {
-      windowMax: false,
-      appTitle: import.meta.env.APP_PRODUCT_NAME,
+      windowMax: false as boolean,
+      appTitle: import.meta.env.APP_PRODUCT_NAME as string,
       menus: [
         {
           text: '仪表盘',
@@ -94,23 +103,21 @@ export default {
           text: '退出',
           iconClass: 'icon-exit',
           viewPath: '/exit',
-          onclick: (menu) => {
+          onclick: () => {
             this.$appUtil.exitApp()
           },
         },
-      ],
+      ] as MenuItem[],
     }
   },
   computed: {
-    defaultMenuIndex() {
+    defaultMenuIndex(): string {
       // 当前页面所属菜单
-      const matchedItem = this.menus.find(item =>
-        item.viewPath === this.$route.path
-      )
+      const matchedItem = this.menus.find((item: MenuItem) => item.viewPath === this.$route.path)
       return matchedItem ? matchedItem.viewPath : this.menus[0].viewPath
     },
-    menuTitle: function () {
-      let menuTitle = this.$route.query.menuTitle
+    menuTitle: function (): string {
+      const menuTitle = this.$route.query.menuTitle
       return menuTitle !== undefined ? menuTitle : this.getMenuTitle(this.menus[0])
     },
   },
@@ -118,10 +125,10 @@ export default {
     ThemeColorStore().initThemeColor()
   },
   methods: {
-    getMenuTitle(menu) {
+    getMenuTitle(menu: MenuItem): string {
       return menu.menuTitle !== undefined ? menu.menuTitle : menu.text
     },
-    onClickMenu(menu) {
+    onClickMenu(menu: MenuItem): void {
       this.$router.push({
         path: menu.viewPath,
         query: {
@@ -131,7 +138,7 @@ export default {
       })
     },
   },
-}
+})
 </script>
 
 <style scoped lang="scss">

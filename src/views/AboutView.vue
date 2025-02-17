@@ -31,7 +31,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapActions } from 'pinia'
 import { ThemeColorStore } from '@/stores/theme-color'
 
@@ -44,7 +44,7 @@ export default {
     }
   },
   computed: {
-    appVersion: function () {
+    appVersion: function (): string {
       if (import.meta.env.MODE === 'production') {
         return import.meta.env.APP_VERSION
       } else {
@@ -52,8 +52,7 @@ export default {
       }
     },
   },
-  mounted() {
-  },
+  mounted() {},
   methods: {
     ...mapActions(ThemeColorStore, ['switchThemeColor', 'setDefaultTheme']),
   },

@@ -16,7 +16,7 @@ app.config.globalProperties.$appUtil = AppUtil
 
 app.use(ElementPlus, { size: 'small', zIndex: 3000 })
 
-let pinia = createPinia()
+const pinia = createPinia()
 pinia.use(piniaPluginPersistedState)
 app.use(pinia)
 app.use(router)

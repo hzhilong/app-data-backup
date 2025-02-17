@@ -2,12 +2,6 @@
   <router-view></router-view>
 </template>
 
-<script>
+<script setup lang="ts"></script>
 
-export default {
-  components: {},
-}
-</script>
-
-<style scoped lang="scss">
-</style>
+<style scoped lang="scss"></style>

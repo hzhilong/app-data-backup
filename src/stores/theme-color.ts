@@ -24,13 +24,16 @@ export const ThemeColorStore = defineStore('ThemeColorStore', {
         '#b439b4',
       ],
       colorIndex: 0,
-      primaryColor: '',
+      primaryColor: '#6284DF',
     }
   },
   getters: {
     getThemeColor: (state) => state.primaryColor,
   },
   actions: {
+    initThemeColor(){
+      switchTheme(this.primaryColor)
+    },
     switchThemeColor() {
       this.colorIndex++
       this.primaryColor = this.colors[this.colorIndex % this.colors.length]

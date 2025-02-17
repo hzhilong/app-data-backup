@@ -51,6 +51,8 @@ import { RouterView } from 'vue-router'
 </template>
 
 <script>
+import { ThemeColorStore } from '@/stores/theme-color'
+
 export default {
   components: {},
   data: function () {
@@ -90,7 +92,9 @@ export default {
       return menuTitle !== undefined ? menuTitle : this.getMenuTitle(this.menus[0])
     },
   },
-  mounted() {},
+  created() {
+    ThemeColorStore().initThemeColor()
+  },
   methods: {
     getMenuTitle(menu) {
       return menu.menuTitle !== undefined ? menu.menuTitle : menu.text

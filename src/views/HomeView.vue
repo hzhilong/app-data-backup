@@ -56,10 +56,10 @@ import { ThemeColorStore } from '@/stores/theme-color'
 
 interface MenuItem {
   text: string
-  menuTitle: string
+  menuTitle?: string
   iconClass: string
   viewPath: string
-  onclick: () => void
+  onclick?: () => void
 }
 
 export default defineComponent({

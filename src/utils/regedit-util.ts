@@ -1,4 +1,14 @@
-import regeditBase from 'regedit'
+import { promisified as regedit, setExternalVBSLocation } from 'regedit'
 
-regeditBase.setExternalVBSLocation('resources/regedit/vbs')
-const regedit = regeditBase.promisified
+setExternalVBSLocation('resources/regedit/vbs')
+
+export default {
+  findAllSoftware: async () => {
+    const registryPaths: string[] = [
+      'HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
+      // 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
+      // 'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
+    ]
+    return await regedit.list(registryPaths)
+  },
+}

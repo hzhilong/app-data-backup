@@ -117,7 +117,7 @@ export default defineComponent({
       return matchedItem ? matchedItem.viewPath : this.menus[0].viewPath
     },
     menuTitle: function (): string {
-      const menuTitle = this.$route.query.menuTitle
+      const menuTitle:string = this.$route.query.menuTitle as string
       return menuTitle !== undefined ? menuTitle : this.getMenuTitle(this.menus[0])
     },
   },
@@ -132,7 +132,6 @@ export default defineComponent({
       this.$router.push({
         path: menu.viewPath,
         query: {
-          // t: new Date().getTime(),
           menuTitle: this.getMenuTitle(menu),
         },
       })

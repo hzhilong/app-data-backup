@@ -14,3 +14,12 @@ declare module 'vue' {
     $appUtil: AppUtil
   }
 }
+
+// 全局类型
+declare global {
+  // 软件信息
+  interface Software {
+    name: string
+    installPath: string
+  }
+}

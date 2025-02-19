@@ -7,8 +7,7 @@ export default defineConfig(({ mode }) => {
   config.plugins.push(
     electron({
       include: ['electron'],
-      // 此处指向electron主进程文件
-      entry: 'electron/index.ts',
+      outDir: 'dist-electron',
     }),
   )
   return config

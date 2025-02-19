@@ -58,6 +58,7 @@ export default ({ mode }: { mode: string }) => {
   })
   console.log('========================================================')
   return {
+    base: './', // 关键！确保静态资源使用相对路径
     // 环境变量目录
     envDir: envDir,
     // 环境变量前缀

@@ -9,11 +9,12 @@ interface ImportMeta {
 }
 
 interface Window {
-  electronAPI?: {
+  windowAPI?: {
     closeWindow: () => void
     minWindow: () => void
     maxWindow: () => void
     browsePage: (url) => void
+    test: (url) => string
   }
 }
 

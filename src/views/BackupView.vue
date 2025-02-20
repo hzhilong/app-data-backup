@@ -1,5 +1,5 @@
 <template>
-  <div>{{ test }}</div>
+  <div v-loading.fullscreen.lock="fullscreenLoading" element-loading-text="正在获取已安卓的软件列表，请稍候...">{{ test }}</div>
 </template>
 
 <script lang="ts">
@@ -9,11 +9,13 @@ export default {
   data() {
     return {
       test: '备份页面',
+      fullscreenLoading: false,
     }
   },
   mounted() {
-    RegeditUtil.findAllSoftware().then((data) => {
-      console.log('view', data)
+    this.fullscreenLoading = true
+    RegeditUtil.initAllInstalledSoftware().finally(() => {
+      this.fullscreenLoading = false
     })
   },
 }

@@ -1,3 +1,4 @@
+import { CommonError } from '@/models/CommonError.ts'
 export default class BaseUtil {
   public static isCommonError(error: unknown): error is CommonError {
     return (

@@ -1,4 +1,4 @@
-import { IPC_CHANNELS } from '@/models/ipcChannels.ts'
+import { IPC_CHANNELS } from '@/models/IpcChannels.ts'
 
 export default {
   exitApp() {

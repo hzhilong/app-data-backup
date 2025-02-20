@@ -6,6 +6,17 @@
   padding-top: 1px;
   display: flex;
   background: $app-color-background;
+  position: relative;
+
+  &:before{
+    position: absolute;
+    content: '';
+    width: 100%;
+    height: $app-top-bar-height;
+    top: 0;
+    left: 0;
+    app-region: drag;
+  }
 
   .left-side {
     height: 100%;
@@ -104,7 +115,6 @@
       padding-left: 12px;
       font-size: 16px;
       font-weight: bold;
-      app-region: drag;
       box-sizing: border-box;
       position: relative;
 

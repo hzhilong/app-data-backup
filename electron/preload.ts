@@ -2,14 +2,31 @@
 // 它拥有与Chrome扩展一样的沙盒。
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const { contextBridge, ipcRenderer, shell } = require('electron')
+// const { contextBridge, ipcRenderer, shell} = require('electron')
+
+import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron'
 
 // 该项目需要动态执行js
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = String(true)
 
-contextBridge.exposeInMainWorld('windowAPI', {
-  closeWindow: () => ipcRenderer.send('window-close'),
-  minWindow: () => ipcRenderer.send('window-min'),
-  maxWindow: () => ipcRenderer.send('window-max'),
-  browsePage: (url: string) => shell.openExternal(url),
+contextBridge.exposeInMainWorld('electronAPI', {
+  // https://www.electronjs.org/zh/docs/latest/api/ipc-renderer
+  ipcSend(channel: IpcChannels, ...data: unknown[]) {
+    ipcRenderer.send(channel, ...data)
+  },
+  ipcSendSync(channel: IpcChannels, ...data: unknown[]) {
+    return ipcRenderer.sendSync(channel, ...data)
+  },
+  ipcOn(channel: IpcChannels, listener: (event: IpcRendererEvent, ...args: unknown[]) => void) {
+    ipcRenderer.on(channel, listener)
+  },
+  ipcOnce(channel: IpcChannels, listener: (event: IpcRendererEvent, ...args: unknown[]) => void) {
+    ipcRenderer.once(channel, listener)
+  },
+  ipcOff(channel: IpcChannels) {
+    ipcRenderer.removeAllListeners(channel)
+  },
+  ipcInvoke(channel: IpcChannels, ...data: unknown[]) {
+    return ipcRenderer.invoke(channel, ...data)
+  },
 })

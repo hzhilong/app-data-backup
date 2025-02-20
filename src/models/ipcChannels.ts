@@ -1,0 +1,9 @@
+export const IPC_CHANNELS = {
+  WINDOW_CLOSE: 'WINDOW_CLOSE',
+  WINDOW_MAX: 'WINDOW_MAX',
+  WINDOW_MIN: 'WINDOW_MIN',
+  BROWSE_PAGE: 'BROWSE_PAGE',
+  FIND_ALL_SOFTWARE: 'FIND_ALL_SOFTWARE',
+} as const
+
+export type IpcChannels = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS]

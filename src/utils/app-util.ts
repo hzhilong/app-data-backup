@@ -1,24 +1,26 @@
+import { IPC_CHANNELS } from '@/models/ipcChannels.ts'
+
 export default {
   exitApp() {
-    if (window.windowAPI) {
-      window.windowAPI.closeWindow()
+    if (window.electronAPI) {
+      window.electronAPI.ipcSend(IPC_CHANNELS.WINDOW_CLOSE)
     } else {
       // 非 Electron 环境，忽略窗口关闭操作
     }
   },
   maxApp() {
-    if (window.windowAPI) {
-      window.windowAPI.maxWindow()
+    if (window.electronAPI) {
+      window.electronAPI.ipcSend(IPC_CHANNELS.WINDOW_MAX)
     }
   },
   minApp() {
-    if (window.windowAPI) {
-      window.windowAPI.minWindow()
+    if (window.electronAPI) {
+      window.electronAPI.ipcSend(IPC_CHANNELS.WINDOW_MIN)
     }
   },
   browsePage(url: string) {
-    if (window.windowAPI) {
-      window.windowAPI.browsePage(url)
+    if (window.electronAPI) {
+      window.electronAPI.ipcSend(IPC_CHANNELS.BROWSE_PAGE, url)
     }
   },
 }

@@ -10,7 +10,7 @@
     "url": "https://github.com/hzhilong/app-data-backup"
   },
   "private": true,
-  "main": "dist-electron/index.js",
+  "main": "dist-electron/main.js",
   "scripts": {
     "dev": "vite",
     "dev-e": "vite --config vite.electron.config.ts",
@@ -33,8 +33,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.18.0",
-    "@types/electron": "^1.4.38",
     "@tsconfig/node22": "^22.0.0",
+    "@types/electron": "^1.4.38",
     "@types/node": "^22.13.4",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue/eslint-config-prettier": "^10.1.0",
@@ -44,6 +44,8 @@
     "electron-builder": "^25.1.8",
     "eslint": "^9.18.0",
     "eslint-plugin-vue": "^9.32.0",
+    "jiti": "^2.4.2",
+    "npm-run-all2": "^7.0.2",
     "prettier": "^3.4.2",
     "sass": "^1.85.0",
     "sass-loader": "^16.0.5",
@@ -51,12 +53,10 @@
     "unplugin-auto-import": "^19.0.0",
     "unplugin-vue-components": "^28.0.0",
     "vite": "^6.0.11",
-    "vite-electron-plugin": "^0.8.3",
+    "vite-plugin-electron": "^0.29.0",
     "vite-plugin-html": "^3.2.2",
     "vite-plugin-vue-devtools": "^7.7.1",
-    "vue-tsc": "^2.2.0",
-    "jiti": "^2.4.2",
-    "npm-run-all2": "^7.0.2"
+    "vue-tsc": "^2.2.0"
   },
   "build": {
     "appId": "io.github.hzhilong.appdatabackup",

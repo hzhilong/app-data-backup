@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { AllInstalledSoftware, type SoftwareRegeditPath } from '@/models/Software.ts'
+import { type AllInstalledSoftware, Software, type SoftwareRegeditPath } from '@/models/Software.ts'
 
 export const SoftwareStore = defineStore('SoftwareStore', {
   state: () => {

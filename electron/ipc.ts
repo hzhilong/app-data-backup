@@ -2,7 +2,7 @@ import { app, ipcMain, shell } from 'electron'
 import { promisified as regedit, RegistryItem, setExternalVBSLocation } from 'regedit'
 import path from 'node:path'
 import { IPC_CHANNELS } from '../src/models/IpcChannels'
-import { Software, SOFTWARE_REGEDIT_PATH, SoftwareRegeditPath } from '../src/models/Software'
+import { Software, SoftwareRegeditPath } from '../src/models/Software'
 import BrowserWindow = Electron.BrowserWindow
 
 if (process.env.NODE_ENV === 'development') {
@@ -33,7 +33,7 @@ export default {
       shell.openExternal(url)
     })
 
-    ipcMain.handle(IPC_CHANNELS.FIND_ALL_SOFTWARE, (event, regeditPath: SoftwareRegeditPath) => {
+    ipcMain.handle(IPC_CHANNELS.GET_INSTALLED_SOFTWARE, (event, regeditPath: SoftwareRegeditPath) => {
       return new Promise(async (resolve, reject) => {
         try {
           const pathList = await regedit.list([regeditPath])
@@ -58,7 +58,7 @@ export default {
                 if (software) {
                   if (software.iconPath) {
                     try {
-                      software.base64Icon = (await app.getFileIcon(software.iconPath)).toDataURL()
+                      software.base64Icon = (await app.getFileIcon(path.dirname(software.iconPath))).toDataURL()
                       // eslint-disable-next-line @typescript-eslint/no-unused-vars
                     } catch (e: unknown) {}
                   }

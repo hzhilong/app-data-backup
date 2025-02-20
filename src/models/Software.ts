@@ -1,5 +1,4 @@
 import type { RegistryItemValue } from 'regedit'
-import path from 'path'
 
 export const SOFTWARE_REGEDIT_PATH = {
   // 存储 32 位应用程序 在 64 位 Windows 系统 中的卸载信息(为了避免 32 位和 64 位程序的注册表冲突，32 位程序的注册表项会被重定向到 WOW6432Node 路径下。为了避免 32 位和 64 位程序的注册表冲突，32 位程序的注册表项会被重定向到 WOW6432Node 路径下。)
@@ -19,31 +18,31 @@ export const SOFTWARE_REGEDIT_DESC = {
 export type SoftwareRegeditPath = (typeof SOFTWARE_REGEDIT_PATH)[keyof typeof SOFTWARE_REGEDIT_PATH]
 export type SoftwareRegeditPathKey = keyof typeof SOFTWARE_REGEDIT_PATH
 
-export class InstalledSoftware {
+export type InstalledSoftware = {
   title: string
   list: Software[]
 }
 
-export class AllInstalledSoftware {
-  [path: SoftwareRegeditPath]: InstalledSoftware
+export type AllInstalledSoftware = {
+  [path in SoftwareRegeditPath]: InstalledSoftware
 }
 
 export class Software {
-  regeditDir: string
-  regeditName: string
-  regeditValues: { [p: string]: RegistryItemValue }
-  name: string
-  nameWithoutVersion: string
-  version: string
-  publisher: string
-  installPath: string
-  installDate: string
-  formatSize: string
-  uninstallCmd: string
-  url: string
-  displayIcon: string
-  iconPath: string
-  base64Icon: string
+  regeditDir!: string
+  regeditName!: string
+  regeditValues!: { [p: string]: RegistryItemValue }
+  name!: string
+  nameWithoutVersion!: string
+  version!: string
+  publisher!: string
+  installPath!: string
+  installDate!: string
+  formatSize!: string
+  uninstallCmd!: string
+  url!: string
+  displayIcon?: string
+  iconPath?: string
+  base64Icon?: string
 
   public static parseSoftwareEntry(
     regeditDir: string,
@@ -52,7 +51,7 @@ export class Software {
       [p: string]: RegistryItemValue
     },
   ): Software | null {
-    const name = entry.DisplayName?.value
+    const name: string = entry.DisplayName?.value as string
     if (!name || name.startsWith('KB')) {
       // 过滤Windows更新
       return null
@@ -63,17 +62,17 @@ export class Software {
       regeditValues: entry,
       name: name,
       nameWithoutVersion: '',
-      version: this.parseVersion(entry),
-      publisher: entry.Publisher?.value,
+      version: this.parseVersion(entry) as string,
+      publisher: entry.Publisher?.value as string,
       installPath: this.cleanPath(this.getInstallPath(entry)),
-      installDate: this.parseInstallDate(entry.InstallDate?.value),
+      installDate: this.parseInstallDate(entry.InstallDate?.value as string),
       formatSize: this.formatSize(entry.EstimatedSize),
-      uninstallCmd: entry.UninstallString?.value,
-      url: entry.URLUpdateInfo?.value,
-      displayIcon: entry.DisplayIcon?.value,
+      uninstallCmd: entry.UninstallString?.value as string,
+      url: entry.URLUpdateInfo?.value as string,
+      displayIcon: entry.DisplayIcon?.value as string,
     }
     soft.nameWithoutVersion = this.parseNameWithoutVersion(soft)
-    soft.iconPath = this.parseIconPath(soft)
+    soft.iconPath = this.parseIconPath(soft) as string
     return soft
   }
 
@@ -91,11 +90,11 @@ export class Software {
     }
   }
 
-  static formatSize(estimatedSize) {
+  static formatSize(estimatedSize: RegistryItemValue) {
     if (!estimatedSize || !estimatedSize.value) {
       return ''
     }
-    let size = estimatedSize.value * 100
+    let size = (estimatedSize.value as number) * 100
     // 定义文件大小单位
     const units = ['KB', 'MB', 'GB']
     // 计算文件大小的单位和对应的大小
@@ -106,10 +105,10 @@ export class Software {
       unitIndex++
     }
     let newSize = Math.round(size) / 100
-    const [integerPart, decimalPart] = ('' + newSize).split('.')
+    const integerPart = ('' + newSize).split('.')[0]
     if (integerPart.length > 2) {
       newSize = Number(integerPart)
-    } else if (integerPart > 1) {
+    } else if (integerPart.length > 1) {
       newSize = Math.round(size / 10) / 10
     }
     return `${newSize} ${units[unitIndex]}`
@@ -134,29 +133,28 @@ export class Software {
     return soft.name
   }
 
-  static getInstallPath(values: { [p: string]: RegistryItemValue }) {
+  static getInstallPath(values: { [p: string]: RegistryItemValue }):string {
     // 优先尝试InstallLocation
     if (values.InstallLocation?.value) {
-      return values.InstallLocation.value
+      return values.InstallLocation.value as string
     }
 
     // 次选DisplayIcon路径解析
     if (values.DisplayIcon?.value) {
-      const iconPath = values.DisplayIcon.value.split(',')[0].trim()
-      return path.dirname(iconPath)
+      return (values.DisplayIcon.value as string).split(',')[0].trim()
     }
 
-    return null
+    return ''
   }
 
-  static cleanPath(rawPath) {
-    if (!rawPath) return null
+  static cleanPath(rawPath: string) {
+    if (!rawPath) return ''
     const cleaned = rawPath.replace(/^"+|"+$/g, '') // 去除首尾引号
     return cleaned.endsWith('\\') ? cleaned.slice(0, -1) : cleaned
   }
 
-  static parseInstallDate(dateStr) {
-    if (!dateStr || dateStr.length !== 8) return null
+  static parseInstallDate(dateStr: string) {
+    if (!dateStr || dateStr.length !== 8) return ''
     return `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}-${dateStr.slice(6, 8)}`
   }
 }

@@ -33,45 +33,54 @@ export default {
       shell.openExternal(url)
     })
 
-    ipcMain.handle(IPC_CHANNELS.GET_INSTALLED_SOFTWARE, (event, regeditPath: SoftwareRegeditPath) => {
-      return new Promise(async (resolve, reject) => {
-        try {
-          const pathList = await regedit.list([regeditPath])
-          const pathResult: RegistryItem = pathList[regeditPath]
-          if (!pathResult.exists || !pathResult.keys) {
-            resolve([])
-          } else {
-            const softArr: Software[] = []
-            const subPathNames:Record<string, string> = {}
-            const subPaths:string[] = []
-            for (const key of pathResult.keys) {
-              const subPath = `${regeditPath}\\${key}`
-              subPathNames[subPath] = key
-              subPaths.push(subPath)
-            }
-            const subPathResults = await regedit.list(subPaths)
-            for (const softPath in subPathResults) {
-              const infoResult: RegistryItem = subPathResults[softPath]
-              if (!infoResult.exists) {
-              } else {
-                const software = Software.parseSoftwareEntry(regeditPath, subPathNames[softPath], infoResult.values)
-                if (software) {
-                  if (software.iconPath) {
-                    try {
-                      software.base64Icon = (await app.getFileIcon(path.dirname(software.iconPath))).toDataURL()
-                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                    } catch (e: unknown) {}
+    ipcMain.handle(
+      IPC_CHANNELS.GET_INSTALLED_SOFTWARE,
+      (event, regeditPath: SoftwareRegeditPath) => {
+        return new Promise(async (resolve, reject) => {
+          try {
+            const pathList = await regedit.list([regeditPath])
+            const pathResult: RegistryItem = pathList[regeditPath]
+            if (!pathResult.exists || !pathResult.keys) {
+              resolve([])
+            } else {
+              const softArr: Software[] = []
+              const subPathNames: Record<string, string> = {}
+              const subPaths: string[] = []
+              for (const key of pathResult.keys) {
+                const subPath = `${regeditPath}\\${key}`
+                subPathNames[subPath] = key
+                subPaths.push(subPath)
+              }
+              const subPathResults = await regedit.list(subPaths)
+              for (const softPath in subPathResults) {
+                const infoResult: RegistryItem = subPathResults[softPath]
+                if (!infoResult.exists) {
+                } else {
+                  const software = Software.parseSoftwareEntry(
+                    regeditPath,
+                    subPathNames[softPath],
+                    infoResult.values,
+                  )
+                  if (software) {
+                    if (software.iconPath) {
+                      try {
+                        software.base64Icon = (
+                          await app.getFileIcon(path.dirname(software.iconPath))
+                        ).toDataURL()
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                      } catch (e: unknown) {}
+                    }
+                    softArr.push(software)
                   }
-                  softArr.push(software)
                 }
               }
+              resolve(softArr)
             }
-            resolve(softArr)
+          } catch (error) {
+            reject(error)
           }
-        } catch (error) {
-          reject(error)
-        }
-      })
-    })
+        })
+      },
+    )
   },
 }

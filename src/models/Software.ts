@@ -1,5 +1,8 @@
 import type { RegistryItemValue } from 'regedit'
 
+/**
+ * 存储软件信息的注册表路径
+ */
 export const SOFTWARE_REGEDIT_PATH = {
   // 存储 32 位应用程序 在 64 位 Windows 系统 中的卸载信息(为了避免 32 位和 64 位程序的注册表冲突，32 位程序的注册表项会被重定向到 WOW6432Node 路径下。为了避免 32 位和 64 位程序的注册表冲突，32 位程序的注册表项会被重定向到 WOW6432Node 路径下。)
   PATH_SYSTEM_32: 'HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
@@ -9,22 +12,63 @@ export const SOFTWARE_REGEDIT_PATH = {
   PATH_USER: 'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
 } as const
 
+/**
+ * 存储软件信息的注册表路径描述
+ */
 export const SOFTWARE_REGEDIT_DESC = {
   PATH_SYSTEM_32: '32位系统软件',
   PATH_SYSTEM_64: '64位系统软件',
   PATH_USER: '用户软件',
 } as const
 
+/**
+ * 存储软件信息的注册表 值联合类型
+ */
 export type SoftwareRegeditPath = (typeof SOFTWARE_REGEDIT_PATH)[keyof typeof SOFTWARE_REGEDIT_PATH]
+
+/**
+ * 存储软件信息的注册表 键联合类型
+ */
 export type SoftwareRegeditPathKey = keyof typeof SOFTWARE_REGEDIT_PATH
+
+export const BACKUP_TYPE_KEY = {
+  PORTABLE: 'PORTABLE',
+  CUSTOM: 'CUSTOM',
+}
+
+/**
+ * 备份的软件类型
+ */
+export const BACKUP_TYPE_DESC = {
+  ...SOFTWARE_REGEDIT_DESC,
+  [BACKUP_TYPE_KEY.PORTABLE]: '免安装',
+  [BACKUP_TYPE_KEY.CUSTOM]: '自定义'
+}
+
+/**
+ * 备份的软件类型 键联合类型
+ */
+export type BackupTypeKey = keyof typeof BACKUP_TYPE_DESC
 
 export type InstalledSoftware = {
   title: string
   list: Software[]
+  totalNumber: number
+  totalSize: string
 }
 
 export type AllInstalledSoftware = {
-  [path in SoftwareRegeditPath]: InstalledSoftware
+  [path in SoftwareRegeditPathKey]: InstalledSoftware
+}
+
+export type BackupableSoftware = {
+  title: string
+  totalNumber: number
+  backupableNumber: number
+}
+
+export type AllBackupableSoftware = {
+  [path in BackupTypeKey]: BackupableSoftware
 }
 
 export class Software {
@@ -37,6 +81,7 @@ export class Software {
   publisher!: string
   installPath!: string
   installDate!: string
+  size!: number
   formatSize!: string
   uninstallCmd!: string
   url!: string
@@ -66,7 +111,8 @@ export class Software {
       publisher: entry.Publisher?.value as string,
       installPath: this.cleanPath(this.getInstallPath(entry)),
       installDate: this.parseInstallDate(entry.InstallDate?.value as string),
-      formatSize: this.formatSize(entry.EstimatedSize),
+      size: entry.EstimatedSize?.value as number,
+      formatSize: this.formatSize(entry.EstimatedSize?.value as number),
       uninstallCmd: entry.UninstallString?.value as string,
       url: entry.URLUpdateInfo?.value as string,
       displayIcon: entry.DisplayIcon?.value as string,
@@ -90,11 +136,11 @@ export class Software {
     }
   }
 
-  static formatSize(estimatedSize: RegistryItemValue) {
-    if (!estimatedSize || !estimatedSize.value) {
+  public static formatSize(estimatedSize: number) {
+    if (!estimatedSize) {
       return ''
     }
-    let size = (estimatedSize.value as number) * 100
+    let size = (estimatedSize as number) * 100
     // 定义文件大小单位
     const units = ['KB', 'MB', 'GB']
     // 计算文件大小的单位和对应的大小
@@ -133,7 +179,7 @@ export class Software {
     return soft.name
   }
 
-  static getInstallPath(values: { [p: string]: RegistryItemValue }):string {
+  static getInstallPath(values: { [p: string]: RegistryItemValue }): string {
     // 优先尝试InstallLocation
     if (values.InstallLocation?.value) {
       return values.InstallLocation.value as string

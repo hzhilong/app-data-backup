@@ -48,8 +48,8 @@ const createWindow = () => {
     titleBarStyle: 'hidden',
     // 在 Windows/Linux 上添加窗口的控件
     // ...(process.platform !== 'darwin' ? { titleBarOverlay: true } : {}),
-    minWidth: 750,
-    minHeight: 500,
+    minWidth: 900,
+    minHeight: 700,
     resizable: true,
     webPreferences: {
       sandbox: true,

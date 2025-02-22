@@ -70,23 +70,23 @@ export default defineComponent({
       appTitle: import.meta.env.APP_PRODUCT_NAME as string,
       menus: [
         {
-          text: '仪表盘',
-          iconClass: 'icon-app-data',
+          text: '首页',
+          iconClass: 'icon-dashboard',
           viewPath: '/dashboard',
         },
         {
           text: '数据备份',
-          iconClass: 'icon-app-data',
+          iconClass: 'icon-app',
           viewPath: '/backup',
         },
         {
           text: '数据还原',
-          iconClass: 'icon-app-data',
+          iconClass: 'icon-app',
           viewPath: '/res',
         },
         {
           text: '应用管理',
-          iconClass: 'icon-app-data',
+          iconClass: 'icon-app',
           viewPath: '/man',
         },
         {

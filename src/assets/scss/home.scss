@@ -40,9 +40,9 @@
         color: $app-color-primary;
 
         .app-logo {
-          width: 24px;
-          height: 24px;
-          margin-right: 8px;
+          width: 28px;
+          height: 28px;
+          margin-right: 4px;
           display: inline-block;
           mask: url('@/assets/logo.svg') no-repeat center / contain;
           -webkit-mask: url('@/assets/logo.svg') no-repeat center / contain;
@@ -168,6 +168,7 @@
         border-radius: 10px;
         color: $app-color-content-color;
         box-shadow: inset 0px 0px 4px 0px $app-color-border;
+        overflow: auto;
       }
     }
   }

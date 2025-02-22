@@ -6,6 +6,34 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "42197945",
+      "name": "dashboard-3-line",
+      "font_class": "dashboard",
+      "unicode": "e77c",
+      "unicode_decimal": 59260
+    },
+    {
+      "icon_id": "10268863",
+      "name": "关于我们",
+      "font_class": "about",
+      "unicode": "e691",
+      "unicode_decimal": 59025
+    },
+    {
+      "icon_id": "26512340",
+      "name": "软件管理",
+      "font_class": "app-manage",
+      "unicode": "e64d",
+      "unicode_decimal": 58957
+    },
+    {
+      "icon_id": "1177692",
+      "name": "软件",
+      "font_class": "app",
+      "unicode": "e624",
+      "unicode_decimal": 58916
+    },
+    {
       "icon_id": "1299763",
       "name": "最小化",
       "font_class": "min",
@@ -53,13 +81,6 @@
       "font_class": "setting",
       "unicode": "e60f",
       "unicode_decimal": 58895
-    },
-    {
-      "icon_id": "11641882",
-      "name": "关于",
-      "font_class": "about",
-      "unicode": "e622",
-      "unicode_decimal": 58914
     }
   ]
 }

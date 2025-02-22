@@ -1,9 +1,9 @@
 @font-face {
   font-family: "iconfont"; /* Project id 4827910 */
-  src: url('iconfont.woff2?t=1739779340555') format('woff2'),
-       url('iconfont.woff?t=1739779340555') format('woff'),
-       url('iconfont.ttf?t=1739779340555') format('truetype'),
-       url('iconfont.svg?t=1739779340555#iconfont') format('svg');
+  src: url('iconfont.woff2?t=1740117422948') format('woff2'),
+       url('iconfont.woff?t=1740117422948') format('woff'),
+       url('iconfont.ttf?t=1740117422948') format('truetype'),
+       url('iconfont.svg?t=1740117422948#iconfont') format('svg');
 }
 
 .iconfont {
@@ -12,6 +12,22 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-dashboard:before {
+  content: "\e77c";
+}
+
+.icon-about:before {
+  content: "\e691";
+}
+
+.icon-app-manage:before {
+  content: "\e64d";
+}
+
+.icon-app:before {
+  content: "\e624";
 }
 
 .icon-min:before {
@@ -40,9 +56,5 @@
 
 .icon-setting:before {
   content: "\e60f";
-}
-
-.icon-about:before {
-  content: "\e622";
 }
 

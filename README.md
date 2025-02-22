@@ -5,8 +5,11 @@
 - 软件备份库修改
 - 自定义
 
+// TODO https://github.com/electron-userland/electron-json-storage
+
 版本限制
 
 ## 感谢
 
 - [node-regedit](https://github.com/kessler/node-regedit)
+- [iconfont](https://www.iconfont.cn/)

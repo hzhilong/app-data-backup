@@ -129,12 +129,12 @@ export const BACKUP_SOFTWARE_TYPE: BackupSoftwareType = {
     desc: '从注册表读取的已安装软件',
   },
   [BACKUP_SOFTWARE_TYPE_KEY.PORTABLE]: {
-    title: '免安装',
+    title: '免安装、绿色软件',
     desc: '免安装的绿色软件',
   },
   [BACKUP_SOFTWARE_TYPE_KEY.CUSTOM]: {
     title: '自定义',
-    desc: '自定义添加',
+    desc: '自定义',
   },
 } as const
 

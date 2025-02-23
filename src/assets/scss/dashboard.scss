@@ -59,7 +59,7 @@
 
     $card-gap-x: 20px;
     $card-width: min(calc((100% - $card-gap-x) / 3), 180px);
-    $cards-single-width: min(calc((100% - $card-gap-x) / 2), 300px);
+    $cards-single-width: min(calc((100% - $card-gap-x) / 2), 200px);
     $card-padding: 5px 10px;
 
     .cards{

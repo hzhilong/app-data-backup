@@ -29,28 +29,15 @@
         <div class="card-info">
           <div class="info-item" v-for="(type, typeKey) in softwareLib" :key="type.title">
             {{ type.title }}：
-            <div
-              class="proportion-chart"
-              :total-number="totalInstalledNumber"
-              v-if="typeKey === BACKUP_SOFTWARE_TYPE_KEY.INSTALLER"
-            >
-              <div
-                class="value"
-                :style="{
-                  width: parseInt(String(((type.list ? type.list.length : 0) * 100) / totalInstalledNumber)) + '%',
-                }"
-                :total-number="totalInstalledNumber"
-              >
-                {{ type.list ? type.list.length : 0 }}
-              </div>
-            </div>
-            <div class="value" v-else>{{ type.list ? type.list.length : 0 }}</div>
+            <div class="value">{{ type.list ? type.list.length : 0 }}</div>
           </div>
         </div>
       </div>
     </div>
     <div class="content-wrapper">
-      <div class="title">已备份的数据</div>
+      <div class="header">
+        <div class="title">已备份的数据</div>
+      </div>
     </div>
   </div>
 </template>
@@ -108,8 +95,8 @@ export default {
         this.refreshDataFromDB()
       } else if (this.initialized) {
         // 已初始化
-        this.initSoftwareLib()
       }
+      this.initSoftwareLib()
     },
     refreshDataFromDB() {
       this.setInitializing(true)
@@ -132,6 +119,7 @@ export default {
           }
         }
         this.allInstalledSoftware = data
+        this.setInitialized(true)
       }).finally(() => {
         this.setInitializing(false)
       })

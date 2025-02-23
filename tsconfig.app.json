@@ -2,10 +2,12 @@
   "extends": "@vue/tsconfig/tsconfig.dom.json",  // 继承 Vue 官方提供的 DOM 环境基础配置
   "include": [                                   // 包含以下文件进行类型检查和编译
     "env.d.ts",                                  // 全局类型声明文件
+    "auto-imports.d.ts",                         // 自动引入的组件声明文件
+    "components.d.ts",                           // 自动引入的组件声明文件
     "src/**/*",                                  // src 目录下所有文件（含子目录）
     "src/**/*.vue"                               // 所有 Vue 单文件组件
   ],
-  "exclude": ["src/**/__tests__/*"],             // 排除测试目录下的文件
+  "exclude": ["node_modules","src/**/__tests__/*"],             // 排除测试目录下的文件
   "compilerOptions": {                           // 编译器选项
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo", // 增量编译信息存储位置
     "paths": {                                   // 路径别名配置

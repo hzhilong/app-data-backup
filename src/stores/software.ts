@@ -1,11 +1,9 @@
 import { defineStore } from 'pinia'
 import {
   type AllInstalledSoftware,
-  Software,
-  SOFTWARE_REGEDIT_DESC,
-  SOFTWARE_REGEDIT_PATH,
-  type SoftwareRegeditPath,
-  type SoftwareRegeditPathKey,
+  type InstalledSoftware, SOFTWARE_REGEDIT_GROUP,
+  type SoftwareRegeditGroupKey,
+  SoftwareUtil
 } from '@/models/Software.ts'
 
 type SoftwareStoreState = {
@@ -23,7 +21,10 @@ export const SoftwareStore = defineStore('SoftwareStore', {
       state.allInstalledSoftware,
   },
   actions: {
-    setInstalledSoftware(pathKey: SoftwareRegeditPathKey, list: Software[]) {
+    setInstalledSoftware(
+      groupKey: SoftwareRegeditGroupKey,
+      list: InstalledSoftware[],
+    ) {
       const totalSize = list
         ? list.reduce((sum, item) => {
             if (item.size) {
@@ -34,13 +35,13 @@ export const SoftwareStore = defineStore('SoftwareStore', {
           }, 0)
         : 0
 
-      this.allInstalledSoftware[pathKey] = {
-        title: SOFTWARE_REGEDIT_DESC[pathKey],
+      this.allInstalledSoftware[groupKey] = {
+        title: SOFTWARE_REGEDIT_GROUP[groupKey].title,
         list: list,
         totalNumber: list ? list.length : 0,
-        totalSize: Software.formatSize(totalSize),
+        totalSize: SoftwareUtil.formatSize(totalSize),
       }
     },
   },
-  persist: true,
+  persist: false,
 })

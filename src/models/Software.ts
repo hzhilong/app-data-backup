@@ -1,107 +1,176 @@
 import type { RegistryItemValue } from 'regedit'
 
 /**
- * 存储软件信息的注册表路径
+ * 软件信息注册表的分组key
  */
-export const SOFTWARE_REGEDIT_PATH = {
-  // 存储 32 位应用程序 在 64 位 Windows 系统 中的卸载信息(为了避免 32 位和 64 位程序的注册表冲突，32 位程序的注册表项会被重定向到 WOW6432Node 路径下。为了避免 32 位和 64 位程序的注册表冲突，32 位程序的注册表项会被重定向到 WOW6432Node 路径下。)
-  PATH_SYSTEM_32: 'HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
-  // 存放在系统范围内安装的 64 位应用程序的卸载信息（以及在 32 位系统上安装的所有程序的信息）
-  PATH_SYSTEM_64: 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
-  // 存储 当前用户 安装的应用程序的卸载信息（无论是 32 位还是 64 位）。
-  PATH_USER: 'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
+export const SOFTWARE_REGEDIT_GROUP_KEY = {
+  PATH_SYSTEM_32: 'PATH_SYSTEM_32',
+  PATH_SYSTEM_64: 'PATH_SYSTEM_64',
+  PATH_USER: 'PATH_USER',
 } as const
 
 /**
- * 存储软件信息的注册表路径描述
+ * 软件信息注册表的分组key
  */
-export const SOFTWARE_REGEDIT_DESC = {
-  PATH_SYSTEM_32: '32位系统软件',
-  PATH_SYSTEM_64: '64位系统软件',
-  PATH_USER: '用户软件',
+export type SoftwareRegeditGroupKey = keyof typeof SOFTWARE_REGEDIT_GROUP_KEY
+
+/**
+ * 软件信息注册表的分组
+ */
+export type SoftwareRegeditGroup = {
+  [groupKey in SoftwareRegeditGroupKey]: {
+    // 路径
+    path: string
+    // 标题
+    title: string
+    // 描述
+    desc: string
+  }
+}
+
+/**
+ * 软件信息注册表的分组
+ */
+export const SOFTWARE_REGEDIT_GROUP: SoftwareRegeditGroup = {
+  [SOFTWARE_REGEDIT_GROUP_KEY.PATH_SYSTEM_32]: {
+    path: 'HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
+    title: '32位系统软件',
+    desc: '存储32位应用程序在64位系统中的卸载信息(为了避免32位和64位程序的注册表冲突，32位程序的注册表项会被重定向到WOW6432Node路径下)',
+  },
+  [SOFTWARE_REGEDIT_GROUP_KEY.PATH_SYSTEM_64]: {
+    path: 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
+    title: '64位系统软件',
+    desc: '存放在系统范围内安装的 64 位应用程序的卸载信息（以及在 32 位系统上安装的所有程序的信息）',
+  },
+  [SOFTWARE_REGEDIT_GROUP_KEY.PATH_USER]: {
+    path: 'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
+    title: '用户软件',
+    desc: '存储当前用户安装的应用程序的卸载信息（无论是 32 位还是 64 位）',
+  },
 } as const
 
 /**
- * 存储软件信息的注册表 值联合类型
+ * 软件信息注册表的路径 值联合类型
  */
-export type SoftwareRegeditPath = (typeof SOFTWARE_REGEDIT_PATH)[keyof typeof SOFTWARE_REGEDIT_PATH]
+export type SoftwareRegeditPath =
+  (typeof SOFTWARE_REGEDIT_GROUP)[keyof typeof SOFTWARE_REGEDIT_GROUP]['path']
 
 /**
- * 存储软件信息的注册表 键联合类型
+ * 已安装的软件
  */
-export type SoftwareRegeditPathKey = keyof typeof SOFTWARE_REGEDIT_PATH
+export type InstalledSoftware = {
+  regeditGroupKey: SoftwareRegeditGroupKey
+  regeditDir: string
+  regeditName: string
+  regeditValues: { [p: string]: RegistryItemValue }
+  name: string
+  nameWithoutVersion: string
+  version: string
+  publisher: string
+  installPath: string
+  installDate: string
+  size: number
+  formatSize: string
+  uninstallCmd: string
+  url: string
+  displayIcon?: string
+  iconPath?: string
+  base64Icon?: string
+}
 
-export const BACKUP_TYPE_KEY = {
+/**
+ * 已安装的软件列表
+ */
+export type InstalledSoftwareGroup = {
+  title: string
+  list: InstalledSoftware[]
+  totalNumber: number
+  totalSize: string
+}
+
+/**
+ * 所有已安装的软件
+ */
+export type AllInstalledSoftware = {
+  [groupKey in SoftwareRegeditGroupKey]: InstalledSoftwareGroup
+}
+
+/**
+ * 备份的软件类型key
+ */
+export const BACKUP_SOFTWARE_TYPE_KEY = {
+  INSTALLER: 'INSTALLER',
   PORTABLE: 'PORTABLE',
   CUSTOM: 'CUSTOM',
+} as const
+
+/**
+ * 备份的软件类型key
+ */
+export type BackupSoftwareTypeKey = keyof typeof BACKUP_SOFTWARE_TYPE_KEY
+
+/**
+ * 备份的软件类型
+ */
+export type BackupSoftwareType = {
+  [typeKey in BackupSoftwareTypeKey]: {
+    // 标题
+    title: string
+    desc: string
+  }
 }
 
 /**
  * 备份的软件类型
  */
-export const BACKUP_TYPE_DESC = {
-  ...SOFTWARE_REGEDIT_DESC,
-  [BACKUP_TYPE_KEY.PORTABLE]: '免安装',
-  [BACKUP_TYPE_KEY.CUSTOM]: '自定义'
+export const BACKUP_SOFTWARE_TYPE: BackupSoftwareType = {
+  [BACKUP_SOFTWARE_TYPE_KEY.INSTALLER]: {
+    title: '安装程序',
+    desc: '从注册表读取的已安装软件',
+  },
+  [BACKUP_SOFTWARE_TYPE_KEY.PORTABLE]: {
+    title: '免安装',
+    desc: '免安装的绿色软件',
+  },
+  [BACKUP_SOFTWARE_TYPE_KEY.CUSTOM]: {
+    title: '自定义',
+    desc: '自定义添加',
+  },
+} as const
+
+/**
+ * 软件数据备份配置
+ */
+export type SoftwareBackupConfig = {
+  softwareType: BackupSoftwareTypeKey
+  softwareName: string
 }
 
 /**
- * 备份的软件类型 键联合类型
+ * 支持备份数据的软件库
  */
-export type BackupTypeKey = keyof typeof BACKUP_TYPE_DESC
-
-export type InstalledSoftware = {
-  title: string
-  list: Software[]
-  totalNumber: number
-  totalSize: string
+export type SoftwareLib = {
+  [typeKey in BackupSoftwareTypeKey]: BackupSoftwareType[typeKey] & {
+    list: null | SoftwareBackupConfig[]
+  }
 }
 
-export type AllInstalledSoftware = {
-  [path in SoftwareRegeditPathKey]: InstalledSoftware
-}
-
-export type BackupableSoftware = {
-  title: string
-  totalNumber: number
-  backupableNumber: number
-}
-
-export type AllBackupableSoftware = {
-  [path in BackupTypeKey]: BackupableSoftware
-}
-
-export class Software {
-  regeditDir!: string
-  regeditName!: string
-  regeditValues!: { [p: string]: RegistryItemValue }
-  name!: string
-  nameWithoutVersion!: string
-  version!: string
-  publisher!: string
-  installPath!: string
-  installDate!: string
-  size!: number
-  formatSize!: string
-  uninstallCmd!: string
-  url!: string
-  displayIcon?: string
-  iconPath?: string
-  base64Icon?: string
-
+export class SoftwareUtil {
   public static parseSoftwareEntry(
+    regeditGroupKey: SoftwareRegeditGroupKey,
     regeditDir: string,
     regeditName: string,
     entry: {
       [p: string]: RegistryItemValue
     },
-  ): Software | null {
+  ): InstalledSoftware | null {
     const name: string = entry.DisplayName?.value as string
     if (!name || name.startsWith('KB')) {
       // 过滤Windows更新
       return null
     }
-    const soft: Software = {
+    const soft: InstalledSoftware = {
+      regeditGroupKey: regeditGroupKey,
       regeditDir: regeditDir,
       regeditName: regeditName,
       regeditValues: entry,
@@ -122,7 +191,7 @@ export class Software {
     return soft
   }
 
-  static parseIconPath(soft: Software) {
+  static parseIconPath(soft: InstalledSoftware) {
     if (soft.displayIcon) {
       return soft.displayIcon
     }
@@ -168,7 +237,7 @@ export class Software {
     return entry.DisplayVersion?.value
   }
 
-  static parseNameWithoutVersion(soft: Software) {
+  static parseNameWithoutVersion(soft: InstalledSoftware) {
     if (soft.regeditName === soft.name) {
       return soft.name
     }

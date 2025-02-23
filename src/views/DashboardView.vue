@@ -7,14 +7,14 @@
     <div class="installed-container content-wrapper">
       <div class="title">已安装的软件</div>
       <div class="cards cards-multiple">
-        <div class="card" v-for="type in allInstalledSoftware" :key="type.title">
-          <div class="card-name">{{ type.title }}</div>
+        <div class="card" v-for="group in allInstalledSoftware" :key="group.title">
+          <div class="card-name">{{ group.title }}</div>
           <div class="card-info">
             <div class="info-item">
-              个数：<span class="value">{{ type.totalNumber }}</span>
+              个数：<span class="value">{{ group.totalNumber }}</span>
             </div>
             <div class="info-item">
-              大小：<span class="value">{{ type.totalSize }}</span>
+              大小：<span class="value">{{ group.totalSize }}</span>
             </div>
           </div>
         </div>
@@ -25,24 +25,27 @@
       <div class="title">可备份的软件</div>
       <div class="cards cards-single">
         <div class="card-info">
-          <div class="info-item" v-for="type in allBackupableSoftware" :key="type.title">
+          <div class="info-item" v-for="(type, typeKey) in softwareLib" :key="type.title">
             {{ type.title }}：
             <div
               class="proportion-chart"
-              :total-number="type.totalNumber"
-              v-if="type.totalNumber > -1"
+              :total-number="totalInstalledNumber"
+              v-if="typeKey === BACKUP_SOFTWARE_TYPE_KEY.INSTALLER"
             >
               <div
                 class="value"
                 :style="{
-                  width: parseInt(String((type.backupableNumber * 100) / type.totalNumber)) + '%',
+                  width:
+                    parseInt(
+                      String(((type.list ? type.list.length : 0) * 100) / totalInstalledNumber),
+                    ) + '%',
                 }"
-                :total-number="type.backupableNumber"
+                :total-number="totalInstalledNumber"
               >
-                {{ type.backupableNumber }}
+                {{ type.list ? type.list.length : 0 }}
               </div>
             </div>
-            <div class="value" v-else>{{ type.backupableNumber }}</div>
+            <div class="value" v-else>{{ type.list ? type.list.length : 0 }}</div>
           </div>
         </div>
       </div>
@@ -59,30 +62,28 @@ import { AppSessionStore } from '@/stores/app-session.ts'
 import { SoftwareStore } from '@/stores/software.ts'
 import RegeditUtil from '@/utils/regedit-util.ts'
 import {
-  type AllBackupableSoftware,
+  BACKUP_SOFTWARE_TYPE,
+  BACKUP_SOFTWARE_TYPE_KEY,
+  SOFTWARE_REGEDIT_GROUP_KEY,
   type AllInstalledSoftware,
-  BACKUP_TYPE_DESC, BACKUP_TYPE_KEY,
-  BackupableSoftware,
-  type BackupTypeKey,
-  SOFTWARE_REGEDIT_DESC,
-  SOFTWARE_REGEDIT_PATH,
-  SoftwareRegeditPath,
-  type SoftwareRegeditPathKey
+  type SoftwareBackupConfig,
+  type SoftwareLib,
+  type SoftwareRegeditGroupKey,
 } from '@/models/Software.ts'
 
 export default {
   data() {
     return {
       loadingText: '正在获取已安装的软件列表，请稍候...',
-      allBackupableSoftware: {} as AllBackupableSoftware,
+      softwareLib: {} as SoftwareLib,
     }
   },
   computed: {
-    SOFTWARE_REGEDIT_PATH() {
-      return SOFTWARE_REGEDIT_PATH
+    SOFTWARE_REGEDIT_GROUP_KEY() {
+      return SOFTWARE_REGEDIT_GROUP_KEY
     },
-    SOFTWARE_REGEDIT_DESC() {
-      return SOFTWARE_REGEDIT_DESC
+    BACKUP_SOFTWARE_TYPE_KEY() {
+      return BACKUP_SOFTWARE_TYPE_KEY
     },
     initializing() {
       return AppSessionStore().isInitializing
@@ -93,43 +94,52 @@ export default {
     allInstalledSoftware(): AllInstalledSoftware {
       return SoftwareStore().getAllInstalledSoftware
     },
+    totalInstalledNumber(): number {
+      let total = 0
+      for (const key in this.allInstalledSoftware) {
+        const groupKey = key as SoftwareRegeditGroupKey
+        const groupTotalNumber = this.allInstalledSoftware[groupKey].totalNumber
+        if (groupTotalNumber) {
+          total = total + groupTotalNumber
+        }
+      }
+      return total
+    },
   },
   mounted() {
     if (!this.initializing && !this.initialized) {
       this.setInitializing(true)
       RegeditUtil.initAllInstalledSoftware().finally(() => {
-        this.initAllBackupableSoftware()
+        this.initSoftwareLib()
         this.setInitializing(false)
         this.setInitialized(true)
       })
     } else if (this.initialized) {
-      this.initAllBackupableSoftware()
+      this.initSoftwareLib()
     }
   },
   methods: {
     ...mapActions(AppSessionStore, ['setInitializing', 'setInitialized']),
-    initAllBackupableSoftware() {
-      for (const key in this.allInstalledSoftware) {
-        const typedKey = key as BackupTypeKey
-        if (Object.prototype.hasOwnProperty.call(SOFTWARE_REGEDIT_DESC, typedKey)) {
-          const typedPathKey = key as SoftwareRegeditPathKey
-          const install = this.allInstalledSoftware[typedPathKey]
-          this.allBackupableSoftware[typedKey] = {
-            title: install.title,
-            totalNumber: install.totalNumber,
-            backupableNumber: Math.max(0, install.totalNumber - 20),
-          }
-        }
-      }
-      for (const key in BACKUP_TYPE_DESC) {
-        const typedKey = key as BackupTypeKey
-        if (!Object.prototype.hasOwnProperty.call(SOFTWARE_REGEDIT_DESC, typedKey)) {
-          this.allBackupableSoftware[typedKey] = {
-            title: BACKUP_TYPE_DESC[typedKey],
-            totalNumber: -1,
-            backupableNumber: typedKey === BACKUP_TYPE_KEY.CUSTOM?0:11,
-          }
-        }
+    initSoftwareLib() {
+      this.softwareLib = {
+        [BACKUP_SOFTWARE_TYPE_KEY.INSTALLER]: {
+          ...BACKUP_SOFTWARE_TYPE[BACKUP_SOFTWARE_TYPE_KEY.INSTALLER],
+          list: new Array(23).fill({
+            softwareType: BACKUP_SOFTWARE_TYPE_KEY.INSTALLER,
+            softwareName: '测试软件1',
+          }) as SoftwareBackupConfig[],
+        },
+        [BACKUP_SOFTWARE_TYPE_KEY.PORTABLE]: {
+          ...BACKUP_SOFTWARE_TYPE[BACKUP_SOFTWARE_TYPE_KEY.PORTABLE],
+          list: new Array(3).fill({
+            softwareType: BACKUP_SOFTWARE_TYPE_KEY.PORTABLE,
+            softwareName: '测试软件2',
+          }) as SoftwareBackupConfig[],
+        },
+        [BACKUP_SOFTWARE_TYPE_KEY.CUSTOM]: {
+          ...BACKUP_SOFTWARE_TYPE[BACKUP_SOFTWARE_TYPE_KEY.CUSTOM],
+          list: null,
+        },
       }
     },
   },

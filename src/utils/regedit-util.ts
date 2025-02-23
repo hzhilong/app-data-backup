@@ -11,20 +11,20 @@ import {
 export default class RegeditUtil {
   public static async getAllInstalledSoftware(): Promise<AllInstalledSoftware> {
     return new Promise(async (resolve, reject) => {
-      try {
-        const allInstalledSoftware: AllInstalledSoftware = {} as AllInstalledSoftware
-        for (const key in SOFTWARE_REGEDIT_GROUP) {
-          const groupKey = key as SoftwareRegeditGroupKey
+      const allInstalledSoftware: AllInstalledSoftware = {} as AllInstalledSoftware
+      for (const key in SOFTWARE_REGEDIT_GROUP) {
+        const groupKey = key as SoftwareRegeditGroupKey
+        try {
           const list = (await window.electronAPI?.ipcInvoke(
             IPC_CHANNELS.GET_INSTALLED_SOFTWARE,
             groupKey,
           )) as InstalledSoftware[]
           allInstalledSoftware[groupKey] = SoftwareUtil.parseInstalledSoftwareGroup(groupKey, list)
+        } catch (error: unknown) {
+          reject(BaseUtil.convertToCommonError(error, '读取注册表失败：'))
         }
-        resolve(allInstalledSoftware)
-      } catch (error: unknown) {
-        reject(BaseUtil.convertToCommonError(error, '读取注册表失败：'))
       }
+      resolve(allInstalledSoftware)
     })
   }
 }

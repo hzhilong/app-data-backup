@@ -2,8 +2,7 @@
   <div class="dashboard-container" v-loading.fullscreen.lock="initializing" :element-loading-text="loadingText">
     <div class="installed-container content-wrapper">
       <div class="header">
-        <div class="title">已安装的软件
-        </div>
+        <div class="title">已安装的软件</div>
         <span class="iconfont icon-refresh icon-btn t-rotate" @click="refreshDataFromRegedit"></span>
       </div>
       <div class="cards cards-multiple">
@@ -55,6 +54,9 @@ import {
   type SoftwareRegeditGroupKey,
 } from '@/models/Software.ts'
 import { db, DBUtil } from '@/db/db'
+import AppUtil from '@/utils/app-util.ts'
+import { CommonError } from '@/models/CommonError.ts'
+import BaseUtil from '@/utils/base-util.ts'
 
 export default {
   data() {
@@ -62,7 +64,7 @@ export default {
       loadingText: '正在获取已安装的软件列表，请稍候...',
       allInstalledSoftware: {} as AllInstalledSoftware,
       softwareLib: {} as SoftwareLib,
-      BACKUP_SOFTWARE_TYPE_KEY: BACKUP_SOFTWARE_TYPE_KEY
+      BACKUP_SOFTWARE_TYPE_KEY: BACKUP_SOFTWARE_TYPE_KEY,
     }
   },
   computed: {
@@ -100,29 +102,36 @@ export default {
     },
     refreshDataFromDB() {
       this.setInitializing(true)
-      DBUtil.getAllInstalledSoftware().then((data) => {
-        this.allInstalledSoftware = data
-      }).finally(() => {
-        this.setInitializing(false)
-      })
+      DBUtil.getAllInstalledSoftware()
+        .then((data) => {
+          this.allInstalledSoftware = data
+        })
+        .finally(() => {
+          this.setInitializing(false)
+        })
     },
     refreshDataFromRegedit() {
       this.setInitializing(true)
-      RegeditUtil.getAllInstalledSoftware().then((data) => {
-        if(data){
-          for (const dataKey in data) {
-            const groupKey = dataKey as SoftwareRegeditGroupKey
-            db.installedSoftware.bulkAdd(data[groupKey].list).then(() => {
-            }).catch((e) => {
-              console.error(e)
-            })
+      RegeditUtil.getAllInstalledSoftware()
+        .then((data) => {
+          if (data) {
+            db.installedSoftware.clear()
+            for (const dataKey in data) {
+              const groupKey = dataKey as SoftwareRegeditGroupKey
+              db.installedSoftware
+                .bulkAdd(data[groupKey].list)
+                .catch((e) => {
+                  throw BaseUtil.convertToCommonError(e, '写入数据库失败：')
+                })
+            }
           }
-        }
-        this.allInstalledSoftware = data
-        this.setInitialized(true)
-      }).finally(() => {
-        this.setInitializing(false)
-      })
+          this.allInstalledSoftware = data
+          this.setInitialized(true)
+          AppUtil.message('初始化成功')
+        })
+        .finally(() => {
+          this.setInitializing(false)
+        })
     },
     initSoftwareLib() {
       this.softwareLib = {

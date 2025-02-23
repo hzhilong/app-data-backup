@@ -1,5 +1,6 @@
 import { IPC_CHANNELS } from '@/models/IpcChannels.ts'
 import type { ElMessageBoxOptions, MessageParams } from 'element-plus'
+import { CommonError } from '@/models/CommonError.ts'
 
 function message(message: string): void
 function message({
@@ -34,15 +35,7 @@ function message(
   ElMessage(options)
 }
 
-function confirm({
-  message,
-  title = '提示',
-  options = {},
-}: {
-  message: string
-  title?: string
-  options?: ElMessageBoxOptions
-}) {
+function confirm(message: string, title: string = '提示', options: ElMessageBoxOptions = {}) {
   return new Promise<void>((resolve, reject) => {
     ElMessageBox.confirm(message, title, {
       ...Object.assign(
@@ -60,6 +53,24 @@ function confirm({
         reject()
       })
   })
+}
+
+/**
+ * 控制台显示错误，如果是CommonError则还有弹窗提示
+ * @param error
+ */
+function handleError(error: unknown): void {
+  if (!error) {
+    console.error('[app]:未知错误')
+  } else {
+    console.error('[app]:出现错误', error)
+    if (error instanceof CommonError) {
+      message({
+        message: error.message,
+        type: 'error',
+      })
+    }
+  }
 }
 
 export default {
@@ -87,4 +98,5 @@ export default {
   },
   message,
   confirm,
+  handleError: handleError,
 }

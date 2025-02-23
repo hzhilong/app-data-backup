@@ -1,12 +1,8 @@
 import { CommonError } from '@/models/CommonError.ts'
+
 export default class BaseUtil {
   public static isCommonError(error: unknown): error is CommonError {
-    return (
-      typeof error === 'object' &&
-      error !== null &&
-      'message' in error &&
-      typeof (error as Record<string, unknown>).message === 'string'
-    )
+    return error instanceof CommonError
   }
 
   public static getErrorMessage(error: unknown): string {
@@ -24,9 +20,15 @@ export default class BaseUtil {
     if (this.isCommonError(error)) {
       return this.prependErrorMessage(error, preMsg)
     }
-    try {
-      return this.prependErrorMessage(new CommonError(JSON.stringify(error)), preMsg)
-    } catch (error) {
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'message' in error &&
+      typeof (error as Record<string, unknown>).message === 'string'
+    ) {
+      const newError = error as { message: string }
+      return this.prependErrorMessage(new CommonError(newError.message), preMsg)
+    } else {
       // 如果抛出的异常不是object
       return this.prependErrorMessage(new CommonError(String(error)), preMsg)
     }

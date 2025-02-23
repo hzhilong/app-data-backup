@@ -20,30 +20,6 @@ export const AppSessionStore = defineStore('AppSessionStore', {
     },
     setInitialized(flag: boolean) {
       this.initialized = flag
-      if(flag){
-        AppUtil.message('初始化成功')
-        ElMessageBox.confirm(
-          'proxy will permanently delete the file. Continue?',
-          'Warning',
-          {
-            confirmButtonText: 'OK',
-            cancelButtonText: 'Cancel',
-            type: 'warning',
-          }
-        )
-          .then(() => {
-            ElMessage({
-              type: 'success',
-              message: 'Delete completed',
-            })
-          })
-          .catch(() => {
-            ElMessage({
-              type: 'info',
-              message: 'Delete canceled',
-            })
-          })
-      }
     },
   },
   persist: false,

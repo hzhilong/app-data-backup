@@ -8,6 +8,7 @@
 // TODO https://github.com/electron-userland/electron-json-storage
 
 版本限制
+// TODO 软件图标缓存
 
 ## 感谢
 

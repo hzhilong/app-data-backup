@@ -21,7 +21,9 @@ pinia.use(piniaPluginPersistedState)
 app.use(pinia)
 app.use(router)
 app.config.errorHandler = (err) => {
-  /* 处理错误 */
-  console.log(err)
+  AppUtil.handleError(err)
 }
+window.addEventListener('unhandledrejection', (event) => {
+  AppUtil.handleError(event.reason)
+})
 app.mount('#app')

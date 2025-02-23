@@ -8,8 +8,35 @@ $app-color-content-background: var(--app-color-content-background, #ffffff);
 $app-color-content-color: var(--app-color-content-color, #0a0a0a);
 $app-color-content-color2: var(--app-color-content-color, #333333);
 $app-color-content-color3: var(--app-color-content-color, #666666);
+$app-color-btn-icon: $app-color-primary;
 
 $app-top-bar-height: var(--app-top-bar-height, 30px);
 $app-left-side-width: var(--app-left-side-width, 170px);
 $app-main-content-margin: var(--app-main-content-margin, 0px 4px 4px 0px);
 $app-main-content-padding: var(--app-main-content-padding, 10px);
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+
+.icon-btn {
+  color: $app-color-btn-icon;
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+  line-height: 18px;
+  padding: 5px;
+  border-radius: 50%;
+
+  &:hover {
+    background: $app-color-hover;
+  }
+
+}

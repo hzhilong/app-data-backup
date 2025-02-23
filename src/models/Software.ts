@@ -156,7 +156,29 @@ export type SoftwareLib = {
 }
 
 export class SoftwareUtil {
-  public static parseSoftwareEntry(
+
+  public static parseInstalledSoftwareGroup(
+    groupKey: SoftwareRegeditGroupKey,
+    list: InstalledSoftware[],
+  ): InstalledSoftwareGroup {
+    const totalSize = list
+      ? list.reduce((sum, item) => {
+          if (item.size) {
+            return sum + item.size
+          } else {
+            return sum
+          }
+        }, 0)
+      : 0
+    return {
+      title: SOFTWARE_REGEDIT_GROUP[groupKey].title,
+      list: list,
+      totalNumber: list ? list.length : 0,
+      totalSize: SoftwareUtil.formatSize(totalSize),
+    }
+  }
+
+  public static parseInstalledSoftware(
     regeditGroupKey: SoftwareRegeditGroupKey,
     regeditDir: string,
     regeditName: string,

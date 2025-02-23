@@ -10,38 +10,52 @@
     padding: 10px;
     margin-bottom: 10px;
 
-    .title {
-      color: $app-color-content-color;
-      display: inline-block;
-      font-size: 16px;
-      padding: 2px 4px;
+    .header{
+      display: flex;
+      align-items: center;
       margin-bottom: 20px;
-      position: relative;
-      vertical-align: middle;
-      transition: color 0.3s ease;
-      z-index: 1;
-      cursor: pointer;
 
-      &:before {
-        position: absolute;
-        content: "";
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: $app-color-primary;
-        transition: height 0.3s ease;
-        z-index: -1;
-      }
-
-      &:hover {
-        color: $app-color-content-background;
+      .title {
+        color: $app-color-content-color;
+        display: inline-block;
+        font-size: 16px;
+        padding: 2px 4px;
+        position: relative;
+        vertical-align: middle;
+        transition: color 0.3s ease;
+        z-index: 1;
+        cursor: pointer;
+        margin-right: 8px;
 
         &:before {
-          height: 100%;
+          position: absolute;
+          content: "";
+          bottom: 0;
+          left: 0;
+          right: 0;
+          height: 4px;
+          background: $app-color-primary;
+          transition: height 0.3s ease;
+          z-index: -1;
+        }
+
+        &:hover {
+          color: $app-color-content-background;
+
+          &:before {
+            height: 100%;
+          }
+        }
+      }
+
+      .icon-btn{
+
+        :hover{
+
         }
       }
     }
+
 
     $card-gap-x: 20px;
     $card-width: min(calc((100% - $card-gap-x) / 3), 180px);

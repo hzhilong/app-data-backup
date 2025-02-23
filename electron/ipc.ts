@@ -61,7 +61,7 @@ export default {
                 const infoResult: RegistryItem = subPathResults[softPath]
                 if (!infoResult.exists) {
                 } else {
-                  const software = SoftwareUtil.parseSoftwareEntry(
+                  const software = SoftwareUtil.parseInstalledSoftware(
                     regeditGroupKey,
                     regeditPath,
                     subPathNames[softPath],

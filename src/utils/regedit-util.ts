@@ -5,22 +5,23 @@ import {
   type InstalledSoftware,
   type SoftwareRegeditGroupKey,
   SOFTWARE_REGEDIT_GROUP,
+  SoftwareUtil,
 } from '@/models/Software.ts'
-import { SoftwareStore } from '@/stores/software.ts'
 
 export default class RegeditUtil {
-  public static async initAllInstalledSoftware(): Promise<AllInstalledSoftware> {
+  public static async getAllInstalledSoftware(): Promise<AllInstalledSoftware> {
     return new Promise(async (resolve, reject) => {
       try {
+        const allInstalledSoftware: AllInstalledSoftware = {} as AllInstalledSoftware
         for (const key in SOFTWARE_REGEDIT_GROUP) {
           const groupKey = key as SoftwareRegeditGroupKey
           const list = (await window.electronAPI?.ipcInvoke(
             IPC_CHANNELS.GET_INSTALLED_SOFTWARE,
             groupKey,
           )) as InstalledSoftware[]
-          SoftwareStore().setInstalledSoftware(groupKey, list)
+          allInstalledSoftware[groupKey] = SoftwareUtil.parseInstalledSoftwareGroup(groupKey, list)
         }
-        resolve(SoftwareStore().getAllInstalledSoftware)
+        resolve(allInstalledSoftware)
       } catch (error: unknown) {
         reject(BaseUtil.convertToCommonError(error, '读取注册表失败：'))
       }

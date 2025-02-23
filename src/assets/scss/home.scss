@@ -8,7 +8,7 @@
   background: $app-color-background;
   position: relative;
 
-  &:before{
+  &:before {
     position: absolute;
     content: '';
     width: 100%;
@@ -172,6 +172,5 @@
       }
     }
   }
-
 }
 

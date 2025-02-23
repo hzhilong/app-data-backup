@@ -22,6 +22,7 @@ export default class RegeditUtil {
           allInstalledSoftware[groupKey] = SoftwareUtil.parseInstalledSoftwareGroup(groupKey, list)
         } catch (error: unknown) {
           reject(BaseUtil.convertToCommonError(error, '读取注册表失败：'))
+          return
         }
       }
       resolve(allInstalledSoftware)

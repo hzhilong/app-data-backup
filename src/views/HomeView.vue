@@ -75,6 +75,11 @@ export default defineComponent({
           viewPath: '/dashboard',
         },
         {
+          text: '软件管理',
+          iconClass: 'icon-app',
+          viewPath: '/app',
+        },
+        {
           text: '数据备份',
           iconClass: 'icon-app',
           viewPath: '/backup',

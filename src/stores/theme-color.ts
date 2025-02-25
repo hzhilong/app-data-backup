@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 
 function switchTheme(color: string) {
-  setCssVar('--app-color-primary', color)
-  setCssVar('--app-color-hover', color + '20')
+  const rgb = color.substring(4, color.length-1)
+  setCssVar('--app-theme-color', rgb)
 }
 
 function setCssVar(k: string, v: string) {
@@ -13,34 +13,32 @@ export const ThemeColorStore = defineStore('ThemeColorStore', {
   state: () => {
     return {
       colors: [
-        '#6284DF',
-        '#ee5253',
-        '#ff9f43',
-        '#feca57',
-        '#20a820',
-        '#1dd1a1',
-        '#00AEEC',
-        '#FB7299',
+        'rgb(98,132,223)',
+        'rgb(238,82,83)',
+        'rgb(255,159,67)',
+        'rgb(254,202,87)',
+        'rgb(32,168,32)',
+        'rgb(29,209,161)',
+        'rgb(0,174,236)',
+        'rgb(251,114,153)',
       ],
       colorIndex: 0,
-      primaryColor: '#6284DF',
     }
   },
   getters: {
-    getThemeColor: (state) => state.primaryColor,
+    getThemeColor: (state) => state.colors[state.colorIndex % state.colors.length],
   },
   actions: {
     initThemeColor(){
-      switchTheme(this.primaryColor)
+      switchTheme(this.getThemeColor)
     },
     switchThemeColor() {
       this.colorIndex++
-      this.primaryColor = this.colors[this.colorIndex % this.colors.length]
-      switchTheme(this.primaryColor)
+      switchTheme(this.getThemeColor)
     },
     setDefaultTheme() {
-      this.primaryColor = this.colors[0]
-      switchTheme(this.primaryColor)
+      this.colorIndex = 0
+      switchTheme(this.colors[0])
     },
   },
   persist: true,

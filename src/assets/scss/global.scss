@@ -1,14 +1,29 @@
 // 全局配置
-// // 通过 SCSS 变量引用 CSS 变量，方便动态修改
-$app-color-primary: var(--app-color-primary, #6284DF);
-$app-color-hover: var(--app-color-hover, #6284DF20);
-$app-color-border: var(--app-color-border, #dcdfe6);
-$app-color-background: var(--app-color-background, #F5F7F9);
-$app-color-content-background: var(--app-color-content-background, #ffffff);
-$app-color-content-color: var(--app-color-content-color, #0a0a0a);
-$app-color-content-color2: var(--app-color-content-color, #333333);
-$app-color-content-color3: var(--app-color-content-color, #666666);
+// 通过 SCSS 变量引用 CSS 变量，方便动态修改
+root{
+  --app-theme-color: 98, 132, 223;
+}
+
+$app-theme-color: var(--app-theme-color);
+
+$app-color-primary: rgba($app-theme-color, 1);
+$app-color-hover: rgba($app-theme-color, 0.2);
+$app-color-border: #dcdfe6;
+$app-color-background: #F5F7F9;
+$app-color-content-background: #ffffff;
+$app-color-content-color:  #0a0a0a;
+$app-color-content-color2: #333333;
+$app-color-content-color3:  #666666;
+
+// 图标按钮
 $app-color-btn-icon: $app-color-primary;
+$app-color-btn-icon-bg: $app-color-hover;
+
+// 操作按钮
+$app-color-opt-btn: rgba($app-theme-color, 1);
+$app-color-opt-btn-bg: rgba($app-theme-color, 0.2);
+$app-color-opt-btn-border: rgba($app-theme-color, 0.4);
+
 
 $app-top-bar-height: var(--app-top-bar-height, 30px);
 $app-left-side-width: var(--app-left-side-width, 170px);
@@ -36,7 +51,7 @@ $app-main-content-padding: var(--app-main-content-padding, 10px);
   border-radius: 50%;
 
   &:hover {
-    background: $app-color-hover;
+    background: $app-color-btn-icon-bg;
   }
 
 }

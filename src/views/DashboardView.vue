@@ -26,7 +26,7 @@
       </div>
       <div class="cards cards-single">
         <div class="card-info">
-          <div class="info-item" v-for="(type, typeKey) in softwareLib" :key="type.title">
+          <div class="info-item" v-for="type in softwareLib" :key="type.title">
             {{ type.title }}：
             <div class="value">{{ type.list ? type.list.length : 0 }}</div>
           </div>
@@ -55,7 +55,6 @@ import {
 } from '@/models/Software.ts'
 import { db, DBUtil } from '@/db/db'
 import AppUtil from '@/utils/app-util.ts'
-import { CommonError } from '@/models/CommonError.ts'
 import BaseUtil from '@/utils/base-util.ts'
 
 export default {
@@ -92,19 +91,31 @@ export default {
   methods: {
     ...mapActions(AppSessionStore, ['setInitializing', 'setInitialized']),
     initData() {
-      if (!this.initializing && !this.initialized) {
-        // 非初始化
+      this.initSoftwareLib()
+      if (import.meta.env.DEV) {
         this.refreshDataFromDB()
+        return
+      }
+      if (!this.initializing && !this.initialized) {
+        // 非初始化，先从数据库读旧的数据
+        this.setInitializing(true)
+        DBUtil.getAllInstalledSoftware()
+          .then((data) => {
+            Object.assign(this.allInstalledSoftware, data)
+          })
+          .finally(() => {
+            this.refreshDataFromRegedit()
+          })
       } else if (this.initialized) {
         // 已初始化
+        this.refreshDataFromDB()
       }
-      this.initSoftwareLib()
     },
     refreshDataFromDB() {
       this.setInitializing(true)
       DBUtil.getAllInstalledSoftware()
         .then((data) => {
-          this.allInstalledSoftware = data
+          Object.assign(this.allInstalledSoftware, data)
         })
         .finally(() => {
           this.setInitializing(false)
@@ -118,14 +129,12 @@ export default {
             db.installedSoftware.clear()
             for (const dataKey in data) {
               const groupKey = dataKey as SoftwareRegeditGroupKey
-              db.installedSoftware
-                .bulkAdd(data[groupKey].list)
-                .catch((e) => {
-                  throw BaseUtil.convertToCommonError(e, '写入数据库失败：')
-                })
+              db.installedSoftware.bulkAdd(data[groupKey].list).catch((e) => {
+                throw BaseUtil.convertToCommonError(e, '写入数据库失败：')
+              })
             }
           }
-          this.allInstalledSoftware = data
+          Object.assign(this.allInstalledSoftware, data)
           this.setInitialized(true)
           AppUtil.message('初始化成功')
         })

@@ -3,7 +3,5 @@
 .test {
   width: 100px;
   height: 50px;
-  color: $app-color-primary;
-  background-color: $app-color-opt-btn-bg;
-  border: 1px solid $app-color-opt-btn-border;
+  @extend .table-opt-btn
 }

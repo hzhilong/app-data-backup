@@ -7,7 +7,7 @@ root{
 $app-theme-color: var(--app-theme-color);
 
 $app-color-primary: rgba($app-theme-color, 1);
-$app-color-hover: rgba($app-theme-color, 0.2);
+$app-color-hover: rgba($app-theme-color, 0.15);
 $app-color-border: #dcdfe6;
 $app-color-background: #F5F7F9;
 $app-color-content-background: #ffffff;
@@ -21,9 +21,9 @@ $app-color-btn-icon-bg: $app-color-hover;
 
 // 操作按钮
 $app-color-opt-btn: rgba($app-theme-color, 1);
-$app-color-opt-btn-bg: rgba($app-theme-color, 0.2);
-$app-color-opt-btn-border: rgba($app-theme-color, 0.4);
-
+$app-color-opt-btn-bg: rgba($app-theme-color, 0.1);
+$app-color-opt-btn-hover-bg: rgba($app-theme-color, 0.2);
+$app-color-opt-btn-border: rgba($app-theme-color, 0.1);
 
 $app-top-bar-height: var(--app-top-bar-height, 30px);
 $app-left-side-width: var(--app-left-side-width, 170px);
@@ -53,5 +53,21 @@ $app-main-content-padding: var(--app-main-content-padding, 10px);
   &:hover {
     background: $app-color-btn-icon-bg;
   }
+}
 
+.table-opt-btn{
+  padding: 6px 9px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: $app-color-primary;
+  background-color: $app-color-opt-btn-bg;
+  border: 1px solid $app-color-opt-btn-border;
+  user-select: none;
+  cursor: pointer;
+
+  &:hover{
+    background: $app-color-opt-btn-hover-bg;
+  }
 }

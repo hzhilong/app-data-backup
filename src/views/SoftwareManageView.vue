@@ -1,30 +1,90 @@
 <template>
-  <div class="test">备份</div>
+  <div class="content-wrapper">
+    <div class="table-wrapper">
+      <el-table :data="tableData" style="width: 100%" height="100%" stripe border>
+        <el-table-column v-bind="item" v-for="item in tableColumns" :key="item.label"></el-table-column>
+      </el-table>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
-import type { InstalledSoftware, SoftwareRegeditGroupKey } from '@/models/Software.ts'
+import { type InstalledSoftware, SOFTWARE_REGEDIT_GROUP, type SoftwareRegeditGroupKey } from '@/models/Software.ts'
 import { db } from '@/db/db.ts'
+import { h, type VNode } from 'vue'
 
 export default {
   data() {
     return {
       regeditGroupKey: undefined as undefined | SoftwareRegeditGroupKey,
-      list: [] as InstalledSoftware[],
+      tableColumns: [
+        {
+          label: '图标',
+          prop: 'iconPath',
+          width: '50',
+          align: 'center',
+          formatter: (row: InstalledSoftware): VNode | string => {
+            return h('img', {
+              src: row.base64Icon,
+              alt: '',
+              style: 'width: 32px; height: 32px; object-fit: cover;',
+            })
+          },
+        },
+        { label: '软件名', prop: 'name', width: '200', showOverflowTooltip: true, sortable: true },
+        { label: '软件图标', prop: 'iconPath', width: '200', showOverflowTooltip: true },
+        {
+          label: '软件图标',
+          prop: 'iconPath',
+          width: '200',
+          showOverflowTooltip: true,
+          sortable: true,
+          sortBy: (row: InstalledSoftware) => {
+            return row.iconPath?.split('.').pop()
+          },
+          formatter: (row: InstalledSoftware) => {
+            return row.iconPath?.split('.').pop()
+          },
+        },
+        { label: '安装日期', prop: 'installDate', width: '90', align: 'center', sortable: true },
+        { label: '大小', prop: 'formatSize', width: '70' },
+        {
+          label: '注册表位置',
+          prop: 'regeditGroupKey',
+          width: '100',
+          formatter: (row: InstalledSoftware) => {
+            if (row.regeditGroupKey) {
+              return SOFTWARE_REGEDIT_GROUP[row.regeditGroupKey].title
+            } else {
+              return '-'
+            }
+          },
+        },
+        { label: '版本', prop: 'version', width: '100' },
+        { label: '发布者', prop: 'publisher', minWidth: '100', showOverflowTooltip: true },
+      ],
+      tableData: [] as InstalledSoftware[],
     }
   },
   created() {
     this.regeditGroupKey = this.$route.query.regeditGroupKey
+    this.refreshData(this.regeditGroupKey)
   },
   mounted() {},
   methods: {
     refreshData(regeditGroupKey: undefined | SoftwareRegeditGroupKey) {
-      db.installedSoftware
-        .where(regeditGroupKey ? { regeditGroupKey: regeditGroupKey } : {})
-        .toArray()
-        .then((data) => {
-          this.list = data
+      if (regeditGroupKey) {
+        db.installedSoftware
+          .where({ regeditGroupKey: regeditGroupKey })
+          .toArray()
+          .then((data) => {
+            this.tableData = data
+          })
+      } else {
+        db.installedSoftware.toArray().then((data) => {
+          this.tableData = data
         })
+      }
     },
   },
 }

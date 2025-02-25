@@ -52,8 +52,7 @@ export const SOFTWARE_REGEDIT_GROUP: SoftwareRegeditGroup = {
 /**
  * 软件信息注册表的路径 值联合类型
  */
-export type SoftwareRegeditPath =
-  (typeof SOFTWARE_REGEDIT_GROUP)[keyof typeof SOFTWARE_REGEDIT_GROUP]['path']
+export type SoftwareRegeditPath = (typeof SOFTWARE_REGEDIT_GROUP)[keyof typeof SOFTWARE_REGEDIT_GROUP]['path']
 
 /**
  * 已安装的软件
@@ -71,7 +70,7 @@ export type InstalledSoftware = {
   installDate: string
   size: number
   formatSize: string
-  uninstallCmd: string
+  uninstallString: string
   url: string
   displayIcon?: string
   iconPath?: string
@@ -155,143 +154,48 @@ export type SoftwareLib = {
   }
 }
 
-export class SoftwareUtil {
 
-  public static parseInstalledSoftwareGroup(
-    groupKey: SoftwareRegeditGroupKey,
-    list: InstalledSoftware[],
-  ): InstalledSoftwareGroup {
-    const totalSize = list
-      ? list.reduce((sum, item) => {
-          if (item.size) {
-            return sum + item.size
-          } else {
-            return sum
-          }
-        }, 0)
-      : 0
-    return {
-      title: SOFTWARE_REGEDIT_GROUP[groupKey].title,
-      list: list,
-      totalNumber: list ? list.length : 0,
-      totalSize: SoftwareUtil.formatSize(totalSize),
-    }
-  }
-
-  public static parseInstalledSoftware(
-    regeditGroupKey: SoftwareRegeditGroupKey,
-    regeditDir: string,
-    regeditName: string,
-    entry: {
-      [p: string]: RegistryItemValue
-    },
-  ): InstalledSoftware | null {
-    const name: string = entry.DisplayName?.value as string
-    if (!name || name.startsWith('KB')) {
-      // 过滤Windows更新
-      return null
-    }
-    const soft: InstalledSoftware = {
-      regeditGroupKey: regeditGroupKey,
-      regeditDir: regeditDir,
-      regeditName: regeditName,
-      regeditValues: entry,
-      name: name,
-      nameWithoutVersion: '',
-      version: this.parseVersion(entry) as string,
-      publisher: entry.Publisher?.value as string,
-      installPath: this.cleanPath(this.getInstallPath(entry)),
-      installDate: this.parseInstallDate(entry.InstallDate?.value as string),
-      size: entry.EstimatedSize?.value as number,
-      formatSize: this.formatSize(entry.EstimatedSize?.value as number),
-      uninstallCmd: entry.UninstallString?.value as string,
-      url: entry.URLUpdateInfo?.value as string,
-      displayIcon: entry.DisplayIcon?.value as string,
-    }
-    soft.nameWithoutVersion = this.parseNameWithoutVersion(soft)
-    soft.iconPath = this.parseIconPath(soft) as string
-    return soft
-  }
-
-  static parseIconPath(soft: InstalledSoftware) {
-    if (soft.displayIcon) {
-      return soft.displayIcon
-    }
-    if (soft.installPath) {
-      if (soft.installPath.endsWith('.exe')) {
-        return soft.installPath
-      }
-      if (soft.nameWithoutVersion) {
-        return `${soft.installPath}${soft.installPath.endsWith('\\') ? '' : '\\'}${soft.nameWithoutVersion}.exe`
-      }
-    }
-  }
-
-  public static formatSize(estimatedSize: number) {
-    if (!estimatedSize) {
-      return ''
-    }
-    let size = (estimatedSize as number) * 100
-    // 定义文件大小单位
-    const units = ['KB', 'MB', 'GB']
-    // 计算文件大小的单位和对应的大小
-    let unitIndex = 0
-    // 根据文件大小单位进行换算
-    while (size >= 1024 * 100 && unitIndex < units.length - 1) {
-      size /= 1024
-      unitIndex++
-    }
-    let newSize = Math.round(size) / 100
-    const integerPart = ('' + newSize).split('.')[0]
-    if (integerPart.length > 2) {
-      newSize = Number(integerPart)
-    } else if (integerPart.length > 1) {
-      newSize = Math.round(size / 10) / 10
-    }
-    return `${newSize} ${units[unitIndex]}`
-  }
-
-  static parseVersion(entry: { [p: string]: RegistryItemValue }) {
-    const innoVersion = entry['Inno Setup: Setup Version']
-    if (innoVersion) {
-      return innoVersion.value
-    }
-    return entry.DisplayVersion?.value
-  }
-
-  static parseNameWithoutVersion(soft: InstalledSoftware) {
-    if (soft.regeditName === soft.name) {
-      return soft.name
-    }
-    const installPathName = soft.installPath?.split('\\').pop()
-    if (installPathName && soft.name.startsWith(installPathName)) {
-      return installPathName
-    }
-    return soft.name
-  }
-
-  static getInstallPath(values: { [p: string]: RegistryItemValue }): string {
-    // 优先尝试InstallLocation
-    if (values.InstallLocation?.value) {
-      return values.InstallLocation.value as string
-    }
-
-    // 次选DisplayIcon路径解析
-    if (values.DisplayIcon?.value) {
-      return (values.DisplayIcon.value as string).split(',')[0].trim()
-    }
-
+export function formatSize(estimatedSize: number) {
+  if (!estimatedSize) {
     return ''
   }
-
-  static cleanPath(rawPath: string) {
-    if (!rawPath) return ''
-    const cleaned = rawPath.replace(/^"+|"+$/g, '') // 去除首尾引号
-    return cleaned.endsWith('\\') ? cleaned.slice(0, -1) : cleaned
+  let size = (estimatedSize as number) * 100
+  // 定义文件大小单位
+  const units = ['KB', 'MB', 'GB']
+  // 计算文件大小的单位和对应的大小
+  let unitIndex = 0
+  // 根据文件大小单位进行换算
+  while (size >= 1024 * 100 && unitIndex < units.length - 1) {
+    size /= 1024
+    unitIndex++
   }
+  let newSize = Math.round(size) / 100
+  const integerPart = ('' + newSize).split('.')[0]
+  if (integerPart.length > 2) {
+    newSize = Number(integerPart)
+  } else if (integerPart.length > 1) {
+    newSize = Math.round(size / 10) / 10
+  }
+  return `${newSize} ${units[unitIndex]}`
+}
 
-  static parseInstallDate(dateStr: string) {
-    if (!dateStr || dateStr.length !== 8) return ''
-    return `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}-${dateStr.slice(6, 8)}`
+export function parseInstalledSoftwareGroup(
+  groupKey: SoftwareRegeditGroupKey,
+  list: InstalledSoftware[],
+): InstalledSoftwareGroup {
+  const totalSize = list
+    ? list.reduce((sum, item) => {
+      if (item.size) {
+        return sum + item.size
+      } else {
+        return sum
+      }
+    }, 0)
+    : 0
+  return {
+    title: SOFTWARE_REGEDIT_GROUP[groupKey].title,
+    list: list,
+    totalNumber: list ? list.length : 0,
+    totalSize: formatSize(totalSize),
   }
 }

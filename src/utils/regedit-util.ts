@@ -5,7 +5,7 @@ import {
   type InstalledSoftware,
   type SoftwareRegeditGroupKey,
   SOFTWARE_REGEDIT_GROUP,
-  SoftwareUtil,
+  parseInstalledSoftwareGroup,
 } from '@/models/Software.ts'
 
 export default class RegeditUtil {
@@ -19,7 +19,7 @@ export default class RegeditUtil {
             IPC_CHANNELS.GET_INSTALLED_SOFTWARE,
             groupKey,
           )) as InstalledSoftware[]
-          allInstalledSoftware[groupKey] = SoftwareUtil.parseInstalledSoftwareGroup(groupKey, list)
+          allInstalledSoftware[groupKey] = parseInstalledSoftwareGroup(groupKey, list)
         } catch (error: unknown) {
           reject(BaseUtil.convertToCommonError(error, '读取注册表失败：'))
           return

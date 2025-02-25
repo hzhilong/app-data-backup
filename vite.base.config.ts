@@ -1,6 +1,7 @@
 import { fileURLToPath, URL } from 'node:url'
 import { loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import vueJsx from '@vitejs/plugin-vue-jsx'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import path from 'path'
 import packageJson from './package.json'
@@ -65,6 +66,7 @@ export default ({ mode }: { mode: string }) => {
     envPrefix: envPrefixes,
     plugins: [
       vue(),
+      vueJsx(),
       // 按需引入组件 https://github.com/unplugin/unplugin-vue-components
       AutoImport({
         resolvers: [ElementPlusResolver()],

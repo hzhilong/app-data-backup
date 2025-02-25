@@ -1,23 +1,18 @@
 <template>
-  <div v-loading.fullscreen.lock="fullscreenLoading" :element-loading-text="loadingText">{{ test }}</div>
+  <div>
+    备份
+  </div>
 </template>
 
 <script lang="ts">
-import RegeditUtil from '@/utils/regedit-util.ts'
 
 export default {
   data() {
     return {
-      test: '备份页面',
-      fullscreenLoading: false,
-      loadingText: '正在获取已安装的软件列表，请稍候...'
     }
   },
   mounted() {
-    this.fullscreenLoading = true
-    RegeditUtil.initAllInstalledSoftware().finally(() => {
-      this.fullscreenLoading = false
-    })
+
   },
 }
 </script>

@@ -4,6 +4,9 @@ export const IPC_CHANNELS = {
   WINDOW_MIN: 'WINDOW_MIN',
   BROWSE_PAGE: 'BROWSE_PAGE',
   GET_INSTALLED_SOFTWARE: 'GET_INSTALLED_SOFTWARE',
+  GET_ICON: 'GET_ICON',
 } as const
 
 export type IpcChannels = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS]
+
+

@@ -2,14 +2,12 @@
 // 它拥有与Chrome扩展一样的沙盒。
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-// const { contextBridge, ipcRenderer, shell} = require('electron')
 
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron'
-import type { IpcChannels } from '../src/models/IpcChannels.ts'
+import {  IpcChannels } from '../src/models/IpcChannels.ts'
 
 // 该项目需要动态执行js
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = String(true)
-
 contextBridge.exposeInMainWorld('electronAPI', {
   // https://www.electronjs.org/zh/docs/latest/api/ipc-renderer
   ipcSend(channel: IpcChannels, ...data: unknown[]) {

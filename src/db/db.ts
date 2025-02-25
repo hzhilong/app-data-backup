@@ -1,4 +1,3 @@
-// db.js
 import Dexie, { type EntityTable } from 'dexie'
 import {
   type AllInstalledSoftware,

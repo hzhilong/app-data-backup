@@ -66,7 +66,7 @@ export type InstalledSoftware = {
   nameWithoutVersion: string
   version: string
   publisher: string
-  installPath: string
+  installLocation: string
   installDate: string
   size: number
   formatSize: string
@@ -154,7 +154,6 @@ export type SoftwareLib = {
   }
 }
 
-
 export function formatSize(estimatedSize: number) {
   if (!estimatedSize) {
     return ''
@@ -185,12 +184,12 @@ export function parseInstalledSoftwareGroup(
 ): InstalledSoftwareGroup {
   const totalSize = list
     ? list.reduce((sum, item) => {
-      if (item.size) {
-        return sum + item.size
-      } else {
-        return sum
-      }
-    }, 0)
+        if (item.size) {
+          return sum + item.size
+        } else {
+          return sum
+        }
+      }, 0)
     : 0
   return {
     title: SOFTWARE_REGEDIT_GROUP[groupKey].title,

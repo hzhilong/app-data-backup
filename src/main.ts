@@ -27,3 +27,5 @@ window.addEventListener('unhandledrejection', (event) => {
   AppUtil.handleError(event.reason)
 })
 app.mount('#app')
+
+

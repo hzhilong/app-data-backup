@@ -12,6 +12,7 @@
 import { type InstalledSoftware, SOFTWARE_REGEDIT_GROUP, type SoftwareRegeditGroupKey } from '@/models/Software.ts'
 import { db } from '@/db/db.ts'
 import { h, type VNode } from 'vue'
+import RegeditUtil from '@/utils/regedit-util.ts'
 
 export default {
   data() {
@@ -50,6 +51,24 @@ export default {
         },
         { label: '版本', prop: 'version', width: '100' },
         { label: '发布者', prop: 'publisher', minWidth: '100', showOverflowTooltip: true },
+        {
+          label: '操作',
+          prop: 'iconPath',
+          width: '200',
+          align: 'center',
+          formatter: (row: InstalledSoftware): VNode | string => {
+            return h('div', {
+              class: 'table-opt-btns',
+            }, [
+              h('span', {
+                class: 'table-opt-btn',
+                onClick:()=>{
+                  RegeditUtil.openRegedit(row.regeditDir)
+                }
+              }, '注册表位置')
+            ])
+          },
+        },
       ],
       tableData: [] as InstalledSoftware[],
     }

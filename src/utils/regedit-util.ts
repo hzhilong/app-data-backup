@@ -10,6 +10,11 @@ import {
 import { db } from '@/db/db.ts'
 
 export default class RegeditUtil {
+
+  public static openRegedit(path: string) {
+    window.electronAPI?.ipcInvoke(IPC_CHANNELS.OPEN_REGEDIT, path)
+  }
+
   public static async getAllInstalledSoftware(): Promise<AllInstalledSoftware> {
     return new Promise(async (resolve, reject) => {
       const allInstalledSoftware: AllInstalledSoftware = {} as AllInstalledSoftware
@@ -22,12 +27,12 @@ export default class RegeditUtil {
           )) as InstalledSoftware[]
           for (const installedSoftware of list) {
             const iconPath = installedSoftware.iconPath
-            if(iconPath){
+            if (iconPath) {
               const first = await db.iconCache.where('path').equals(iconPath).first()
               if (first) {
                 installedSoftware.base64Icon = first.base64
               } else {
-                const base64 = await window.electronAPI?.ipcInvoke(IPC_CHANNELS.GET_ICON, iconPath) as string
+                const base64 = (await window.electronAPI?.ipcInvoke(IPC_CHANNELS.GET_ICON, iconPath)) as string
                 if (base64) {
                   installedSoftware.base64Icon = base64
                   db.iconCache.add({

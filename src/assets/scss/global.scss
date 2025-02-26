@@ -55,7 +55,15 @@ $app-main-content-padding: var(--app-main-content-padding, 10px);
   }
 }
 
+.table-opt-btns{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
 .table-opt-btn{
+  font-size: 1em;
+  line-height: 1em;
   padding: 6px 9px;
   border-radius: 4px;
   display: flex;

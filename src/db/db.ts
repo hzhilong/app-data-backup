@@ -17,9 +17,9 @@ const db = new Dexie('appDataBackupDatabase') as Dexie & {
   iconCache: EntityTable<IconCache>,
 }
 
-db.version(3).stores({
-  installedSoftware: '[regeditDir+regeditName], regeditGroupKey,name', // regeditDir+regeditName作为主键,同时也是复合索引。
-  iconCache: 'path', // regeditDir+regeditName作为主键,同时也是复合索引。
+db.version(4).stores({
+  installedSoftware: 'regeditDir, regeditGroupKey,name', // regeditDir作为主键,同时也是复合索引。
+  iconCache: 'path',
 })
 
 const DBUtil = {

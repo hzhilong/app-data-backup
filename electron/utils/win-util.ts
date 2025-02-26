@@ -46,7 +46,44 @@ export class SoftwareUtil {
     soft.nameWithoutVersion = this.strTrim(this.parseNameWithoutVersion(soft))
     soft.iconPath = this.parseIconPath(soft) as string
     // soft.base64Icon = await this.getIconBase64(soft)
+    soft.installDate = this.parseNonEmptyInstallDate(soft) as string
     return soft
+  }
+
+  static formatDate(time:Date){
+    return this.formatInstallDate(String(time.getFullYear()), String(time.getMonth()+1), String(time.getDate()))
+  }
+
+  static parseNonEmptyInstallDate(soft: InstalledSoftware): string {
+    if(soft.installDate){
+      return soft.installDate
+    }
+    const arrTime:Date[] = [];
+    if(soft.uninstallString){
+      const regex = /^((.*)\\.*\.exe)[\\"]?/
+      const match = soft.uninstallString.match(regex)
+      if (match) {
+        if (fs.existsSync(match[1])) {
+          const stats = fs.statSync(match[1]);
+          if (stats.isFile()) {
+            arrTime.push(stats.ctime)
+          }
+        }
+      }
+    }
+    if(soft.iconPath){
+      const stats = fs.statSync(soft.iconPath);
+      if (stats.isFile()) {
+        arrTime.push(stats.ctime)
+      }
+    }
+    arrTime.sort((a, b) => a.getTime() - b.getTime())
+
+    if(arrTime.length > 0){
+      return this.formatDate(arrTime[0])
+    }
+
+    return ''
   }
 
   static async getIconBase64(iconPath: string) {
@@ -139,9 +176,7 @@ export class SoftwareUtil {
         }
       }
     }
-    console.log('===1', soft.uninstallString)
     if (soft.uninstallString) {
-      console.log('===2', soft.uninstallString)
       let temp = this.strTrim(soft.uninstallString)
       let regex = /^MsiExec\.exe +\/.*(\{[\dA-Za-z-]+\})$/
       let match = temp.match(regex)
@@ -165,7 +200,7 @@ export class SoftwareUtil {
         }
       }
 
-      regex = /^((.*)\\.*\.exe)[\\"]/
+      regex = /^((.*)\\.*\.exe)[\\"]?/
       match = temp.match(regex)
       if (match) {
         if (fs.existsSync(match[2] + '\\' + soft.nameWithoutVersion)) {
@@ -191,12 +226,13 @@ export class SoftwareUtil {
   }
 
   static parseNameWithoutVersion(soft: InstalledSoftware) {
-    if (soft.regeditName === soft.name) {
-      return soft.name
+    if(!soft.name){
+      return ''
     }
-    const installLocationName = soft.installLocation?.split('\\').pop()
-    if (installLocationName && soft.name.startsWith(installLocationName)) {
-      return installLocationName
+    const regex = /\s(版本)?([vV]ersion\s?)?[Vv]?[0-9.]*$/
+    const match = soft.name.match(regex)
+    if (match) {
+        return soft.name.substring(0,match.index)
     }
     return soft.name
   }
@@ -237,7 +273,7 @@ export class SoftwareUtil {
   }
 
   static formatInstallDate(year: string, month: string, day: string) {
-    return `${year}-${month.padStart(2, '-')}-${day.padStart(2, '-')}`
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
   }
 
   static strTrim(str: string) {
@@ -277,7 +313,7 @@ export class SoftwareUtil {
             if (infoResult.exists) {
               const software = await SoftwareUtil.parseInstalledSoftware(
                 regeditGroupKey,
-                regeditPath,
+                softPath,
                 subPathNames[softPath],
                 infoResult.values,
               )
@@ -292,6 +328,22 @@ export class SoftwareUtil {
         return
       }
       resolve(softArr)
+    })
+  }
+}
+
+export class CMDUtil {
+  static openRegedit(path: string) {
+    exec(`taskkill /f /im regedit.exe & REG ADD "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Applets\\Regedit" /v "LastKey" /d "${path}" /f & regedit`, (err, stdout, stderr) => {
+      if (err) {
+        console.error('打开注册表失败', err)
+        return
+      }
+      if (stderr) {
+        console.error('stderr:', stderr)
+        return
+      }
+      // console.log('stdout:', stdout);
     })
   }
 }

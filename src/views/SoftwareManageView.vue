@@ -16,7 +16,7 @@ import { h, type VNode } from 'vue'
 export default {
   data() {
     return {
-      regeditGroupKey: undefined as undefined | SoftwareRegeditGroupKey,
+      regeditGroupKey: null as SoftwareRegeditGroupKey|null,
       tableColumns: [
         {
           label: '图标',
@@ -67,12 +67,12 @@ export default {
     }
   },
   created() {
-    this.regeditGroupKey = this.$route.query.regeditGroupKey
+    this.regeditGroupKey = this.$route.query.regeditGroupKey as SoftwareRegeditGroupKey
     this.refreshData(this.regeditGroupKey)
   },
   mounted() {},
   methods: {
-    refreshData(regeditGroupKey: undefined | SoftwareRegeditGroupKey) {
+    refreshData(regeditGroupKey: null | SoftwareRegeditGroupKey) {
       if (regeditGroupKey) {
         db.installedSoftware
           .where({ regeditGroupKey: regeditGroupKey })

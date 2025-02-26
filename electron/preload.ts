@@ -4,7 +4,7 @@
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron'
-import {  IpcChannels } from '../src/models/IpcChannels.ts'
+import {  IpcChannels } from '../src/models/IpcChannels'
 
 // 该项目需要动态执行js
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = String(true)

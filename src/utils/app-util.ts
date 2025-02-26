@@ -1,4 +1,4 @@
-import { IPC_CHANNELS } from '@/models/IpcChannels.ts'
+import { IPC_CHANNELS } from '@/models/IpcChannels'
 import type { ElMessageBoxOptions, MessageParams } from 'element-plus'
 import { CommonError } from '@/models/CommonError.ts'
 

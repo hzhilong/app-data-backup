@@ -139,7 +139,9 @@ export class SoftwareUtil {
         }
       }
     }
+    console.log('===1', soft.uninstallString)
     if (soft.uninstallString) {
+      console.log('===2', soft.uninstallString)
       let temp = this.strTrim(soft.uninstallString)
       let regex = /^MsiExec\.exe +\/.*(\{[\dA-Za-z-]+\})$/
       let match = temp.match(regex)
@@ -163,13 +165,13 @@ export class SoftwareUtil {
         }
       }
 
-      temp = temp.split('.exe ')[0]
-      temp = temp.endsWith('.exe') ? temp : temp + '.exe'
-      regex = /^(.*)\.*\.exe$/
+      regex = /^((.*)\\.*\.exe)[\\"]/
       match = temp.match(regex)
       if (match) {
-        if (fs.existsSync(match[1] + '\\' + soft.nameWithoutVersion)) {
-          return match[1] + '\\' + soft.nameWithoutVersion
+        if (fs.existsSync(match[2] + '\\' + soft.nameWithoutVersion)) {
+          return match[2] + '\\' + soft.nameWithoutVersion
+        } else if (fs.existsSync(match[1])) {
+          return match[1]
         }
       }
 

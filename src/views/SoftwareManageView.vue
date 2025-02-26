@@ -33,19 +33,7 @@ export default {
         },
         { label: '软件名', prop: 'name', width: '200', showOverflowTooltip: true, sortable: true },
         { label: '软件图标', prop: 'iconPath', width: '200', showOverflowTooltip: true },
-        {
-          label: '软件图标',
-          prop: 'iconPath',
-          width: '200',
-          showOverflowTooltip: true,
-          sortable: true,
-          sortBy: (row: InstalledSoftware) => {
-            return row.iconPath?.split('.').pop()
-          },
-          formatter: (row: InstalledSoftware) => {
-            return row.iconPath?.split('.').pop()
-          },
-        },
+        { label: '安装位置', prop: 'installLocation', width: '200', showOverflowTooltip: true, sortable: true },
         { label: '安装日期', prop: 'installDate', width: '90', align: 'center', sortable: true },
         { label: '大小', prop: 'formatSize', width: '70' },
         {

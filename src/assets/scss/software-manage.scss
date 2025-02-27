@@ -10,27 +10,27 @@
   padding: 10px;
   box-sizing: border-box;
 
-  .header{
+  .header {
     width: 100%;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
 
-    .header-left,.header-right{
+    .header-left, .header-right {
       display: flex;
       flex-direction: row;
       align-items: center;
 
-      .search-item{
+      .search-item {
         margin-right: 12px;
 
-        >.label{
+        > .label {
           color: $app-color-content-color3;
           margin-right: 3px;
         }
 
-        >.value{
+        > .value {
           width: 120px;
         }
       }
@@ -38,16 +38,75 @@
 
   }
 
-  .table-wrapper{
+  .table-wrapper {
     width: 100%;
     flex: 1;
     overflow: auto;
   }
 
-  .header{
+  .header {
     display: flex;
     flex-direction: row;
     align-items: center;
+  }
 
+  .footer {
+    width: 100%;
+
+    .soft-infos {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: start;
+      gap: 4px;
+      font-size: 12px;
+      box-shadow: 0px 0px 6px $app-color-border;
+      box-sizing: border-box;
+      padding: 10px;
+
+      $triangle-width: 10px;
+      $info-item-height: 20px;
+
+      .info-item {
+        height: $info-item-height;
+        line-height: $info-item-height;
+        max-width: 100%;
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+        //border: 1px solid $app-color-primary;
+        box-sizing: border-box;
+        padding-right: 6px;
+
+        .label {
+          height: $info-item-height;
+          line-height: $info-item-height;
+          color: $app-color-background;
+          padding-right: calc($triangle-width + 10px);
+          padding-left: 10px;
+          margin-right: 6px;
+          position: relative;
+          z-index: 1;
+          background-color: $app-color-primary;
+          clip-path: polygon(0 0, calc(100% - $triangle-width) 0, 100% 50%, calc(100% - $triangle-width) 100%, 0% 100%);
+          box-sizing: border-box;
+          user-select: none;
+        }
+
+        .value {
+          height: $info-item-height;
+          line-height: $info-item-height;
+          flex: 1;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          box-sizing: border-box;
+
+          &.actionable{
+            color: $app-color-primary;
+            cursor: pointer;
+          }
+        }
+      }
+    }
   }
 }

@@ -6,6 +6,7 @@ import { SoftwareRegeditGroupKey } from '../src/models/Software'
 import BrowserWindow = Electron.BrowserWindow
 import { CMDUtil } from './utils/win-util'
 import { getIconBase64, getInstalledSoftware } from './utils/software-util'
+import fs from 'fs'
 
 if (process.env.NODE_ENV === 'development') {
   setExternalVBSLocation(path.join(__dirname, '../node_modules/regedit/vbs'))
@@ -45,6 +46,16 @@ export default {
 
     ipcMain.handle(IPC_CHANNELS.OPEN_REGEDIT, (event, path: string) => {
       return CMDUtil.openRegedit(path)
+    })
+
+    ipcMain.handle(IPC_CHANNELS.OPEN_PATH, (event, path: string) => {
+      if (fs.existsSync(path)) {
+        if (fs.lstatSync(path).isFile()) {
+          shell.showItemInFolder(path)
+        } else {
+          shell.openExternal(path)
+        }
+      }
     })
   },
 }

@@ -99,4 +99,7 @@ export default {
   message,
   confirm,
   handleError: handleError,
+  openPath(path: string) {
+    window.electronAPI?.ipcInvoke(IPC_CHANNELS.OPEN_PATH, path)
+  },
 }

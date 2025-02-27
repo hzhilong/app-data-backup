@@ -28,6 +28,7 @@
         style="width: 100%"
         height="100%"
         stripe
+        border
         highlight-current-row
         @current-change="handleCurrentChange"
       >
@@ -36,19 +37,42 @@
     </div>
     <div class="footer" v-show="currentData">
       <div class="soft-infos">
-        <div class="line">
-          <div class="info-item">
-            <div class="label">软件名称：</div>
-            <div class="value">{{currentData?.name}}</div>
-          </div>
-          <div class="info-item">
-            <div class="label">安装位置：</div>
-            <a class="value actionable">{{currentData?.installLocation}}</a>
-          </div>
-          <div class="info-item">
-            <div class="label">注册表位置：</div>
-            <a class="value actionable">{{currentData?.regeditDir}}</a>
-          </div>
+        <div class="info-item">
+          <span class="label">软件名称</span>
+          <span class="value" :title="currentData?.name">{{ currentData?.name }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">安装位置</span>
+          <span
+            class="value actionable"
+            :title="currentData?.installLocation"
+            @click="openDir(currentData?.installLocation)"
+            >{{ currentData?.installLocation }}</span
+          >
+        </div>
+        <div class="info-item">
+          <span class="label">卸载位置</span>
+          <span
+            class="value actionable"
+            :title="currentData?.uninstallDir"
+            @click="openDir(currentData?.uninstallDir)"
+            >{{ currentData?.uninstallDir }}</span
+          >
+        </div>
+        <div class="info-item">
+          <span class="label">图标位置</span>
+          <span class="value actionable" :title="currentData?.iconPath" @click="openDir(currentData?.iconPath)">{{
+            currentData?.iconPath
+          }}</span>
+        </div>
+        <div class="info-item">
+          <div class="label">注册表位置</div>
+          <span
+            class="value actionable"
+            :title="currentData?.regeditDir"
+            @click="openRegedit(currentData?.regeditDir)"
+            >{{ currentData?.regeditDir }}</span
+          >
         </div>
       </div>
     </div>
@@ -60,6 +84,8 @@ import { type InstalledSoftware, SOFTWARE_REGEDIT_GROUP, type SoftwareRegeditGro
 import { db, DBUtil, type QueryParams } from '@/db/db.ts'
 import { h, type VNode } from 'vue'
 import RegeditUtil from '@/utils/regedit-util.ts'
+import AppUtil from '@/utils/app-util.ts'
+import defaultIcon from '../assets/image/software-icon-default.png'
 
 export default {
   data() {
@@ -72,20 +98,19 @@ export default {
           align: 'center',
           formatter: (row: InstalledSoftware): VNode | string => {
             return h('img', {
-              src: row.base64Icon,
+              src: row.base64Icon ? row.base64Icon : defaultIcon,
               alt: '',
-              style: 'width: 32px; height: 32px; object-fit: cover;',
+              style: 'display: block;width: 32px; height: 32px; object-fit: cover;',
             })
           },
         },
-        { label: '软件名', prop: 'name', width: '200', showOverflowTooltip: true, sortable: true },
-        { label: '软件图标', prop: 'iconPath', width: '200', showOverflowTooltip: true },
-        { label: '安装位置', prop: 'installLocation', width: '200', showOverflowTooltip: true, sortable: true },
+        { label: '软件名', prop: 'name', minWidth: '200', showOverflowTooltip: true, sortable: true },
         { label: '安装日期', prop: 'installDate', width: '90', align: 'center', sortable: true },
-        { label: '大小', prop: 'formatSize', width: '70' },
+        { label: '大小', prop: 'formatSize', align: 'center', width: '70' },
         {
           label: '注册表位置',
           prop: 'regeditGroupKey',
+          align: 'center',
           width: '100',
           formatter: (row: InstalledSoftware) => {
             if (row.regeditGroupKey) {
@@ -95,12 +120,10 @@ export default {
             }
           },
         },
-        { label: '版本', prop: 'version', width: '100' },
-        { label: '发布者', prop: 'publisher', minWidth: '100', showOverflowTooltip: true },
+        { label: '版本', prop: 'version', width: '80', showOverflowTooltip: true },
         {
           label: '操作',
           prop: 'iconPath',
-          width: '200',
           align: 'center',
           formatter: (row: InstalledSoftware): VNode | string => {
             return h(
@@ -117,7 +140,7 @@ export default {
                       RegeditUtil.openRegedit(row.regeditDir)
                     },
                   },
-                  '注册表位置',
+                  '测试',
                 ),
               ],
             )
@@ -153,6 +176,16 @@ export default {
     },
     handleCurrentChange(currentRow: InstalledSoftware) {
       this.currentData = currentRow
+    },
+    openDir(path: string | undefined) {
+      if (path) {
+        AppUtil.openPath(path)
+      }
+    },
+    openRegedit(path: string | undefined) {
+      if (path) {
+        RegeditUtil.openRegedit(path)
+      }
     },
   },
 }

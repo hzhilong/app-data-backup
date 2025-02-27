@@ -58,22 +58,45 @@ export type SoftwareRegeditPath = (typeof SOFTWARE_REGEDIT_GROUP)[keyof typeof S
  * 已安装的软件
  */
 export type InstalledSoftware = {
+  // 注册表类型
   regeditGroupKey: SoftwareRegeditGroupKey
+  // 注册表路径
   regeditDir: string
+  // 注册表文件夹名称
   regeditName: string
+  // 注册表值
   regeditValues: { [p: string]: RegistryItemValue }
+  // 软件名称
   name: string
+  // 不含版本号的软件名称
   nameWithoutVersion: string
+  // 版本
   version: string
+  // 发布者
   publisher: string
+  // 安装位置
   installLocation: string
+  // 安装日期
   installDate: string
+  // 占用大小
   size: number
+  // 格式化后的占用大小 带单位
   formatSize: string
+  // 卸载命令
   uninstallString: string
+  // 卸载程序所在文件夹
+  uninstallDir: string
+  // 卸载程序路径
+  uninstallFile: string
+  // 网站
   url: string
+  // 显示的图标，可能带索引
   displayIcon?: string
+  // 显示的图标，不带索引
+  displayIconWithoutIndex?: string
+  // 解析的图标路径
   iconPath?: string
+  // 图标base64
   base64Icon?: string
 }
 

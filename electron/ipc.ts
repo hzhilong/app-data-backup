@@ -4,7 +4,8 @@ import path from 'node:path'
 import { IPC_CHANNELS } from '../src/models/IpcChannels'
 import { SoftwareRegeditGroupKey } from '../src/models/Software'
 import BrowserWindow = Electron.BrowserWindow
-import { CMDUtil, SoftwareUtil } from './utils/win-util'
+import { CMDUtil } from './utils/win-util'
+import { getIconBase64, getInstalledSoftware } from './utils/software-util'
 
 if (process.env.NODE_ENV === 'development') {
   setExternalVBSLocation(path.join(__dirname, '../node_modules/regedit/vbs'))
@@ -35,11 +36,11 @@ export default {
     })
 
     ipcMain.handle(IPC_CHANNELS.GET_INSTALLED_SOFTWARE, (event, regeditGroupKey: SoftwareRegeditGroupKey) => {
-      return SoftwareUtil.getInstalledSoftware(regeditGroupKey)
+      return getInstalledSoftware(regeditGroupKey)
     })
 
     ipcMain.handle(IPC_CHANNELS.GET_ICON, (event, iconPath: string) => {
-      return SoftwareUtil.getIconBase64(iconPath)
+      return getIconBase64(iconPath)
     })
 
     ipcMain.handle(IPC_CHANNELS.OPEN_REGEDIT, (event, path: string) => {

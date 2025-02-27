@@ -36,43 +36,54 @@
       </el-table>
     </div>
     <div class="footer" v-show="currentData">
+      <img class="soft-icon" alt="" :src="currentData?.base64Icon ? currentData?.base64Icon : defaultIcon" />
       <div class="soft-infos">
-        <div class="info-item">
-          <span class="label">软件名称</span>
-          <span class="value" :title="currentData?.name">{{ currentData?.name }}</span>
+        <div class="line">
+          <div class="info-item">
+            <span class="label">软件名称</span>
+            <span class="value" :title="currentData?.name">{{ currentData?.name }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">发布者　</span>
+            <span class="value" :title="currentData?.publisher">{{ currentData?.publisher }}</span>
+          </div>
         </div>
-        <div class="info-item">
-          <span class="label">安装位置</span>
-          <span
-            class="value actionable"
-            :title="currentData?.installLocation"
-            @click="openDir(currentData?.installLocation)"
-            >{{ currentData?.installLocation }}</span
-          >
+        <div class="line">
+          <div class="info-item">
+            <span class="label">安装位置</span>
+            <span
+              class="value actionable"
+              :title="currentData?.installLocation"
+              @click="openDir(currentData?.installLocation)"
+              >{{ currentData?.installLocation }}</span
+            >
+          </div>
+          <div class="info-item">
+            <span class="label">图标位置</span>
+            <span class="value actionable" :title="currentData?.iconPath" @click="openDir(currentData?.iconPath)">{{
+              currentData?.iconPath
+            }}</span>
+          </div>
         </div>
-        <div class="info-item">
-          <span class="label">卸载位置</span>
-          <span
-            class="value actionable"
-            :title="currentData?.uninstallDir"
-            @click="openDir(currentData?.uninstallDir)"
-            >{{ currentData?.uninstallDir }}</span
-          >
-        </div>
-        <div class="info-item">
-          <span class="label">图标位置</span>
-          <span class="value actionable" :title="currentData?.iconPath" @click="openDir(currentData?.iconPath)">{{
-            currentData?.iconPath
-          }}</span>
-        </div>
-        <div class="info-item">
-          <div class="label">注册表位置</div>
-          <span
-            class="value actionable"
-            :title="currentData?.regeditDir"
-            @click="openRegedit(currentData?.regeditDir)"
-            >{{ currentData?.regeditDir }}</span
-          >
+        <div class="line">
+          <div class="info-item">
+            <span class="label">卸载位置</span>
+            <span
+              class="value actionable"
+              :title="currentData?.uninstallDir"
+              @click="openDir(currentData?.uninstallDir)"
+              >{{ currentData?.uninstallDir }}</span
+            >
+          </div>
+          <div class="info-item">
+            <div class="label">注册表　</div>
+            <span
+              class="value actionable"
+              :title="currentData?.regeditDir"
+              @click="openRegedit(currentData?.regeditDir)"
+              >{{ currentData?.regeditDir }}</span
+            >
+          </div>
         </div>
       </div>
     </div>
@@ -90,6 +101,7 @@ import defaultIcon from '../assets/image/software-icon-default.png'
 export default {
   data() {
     return {
+      defaultIcon: defaultIcon,
       tableColumns: [
         {
           label: '图标',
@@ -106,9 +118,9 @@ export default {
         },
         { label: '软件名', prop: 'name', minWidth: '200', showOverflowTooltip: true, sortable: true },
         { label: '安装日期', prop: 'installDate', width: '90', align: 'center', sortable: true },
-        { label: '大小', prop: 'formatSize', align: 'center', width: '70' },
+        { label: '大小', prop: 'formatSize', align: 'center', width: '70', sortable: true, sortBy: 'size' },
         {
-          label: '注册表位置',
+          label: '类型',
           prop: 'regeditGroupKey',
           align: 'center',
           width: '100',
@@ -119,11 +131,13 @@ export default {
               return '-'
             }
           },
+          sortable: true,
         },
         { label: '版本', prop: 'version', width: '80', showOverflowTooltip: true },
         {
           label: '操作',
           prop: 'iconPath',
+          minWidth: '100',
           align: 'center',
           formatter: (row: InstalledSoftware): VNode | string => {
             return h(

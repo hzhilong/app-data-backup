@@ -85,49 +85,48 @@ function parseInstallDate(
   uninstallFile: string | undefined,
   iconPath: string | undefined,
 ): void {
-  if (!installDate) {
-    soft.installDate = ''
-    return
-  }
-  if (/\d{8}/.test(installDate)) {
-    soft.installDate = formatDate(installDate.slice(0, 4), installDate.slice(4, 6), installDate.slice(6, 8))
-    return
-  }
-  let regex = /^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})$/
-  let match = installDate.match(regex)
-  if (match) {
-    soft.installDate = formatDate(match[1], match[2], match[3])
-    return
-  }
-  regex = /^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/
-  match = installDate.match(regex)
-  if (match) {
-    soft.installDate = formatDate(match[3], match[1], match[2])
-    return
-  }
-  const arrTime: Date[] = []
-  if (uninstallFile) {
-    if (fs.existsSync(uninstallFile)) {
-      const stats = fs.statSync(uninstallFile)
+  if (installDate) {
+    if (/\d{8}/.test(installDate)) {
+      soft.installDate = formatDate(installDate.slice(0, 4), installDate.slice(4, 6), installDate.slice(6, 8))
+      return
+    }
+    let regex = /^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})$/
+    let match = installDate.match(regex)
+    if (match) {
+      soft.installDate = formatDate(match[1], match[2], match[3])
+      return
+    }
+    regex = /^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/
+    match = installDate.match(regex)
+    if (match) {
+      soft.installDate = formatDate(match[3], match[1], match[2])
+      return
+    }
+  } else {
+    const arrTime: Date[] = []
+    if (uninstallFile) {
+      if (fs.existsSync(uninstallFile)) {
+        const stats = fs.statSync(uninstallFile)
+        if (stats.isFile()) {
+          arrTime.push(stats.ctime)
+        }
+      }
+    }
+    if (iconPath) {
+      const stats = fs.statSync(iconPath)
       if (stats.isFile()) {
         arrTime.push(stats.ctime)
       }
     }
-  }
-  if (iconPath) {
-    const stats = fs.statSync(iconPath)
-    if (stats.isFile()) {
-      arrTime.push(stats.ctime)
-    }
-  }
-  arrTime.sort((a, b) => a.getTime() - b.getTime())
+    arrTime.sort((a, b) => a.getTime() - b.getTime())
 
-  if (arrTime.length > 0) {
-    soft.installDate = formatDate(arrTime[0])
-  } else {
-    soft.installDate = ''
+    if (arrTime.length > 0) {
+      soft.installDate = formatDate(arrTime[0])
+    } else {
+      soft.installDate = ''
+    }
+    return
   }
-  return
 }
 
 // 解析版本
@@ -197,7 +196,12 @@ function parseIconInfo(
     }
   }
   if (uninstallDir) {
-    let temp = path.join(uninstallDir, `ARPPRODUCTICON.exe`)
+    let temp = path.join(uninstallDir, nameWithoutVersion + '.exe')
+    if (fs.existsSync(temp)) {
+      soft.iconPath = temp
+      return
+    }
+    temp = path.join(uninstallDir, `ARPPRODUCTICON.exe`)
     if (fs.existsSync(temp)) {
       // MsiExec 安装
       soft.iconPath = temp
@@ -214,12 +218,6 @@ function parseIconInfo(
           return
         }
       }
-    }
-
-    temp = path.join(uninstallDir, nameWithoutVersion + '.exe')
-    if (fs.existsSync(temp)) {
-      soft.iconPath = temp
-      return
     }
   }
   if (uninstallFile && fs.existsSync(uninstallFile)) {

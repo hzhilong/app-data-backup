@@ -60,10 +60,14 @@ function parseUninstallString(soft: InstalledSoftware, uninstallString: string):
   let regex = /^MsiExec\.exe +\/.*(\{[\dA-Za-z-]+})$/
   let match = uninstallString.match(regex)
   if (match) {
-    const systemDrive = process.env.SystemDrive as string
-    const dir = `${systemDrive}\\Windows\\Installer\\${match[1]}\\`
+    const dir = path.join(process.env.SystemDrive as string, 'Windows', 'Installer', match[1])
     if (fs.existsSync(dir)) {
       soft.uninstallDir = dir
+      return
+    }
+    const dir2 = path.join(process.env.APPDATA as string, 'Microsoft', 'Installer', match[1])
+    if (fs.existsSync(dir2)) {
+      soft.uninstallDir = dir2
       return
     }
   }
@@ -201,6 +205,19 @@ function parseIconInfo(
       soft.iconPath = temp
       return
     }
+    if (displayIcon) {
+      const regex = /([^\/\\]+?)(?=\.[^\/\\]*$|$)/
+      const match = displayIcon.match(regex)
+      if (match) {
+        const name = match[1]
+        temp = path.join(uninstallDir, name + '.exe')
+        if (fs.existsSync(temp)) {
+          soft.iconPath = temp
+          return
+        }
+      }
+    }
+
     temp = path.join(uninstallDir, `ARPPRODUCTICON.exe`)
     if (fs.existsSync(temp)) {
       // MsiExec 安装
@@ -209,14 +226,18 @@ function parseIconInfo(
     } else {
       // 获取目录中的所有文件和子文件夹
       const files = fs.readdirSync(uninstallDir)
+      const icoArr = []
       for (const file of files) {
         if (file.endsWith('.ico')) {
-          soft.iconPath = path.join(uninstallDir, file)
-          return
+          icoArr.push(path.join(uninstallDir, file))
         } else if (files.length == 1 && (file.indexOf('.') < 0 || file.endsWith('.exe'))) {
           soft.iconPath = path.join(uninstallDir, file)
           return
         }
+      }
+      if(icoArr.length === 1){
+        soft.iconPath = icoArr[0]
+        return
       }
     }
   }

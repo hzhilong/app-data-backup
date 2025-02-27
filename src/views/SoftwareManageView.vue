@@ -59,21 +59,20 @@
             >
           </div>
           <div class="info-item">
-            <span class="label">图标位置</span>
-            <span class="value actionable" :title="currentData?.iconPath" @click="openDir(currentData?.iconPath)">{{
-              currentData?.iconPath
-            }}</span>
+            <span class="label">卸载命令</span>
+            <span
+              class="value"
+              :title="currentData?.uninstallString"
+            >{{ currentData?.uninstallString }}</span
+            >
           </div>
         </div>
         <div class="line">
           <div class="info-item">
-            <span class="label">卸载位置</span>
-            <span
-              class="value actionable"
-              :title="currentData?.uninstallDir"
-              @click="openDir(currentData?.uninstallDir)"
-              >{{ currentData?.uninstallDir }}</span
-            >
+            <span class="label">图标位置</span>
+            <span class="value actionable" :title="currentData?.iconPath" @click="openDir(currentData?.iconPath)">{{
+                currentData?.iconPath
+              }}</span>
           </div>
           <div class="info-item">
             <div class="label">注册表　</div>

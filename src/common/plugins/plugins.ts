@@ -29,9 +29,9 @@ export interface BackupItemConfig {
   /** 目标相对路径 不用关心父文件夹，会自动补全 比如 /.backup/WinRAR/2022-09-19_00-52-09/填写这后面的就行 */
   targetRelativePath: string
   /** 排除的文件名(正则) */
-  exclude: string[]
+  exclude?: string[]
   /** 如果缺失或失败则跳过 */
-  skipIfMissing: boolean
+  skipIfMissing?: boolean
 }
 
 /**
@@ -240,7 +240,7 @@ export abstract class BasePlugin {
     const results: BackupResult[] = []
     for (let i = 0; i < configLength; i++) {
       const backupConfig = this.backupConfigs[i]
-      log(`${i + 1}/${configLength}开始备份软件配置[${backupConfig.name}]`)
+      log(`${i + 1}/${configLength} 开始备份软件配置[${backupConfig.name}]`)
       const result: BackupResult = {
         name: backupConfig.name,
         success: true,
@@ -279,7 +279,7 @@ export abstract class BasePlugin {
     const execType = options.execType
     const [src, des] = [item.sourcePath, item.targetRelativePath]
 
-    log(`开始处理配置项[${src}]`)
+    log(`开始处理配置项[${des}]`)
     logger.debug(options)
     logger.debug(item)
     let size = -1
@@ -290,6 +290,12 @@ export abstract class BasePlugin {
             IPC_CHANNELS.EXPORT_REGEDIT,
             src,
             options.dataDir + this.resolvePath(des, env, options.installDir),
+          )) as number
+        } else {
+          size = (await window.electronAPI?.ipcInvoke(
+            IPC_CHANNELS.IMPORT_REGEDIT,
+            this.resolvePath(src, env, options.installDir),
+            options.dataDir + des,
           )) as number
         }
       } else {
@@ -315,7 +321,7 @@ export abstract class BasePlugin {
   }
 
   protected resolvePath(path: string, env: { [key: string]: string | undefined }, installDir: string) {
-    return path.replace(/%installDir%/g, installDir).replace(/%(\w+)%/g, (_: string, key: string): string => {
+    return path.replace(/%installDir%/gi, installDir).replace(/%(\w+)%/gi, (_: string, key: string): string => {
       const value = env[key]
       return value !== undefined ? value : `%${key}%`
     })

@@ -5,14 +5,22 @@ const id = 'MusicBee'
 const name = 'MusicBee'
 const backupConfigs: BackupConfig[] = [
   {
-    name: '设置',
+    name: '插件',
     items: [
       {
         type: 'directory',
         sourcePath: '%installDir%/Plugins',
         targetRelativePath: 'Plugins',
-        skipIfMissing: false,
-        exclude: [],
+      },
+    ],
+  },
+  {
+    name: '设置',
+    items: [
+      {
+        type: 'file',
+        sourcePath: '%APPDATA%/MusicBee/MusicBee3Settings.ini',
+        targetRelativePath: 'MusicBee3Settings.ini',
       },
     ],
   },

@@ -74,5 +74,9 @@ export default {
     ipcMain.handle(IPC_CHANNELS.COPY_FILE, (event, src: string, des: string) => {
       return WinUtil.copyFile(src, des)
     })
+
+    ipcMain.handle(IPC_CHANNELS.GET_ENV, (event) => {
+      return WinUtil.getEnv()
+    })
   },
 }

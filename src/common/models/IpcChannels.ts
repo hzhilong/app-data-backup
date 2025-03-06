@@ -13,6 +13,7 @@ export const IPC_CHANNELS = {
   READ_JSON_FILE: 'READ_JSON_FILE',
   WRITE_JSON_FILE: 'WRITE_JSON_FILE',
   COPY_FILE: 'COPY_FILE',
+  GET_ENV: 'GET_ENV',
 } as const
 
 export type IpcChannels = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS]

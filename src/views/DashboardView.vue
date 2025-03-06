@@ -52,10 +52,10 @@ import {
   type SoftwareBackupConfig,
   type SoftwareLib,
   type SoftwareRegeditGroupKey,
-} from '@/models/Software.ts'
+} from '@/common/types/Software.ts'
 import { db, DBUtil } from '@/db/db'
 import AppUtil from '@/utils/app-util.ts'
-import BaseUtil from '@/utils/base-util.ts'
+import BaseUtil from '@/common/utils/base-util.ts'
 
 export default {
   data() {

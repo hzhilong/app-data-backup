@@ -5,7 +5,7 @@ import {
   InstalledSoftware,
   SOFTWARE_REGEDIT_GROUP,
   SoftwareRegeditGroupKey,
-} from '../../src/models/Software'
+} from '../../src/common/types/Software'
 import { promisified as regedit, RegistryItem, RegistryItemValue } from 'regedit'
 import path from 'path'
 import { app } from 'electron'
@@ -42,7 +42,7 @@ function iconPathTrimIndex(str: string) {
   if (!str) {
     return str
   }
-  const regex = /^(.*)(,?[-\d]*)$/
+  const regex = /^(.*?)(?:,[-\d]+)?$/;
   const match = str?.match(regex)
   if (match) {
     return match[1]
@@ -77,6 +77,9 @@ function parseUninstallString(soft: InstalledSoftware, uninstallString: string):
     if (fs.existsSync(match[2])) {
       soft.uninstallFile = match[1]
       soft.uninstallDir = match[2]
+      if(!soft.installDir){
+        soft.installDir = match[2]
+      }
       return
     }
   }
@@ -177,7 +180,7 @@ function parseIconInfo(
     }
   }
   if (installLocation) {
-    const regex = /^(.*\.exe)(?:,[-\d]*)?$/
+    const regex = /^(.*?\.exe)(?:,[-\d]+)?$/
     const match = installLocation.match(regex)
     if (match) {
       if (fs.existsSync(match[1])) {
@@ -341,6 +344,9 @@ export async function parseInstalledSoftware(
     formatSize: formatSize(entry.EstimatedSize?.value as number),
     url: stripQuotesAndTrim(entry.URLUpdateInfo?.value as string),
   }
+  if(soft.installLocation){
+    soft.installDir = soft.installLocation
+  }
   parseVersion(soft, entry)
   parseNameWithoutVersion(soft, name)
   parseUninstallString(soft, stripQuotesAndTrim(entry.UninstallString?.value as string))
@@ -362,7 +368,7 @@ export async function getInstalledSoftware(regeditGroupKey: SoftwareRegeditGroup
     const regeditPath = SOFTWARE_REGEDIT_GROUP[regeditGroupKey].path
     const pathList = await regedit.list([regeditPath])
     const pathResult: RegistryItem = pathList[regeditPath]
-    if (!pathResult.exists || !pathResult.keys) {
+    if (!pathResult || !pathResult.exists || !pathResult.keys) {
       return []
     } else {
       const subPathNames: Record<string, string> = {}

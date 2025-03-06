@@ -74,8 +74,10 @@ export type InstalledSoftware = {
   version: string
   // 发布者
   publisher: string
-  // 安装位置
+  // 安装位置（注册表值）
   installLocation: string
+  // 安装位置（自动识别 首选注册表值 否则查询其他关联的路径）
+  installDir?: string
   // 安装日期
   installDate: string
   // 占用大小

@@ -24,6 +24,8 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "consola": "^3.4.0",
+    "dayjs": "^1.11.13",
     "dexie": "^4.0.11",
     "element-plus": "^2.9.4",
     "pinia": "^2.3.1",

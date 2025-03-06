@@ -53,9 +53,9 @@
             <span class="label">安装位置</span>
             <span
               class="value actionable"
-              :title="currentData?.installLocation"
-              @click="openDir(currentData?.installLocation)"
-              >{{ currentData?.installLocation }}</span
+              :title="currentData?.installDir"
+              @click="openDir(currentData?.installDir)"
+              >{{ currentData?.installDir }}</span
             >
           </div>
           <div class="info-item">
@@ -90,7 +90,7 @@
 </template>
 
 <script lang="ts">
-import { type InstalledSoftware, SOFTWARE_REGEDIT_GROUP, type SoftwareRegeditGroupKey } from '@/models/Software.ts'
+import { type InstalledSoftware, SOFTWARE_REGEDIT_GROUP, type SoftwareRegeditGroupKey } from '@/common/types/Software.ts'
 import { db, DBUtil, type QueryParams } from '@/db/db.ts'
 import { h, type VNode } from 'vue'
 import RegeditUtil from '@/utils/regedit-util.ts'

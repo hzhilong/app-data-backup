@@ -1,12 +1,11 @@
 import { ipcMain, shell } from 'electron'
 import { setExternalVBSLocation } from 'regedit'
 import path from 'node:path'
-import { IPC_CHANNELS } from '../src/models/IpcChannels'
-import { SoftwareRegeditGroupKey } from '../src/models/Software'
+import { IPC_CHANNELS } from '../src/common/models/IpcChannels'
+import { SoftwareRegeditGroupKey } from '../src/common/types/Software'
 import BrowserWindow = Electron.BrowserWindow
-import { CMDUtil } from './utils/win-util'
+import { WinUtil } from './utils/win-util'
 import { getIconBase64, getInstalledSoftware } from './utils/software-util'
-import fs from 'fs'
 
 if (process.env.NODE_ENV === 'development') {
   setExternalVBSLocation(path.join(__dirname, '../node_modules/regedit/vbs'))
@@ -45,17 +44,35 @@ export default {
     })
 
     ipcMain.handle(IPC_CHANNELS.OPEN_REGEDIT, (event, path: string) => {
-      return CMDUtil.openRegedit(path)
+      return WinUtil.openRegedit(path)
     })
 
-    ipcMain.handle(IPC_CHANNELS.OPEN_PATH, (event, path: string) => {
-      if (fs.existsSync(path)) {
-        if (fs.lstatSync(path).isFile()) {
-          shell.showItemInFolder(path)
-        } else {
-          shell.openExternal(path)
-        }
-      }
+    ipcMain.handle(IPC_CHANNELS.READ_REGEDIT_VALUES, (event, path: string) => {
+      return WinUtil.readRegeditValues(path)
+    })
+
+    ipcMain.handle(IPC_CHANNELS.OPEN_PATH, (event, fileOrDir: string) => {
+      WinUtil.openPath(fileOrDir)
+    })
+
+    ipcMain.handle(IPC_CHANNELS.READ_JSON_FILE, (event, filePath: string) => {
+      return WinUtil.readJsonFile(filePath)
+    })
+
+    ipcMain.handle(IPC_CHANNELS.WRITE_JSON_FILE, (event, filePath: string, data: unknown) => {
+      return WinUtil.writeJsonFile(filePath, data)
+    })
+
+    ipcMain.handle(IPC_CHANNELS.EXPORT_REGEDIT, (event, regPath: string, filePath: string) => {
+      return WinUtil.exportRegedit(regPath, filePath)
+    })
+
+    ipcMain.handle(IPC_CHANNELS.IMPORT_REGEDIT, (event, regPath: string, filePath: string) => {
+      return WinUtil.importRegedit(regPath, filePath)
+    })
+
+    ipcMain.handle(IPC_CHANNELS.COPY_FILE, (event, src: string, des: string) => {
+      return WinUtil.copyFile(src, des)
     })
   },
 }

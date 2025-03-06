@@ -6,6 +6,8 @@
 - 自定义
 
 // TODO https://github.com/electron-userland/electron-json-storage
+// TODO 还原时[自动]备份一次
+// 备份类型？手动、自动
 
 版本限制
 

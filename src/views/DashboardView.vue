@@ -142,7 +142,7 @@ export default {
         })
     },
     async initSoftwareLib() {
-      console.log('initSoftwareLib', await window.electronAPI?.ipcInvoke(IPC_CHANNELS.GET_PLUGINS))
+      console.log('initSoftwareLib', await window.electronAPI?.ipcInvoke(IPC_CHANNELS.INIT_PLUGINS))
     },
   },
 }

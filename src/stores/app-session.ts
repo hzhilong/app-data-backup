@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import AppUtil from '@/utils/app-util.ts'
 
 export const AppSessionStore = defineStore('AppSessionStore', {
   state: () => {

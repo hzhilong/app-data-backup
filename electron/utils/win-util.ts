@@ -4,7 +4,7 @@ import fs from 'fs'
 import { promisified as regedit, RegistryItem } from 'regedit'
 import path from 'node:path'
 import { shell } from 'electron'
-import { logger } from '../../src/utils/logger'
+import { logger } from '@/utils/logger'
 
 interface ExecCmdOptions {
   codeIsSuccess: (number: number) => boolean

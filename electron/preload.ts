@@ -4,7 +4,7 @@
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron'
-import {  IpcChannels } from '../src/models/IpcChannels'
+import { IpcChannels } from '@/models/IpcChannels'
 
 // 该项目需要动态执行js
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = String(true)
@@ -22,7 +22,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   ipcOnce(channel: IpcChannels, listener: (event: IpcRendererEvent, ...args: unknown[]) => void) {
     ipcRenderer.once(channel, listener)
   },
-  ipcOff(channel: IpcChannels) {
+  ipcOff(channel: IpcChannels, listener: (event: IpcRendererEvent, ...args: unknown[]) => void) {
+    ipcRenderer.removeListener(channel, listener)
+  },
+  ipcOffAll(channel: IpcChannels) {
     ipcRenderer.removeAllListeners(channel)
   },
   ipcInvoke(channel: IpcChannels, ...data: unknown[]) {

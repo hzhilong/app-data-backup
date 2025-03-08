@@ -1,9 +1,8 @@
 // 插件接口定义
-import { CommonError } from '../models/CommonError.ts'
-import { formatSize, type InstalledSoftware } from '../models/Software.ts'
-import BaseUtil from '../utils/base-util.ts'
-import { IPC_CHANNELS } from '../models/IpcChannels.ts'
-import { logger } from '../utils/logger.ts'
+import { CommonError } from '@/models/CommonError.ts'
+import { formatSize, type InstalledSoftware } from '@/models/Software'
+import BaseUtil from '@/utils/base-util'
+import { IPC_CHANNELS } from '@/models/IpcChannels'
 
 /**
  * 备份配置 可根据该配置快速进行备份还原 也可自己实现备份还原方法
@@ -110,15 +109,15 @@ export interface PluginOptions {
 }
 
 /**
- * 线程监听
+ * 任务监听
  */
-export type WorkerMonitor = {
-  progress?: (curr: number, total: number) => void
-  log?: (msg: string) => void
+export interface TaskMonitor {
+  /** 进度 */
+  progress: (log: string, curr: number, total: number) => void
 }
 
-/** 基础的插件配置 */
-export class BasePlugin {
+/** 插件配置 */
+export class PluginConfig {
   /** 类型：内置|自定义*/
   type: BackupPluginTypeKey
   /** 插件唯一标识符 (如：'Everything') */
@@ -131,27 +130,32 @@ export class BasePlugin {
   totalItemNum: number
 
   constructor(config: Record<string, unknown>) {
-    if (typeof config.type === 'string' && config.type in BACKUP_PLUGIN_TYPE_KEY) {
-      this.type = config.type as BackupPluginTypeKey
-    } else {
-      throw new CommonError('插件配置错误，缺少 type')
-    }
-    if (typeof config.id === 'string') {
-      this.id = config.id
-    } else {
-      throw new CommonError('插件配置错误，缺少 id')
-    }
-    if (typeof config.name === 'string') {
-      this.name = config.name
-    } else {
-      this.name = this.id
-    }
-    if (Array.isArray(config.backupConfigs)) {
-      this.backupConfigs = config.backupConfigs as BackupConfig[]
-      this.totalItemNum = this.backupConfigs.reduce((sum, config) => sum + config.items.length, 0)
-    } else {
-      throw new CommonError('插件配置错误，缺少 backupConfigs')
-    }
+    const { type, id, name, backupConfigs } = config
+    this.validateConfig(typeof type === 'string' && type in BACKUP_PLUGIN_TYPE_KEY, '缺少有效的 type')
+    this.validateConfig(typeof id === 'string', '缺少 id')
+    this.validateConfig(Array.isArray(backupConfigs), '缺少 backupConfigs')
+    this.type = type as BackupPluginTypeKey
+    this.id = id
+    this.name = (name ? name : id) as string
+    this.backupConfigs = config.backupConfigs as BackupConfig[]
+    this.backupConfigs = backupConfigs as BackupConfig[]
+    this.totalItemNum = this.backupConfigs.reduce((sum, c) => sum + c.items.length, 0)
+  }
+
+  /**
+   * 配置属性校验逻辑
+   */
+  validateConfig(condition: unknown, message: string): asserts condition {
+    if (!condition) throw new CommonError(`插件配置错误，${message}`)
+  }
+}
+
+/** 插件 */
+export class Plugin extends PluginConfig {
+  constructor(config: Record<string, unknown>) {
+    super(config)
+    // 覆盖方法
+    Object.assign(this, config)
   }
 
   /**
@@ -193,7 +197,7 @@ export class BasePlugin {
   }
 
   /**
-   * 验证插件支持的软件源（免安装的） 子类需自己实现
+   * 验证插件支持的软件源（免安装的）
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public detectOfPortable(env: { [key: string]: string | undefined }): string | undefined {
@@ -216,25 +220,12 @@ export class BasePlugin {
   }
 
   /**
-   * 构建进度函数
+   * 构建进度监听函数
    */
-  protected buildProgressFn(monitor?: WorkerMonitor) {
-    return (curr: number) => {
+  protected buildMonitorProgressFn(monitor?: TaskMonitor) {
+    return (log: string, curr: number) => {
       if (monitor && monitor.progress) {
-        monitor.progress(curr, this.totalItemNum)
-      }
-    }
-  }
-
-  /**
-   * 构建日志函数
-   */
-  protected buildLogFn(monitor?: WorkerMonitor) {
-    return (msg: string) => {
-      if (monitor && monitor.log) {
-        monitor.log(msg)
-      } else {
-        logger.debug(msg)
+        monitor.progress(log, curr, this.totalItemNum)
       }
     }
   }
@@ -245,18 +236,18 @@ export class BasePlugin {
   public async execPlugin(
     options: PluginOptions,
     env: { [key: string]: string | undefined },
-    monitor?: WorkerMonitor,
+    monitor?: TaskMonitor,
     signal?: AbortSignal,
   ): Promise<BackupResult[]> {
-    const log: (msg: string) => void = this.buildLogFn(monitor)
-    const progress: (curr: number) => void = this.buildProgressFn(monitor)
+    const progress: (log: string, curr: number) => void = this.buildMonitorProgressFn(monitor)
 
-    log(`开始备份软件【${this.name}】`)
+    progress(`开始备份软件【${this.name}】`, 0)
     const configLength = this.backupConfigs.length
     const results: BackupResult[] = []
+    let successCount = 0
     for (let i = 0; i < configLength; i++) {
       const backupConfig = this.backupConfigs[i]
-      log(`${i + 1}/${configLength} 开始备份软件配置[${backupConfig.name}]`)
+      progress(`${i + 1}/${configLength} 开始备份软件配置[${backupConfig.name}]`, successCount)
       const result: BackupResult = {
         name: backupConfig.name,
         success: true,
@@ -266,8 +257,9 @@ export class BasePlugin {
       for (const item of backupConfig.items) {
         this.handleSignal(signal)
         try {
-          const itemResult: BackupItem = await this.operateData(options, env, item, progress, log, signal)
+          const itemResult: BackupItem = await this.operateData(options, env, item, progress, successCount, signal)
           result.backedUpItems.push(itemResult)
+          successCount++
         } catch (e) {
           result.error = BaseUtil.convertToCommonError(e)
           result.message = `备份失败：${result.error.message}`
@@ -287,17 +279,15 @@ export class BasePlugin {
     options: PluginOptions,
     env: { [key: string]: string | undefined },
     item: BackupItemConfig,
-    progress: (curr: number) => void,
-    log: (msg: string) => void,
+    progress: (log: string, curr: number) => void,
+    curr: number,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     signal?: AbortSignal,
   ): Promise<BackupItem> {
     const execType = options.execType
     const [src, des] = [item.sourcePath, item.targetRelativePath]
 
-    log(`开始处理配置项[${des}]`)
-    logger.debug(options)
-    logger.debug(item)
+    progress(`开始处理配置项[${des}]`, curr)
     let size = -1
     try {
       if (item.type === 'registry') {

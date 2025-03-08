@@ -1,13 +1,13 @@
-import BaseUtil from '../utils/base-util.ts'
-import { IPC_CHANNELS } from '../models/IpcChannels'
+import BaseUtil from '@/utils/base-util.ts'
+import { IPC_CHANNELS } from '@/models/IpcChannels'
 import {
   type AllInstalledSoftware,
   type InstalledSoftware,
   type SoftwareRegeditGroupKey,
   SOFTWARE_REGEDIT_GROUP,
   parseInstalledSoftwareGroup,
-} from '../models/Software.ts'
-import { db } from '../db/db.ts'
+} from '@/models/Software.ts'
+import { db } from '@/db/db.ts'
 
 export default class RegeditUtil {
 

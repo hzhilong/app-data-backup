@@ -6,7 +6,7 @@ import App from './App.vue'
 import router from './router'
 
 import ElementPlus from 'element-plus'
-import './assets/scss/main.scss'
+import '@/assets/scss/main.scss'
 import AppUtil from '@/utils/app-util'
 
 const app = createApp(App)

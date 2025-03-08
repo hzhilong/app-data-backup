@@ -3,10 +3,11 @@
 // https://juejin.cn/post/7303746615365845002
 // app 控制应用程序的事件生命周期（相当于应用程序）
 // BrowserWindow 创建并控制浏览器窗口（相当于打开桌面弹框）
-import { app, BrowserWindow, globalShortcut, ipcMain } from 'electron'
+import { app, BrowserWindow, globalShortcut } from 'electron'
 import path from 'node:path'
 // import os from 'node:os'
 import IPC from './ipc'
+import { initPluginSystem } from './utils/plugins-util'
 
 // APP目录
 const rootPath = path.join(__dirname, '../')
@@ -21,7 +22,7 @@ const publicPath = devServerUrl ? path.join(rootPath, 'public') : rendererDist
 
 // 禁用 Windows 7 的 GPU 加速
 // if (os.release().startsWith('6.1')){
-  app.disableHardwareAcceleration()
+app.disableHardwareAcceleration()
 // }
 
 // 设置 Windows 10+ 通知的应用程序名称
@@ -80,6 +81,8 @@ const createWindow = () => {
 
   // 注册 IPC 处理器
   IPC.init(mainWindow)
+  // 初始化插件系统
+  initPluginSystem(mainWindow)
 
   if (devServerUrl) {
     // 开发

@@ -14,6 +14,7 @@ export const IPC_CHANNELS = {
   WRITE_JSON_FILE: 'WRITE_JSON_FILE',
   COPY_FILE: 'COPY_FILE',
   GET_ENV: 'GET_ENV',
+  GET_PLUGINS: 'GET_PLUGINS',
 } as const
 
 export type IpcChannels = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS]

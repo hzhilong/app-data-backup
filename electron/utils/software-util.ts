@@ -5,7 +5,7 @@ import {
   InstalledSoftware,
   SOFTWARE_REGEDIT_GROUP,
   SoftwareRegeditGroupKey,
-} from '../../src/common/types/Software'
+} from '../../src/models/Software'
 import { promisified as regedit, RegistryItem, RegistryItemValue } from 'regedit'
 import path from 'path'
 import { app } from 'electron'

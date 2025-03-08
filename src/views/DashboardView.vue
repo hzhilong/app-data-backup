@@ -46,16 +46,15 @@ import { mapActions } from 'pinia'
 import { AppSessionStore } from '@/stores/app-session.ts'
 import RegeditUtil from '@/utils/regedit-util.ts'
 import {
-  BACKUP_SOFTWARE_TYPE,
   BACKUP_SOFTWARE_TYPE_KEY,
   type AllInstalledSoftware,
-  type SoftwareBackupConfig,
   type SoftwareLib,
   type SoftwareRegeditGroupKey,
-} from '@/common/types/Software.ts'
+} from '@/models/Software.ts'
 import { db, DBUtil } from '@/db/db'
 import AppUtil from '@/utils/app-util.ts'
-import BaseUtil from '@/common/utils/base-util.ts'
+import BaseUtil from '@/utils/base-util.ts'
+import { IPC_CHANNELS } from '@/models/IpcChannels.ts'
 
 export default {
   data() {
@@ -142,27 +141,8 @@ export default {
           this.setInitializing(false)
         })
     },
-    initSoftwareLib() {
-      this.softwareLib = {
-        [BACKUP_SOFTWARE_TYPE_KEY.INSTALLER]: {
-          ...BACKUP_SOFTWARE_TYPE[BACKUP_SOFTWARE_TYPE_KEY.INSTALLER],
-          list: new Array(23).fill({
-            softwareType: BACKUP_SOFTWARE_TYPE_KEY.INSTALLER,
-            softwareName: '测试软件1',
-          }) as SoftwareBackupConfig[],
-        },
-        [BACKUP_SOFTWARE_TYPE_KEY.PORTABLE]: {
-          ...BACKUP_SOFTWARE_TYPE[BACKUP_SOFTWARE_TYPE_KEY.PORTABLE],
-          list: new Array(3).fill({
-            softwareType: BACKUP_SOFTWARE_TYPE_KEY.PORTABLE,
-            softwareName: '测试软件2',
-          }) as SoftwareBackupConfig[],
-        },
-        [BACKUP_SOFTWARE_TYPE_KEY.CUSTOM]: {
-          ...BACKUP_SOFTWARE_TYPE[BACKUP_SOFTWARE_TYPE_KEY.CUSTOM],
-          list: null,
-        },
-      }
+    async initSoftwareLib() {
+      console.log('initSoftwareLib', await window.electronAPI?.ipcInvoke(IPC_CHANNELS.GET_PLUGINS))
     },
   },
 }

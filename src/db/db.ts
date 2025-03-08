@@ -4,8 +4,8 @@ import {
   type InstalledSoftware, parseInstalledSoftwareGroup,
   SOFTWARE_REGEDIT_GROUP_KEY,
   type SoftwareRegeditGroupKey
-} from '@/common/types/Software.ts'
-import BaseUtil from '@/common/utils/base-util.ts'
+} from '@/models/Software.ts'
+import BaseUtil from '@/utils/base-util.ts'
 
 export type IconCache = {
   path: string,

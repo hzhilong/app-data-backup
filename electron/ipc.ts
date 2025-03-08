@@ -1,11 +1,12 @@
 import { ipcMain, shell } from 'electron'
 import { setExternalVBSLocation } from 'regedit'
 import path from 'node:path'
-import { IPC_CHANNELS } from '../src/common/models/IpcChannels'
-import { SoftwareRegeditGroupKey } from '../src/common/types/Software'
+import { IPC_CHANNELS } from '../src/models/IpcChannels'
+import { SoftwareRegeditGroupKey } from '../src/models/Software'
 import BrowserWindow = Electron.BrowserWindow
 import { WinUtil } from './utils/win-util'
 import { getIconBase64, getInstalledSoftware } from './utils/software-util'
+import { getPlugins } from './utils/plugins-util'
 
 if (process.env.NODE_ENV === 'development') {
   setExternalVBSLocation(path.join(__dirname, '../node_modules/regedit/vbs'))
@@ -75,8 +76,8 @@ export default {
       return WinUtil.copyFile(src, des)
     })
 
-    ipcMain.handle(IPC_CHANNELS.GET_ENV, (event) => {
-      return WinUtil.getEnv()
+    ipcMain.handle(IPC_CHANNELS.GET_PLUGINS, async () => {
+      return await getPlugins()
     })
   },
 }

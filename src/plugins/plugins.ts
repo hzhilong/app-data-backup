@@ -1,9 +1,9 @@
 // 插件接口定义
-import { CommonError } from '@/common/types/CommonError.ts'
-import { formatSize, type InstalledSoftware } from '@/common/types/Software.ts'
-import BaseUtil from '@/common/utils/base-util.ts'
-import { IPC_CHANNELS } from '@/common/models/IpcChannels.ts'
-import { logger } from '@/utils/logger.ts'
+import { CommonError } from '../models/CommonError.ts'
+import { formatSize, type InstalledSoftware } from '../models/Software.ts'
+import BaseUtil from '../utils/base-util.ts'
+import { IPC_CHANNELS } from '../models/IpcChannels.ts'
+import { logger } from '../utils/logger.ts'
 
 /**
  * 备份配置 可根据该配置快速进行备份还原 也可自己实现备份还原方法
@@ -118,24 +118,40 @@ export type WorkerMonitor = {
 }
 
 /** 基础的插件配置 */
-export abstract class BasePlugin {
+export class BasePlugin {
   /** 类型：内置|自定义*/
   type: BackupPluginTypeKey
   /** 插件唯一标识符 (如：'Everything') */
   id: string
-  /** 显示名称 */
+  /** 显示名称 为空则取id */
   name: string
   /** 备份配置 */
   backupConfigs: BackupConfig[]
   /** 总配置数 */
   totalItemNum: number
 
-  protected constructor(type: BackupPluginTypeKey, id: string, name: string, backupConfigs: BackupConfig[]) {
-    this.type = type
-    this.id = id
-    this.name = name
-    this.backupConfigs = backupConfigs
-    this.totalItemNum = backupConfigs.reduce((sum, config) => sum + config.items.length, 0)
+  constructor(config: Record<string, unknown>) {
+    if (typeof config.type === 'string' && config.type in BACKUP_PLUGIN_TYPE_KEY) {
+      this.type = config.type as BackupPluginTypeKey
+    } else {
+      throw new CommonError('插件配置错误，缺少 type')
+    }
+    if (typeof config.id === 'string') {
+      this.id = config.id
+    } else {
+      throw new CommonError('插件配置错误，缺少 id')
+    }
+    if (typeof config.name === 'string') {
+      this.name = config.name
+    } else {
+      this.name = this.id
+    }
+    if (Array.isArray(config.backupConfigs)) {
+      this.backupConfigs = config.backupConfigs as BackupConfig[]
+      this.totalItemNum = this.backupConfigs.reduce((sum, config) => sum + config.items.length, 0)
+    } else {
+      throw new CommonError('插件配置错误，缺少 backupConfigs')
+    }
   }
 
   /**

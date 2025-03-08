@@ -1,6 +1,6 @@
-import { IPC_CHANNELS } from '@/common/models/IpcChannels'
+import { IPC_CHANNELS } from '../models/IpcChannels'
 import type { ElMessageBoxOptions, MessageParams } from 'element-plus'
-import { CommonError } from '@/common/types/CommonError.ts'
+import { CommonError } from '../models/CommonError.ts'
 
 function message(message: string): void
 function message({

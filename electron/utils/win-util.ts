@@ -1,7 +1,7 @@
 // src/utils/dllIconExtractor.ts
 import { exec } from 'child_process'
 import fs from 'fs'
-import { promisified as regedit, RegistryItem } from 'regedit'
+import { promisified as regedit, type RegistryItem } from 'regedit'
 import path from 'node:path'
 import { shell } from 'electron'
 import { logger } from '@/utils/logger'
@@ -17,7 +17,7 @@ export class WinUtil {
     return new Promise((resolve, reject) => {
       exec(`chcp 65001 && ${command}`, { encoding: 'utf-8' }, (error, stdout, stderr) => {
         const exitCode = error ? Number((error as NodeJS.ErrnoException).code ?? 0) : 0
-        logger.debug(`cmd: [${command}](code: ${exitCode}):${stderr || stdout}`)
+        logger.debug(`cmd: [${command}](code: ${exitCode}):${stderr}`)
         if (options?.codeIsSuccess ? !options.codeIsSuccess(exitCode) : exitCode !== 0) {
           reject(new Error(`exec cmd failed (code: ${exitCode}): ${stderr || stdout}`))
         } else {

@@ -1,25 +1,37 @@
 import Dexie, { type Collection, type EntityTable, type InsertType } from 'dexie'
 import {
   type AllInstalledSoftware,
-  type InstalledSoftware, parseInstalledSoftwareGroup,
+  type InstalledSoftware,
+  parseInstalledSoftwareGroup,
   SOFTWARE_REGEDIT_GROUP_KEY,
-  type SoftwareRegeditGroupKey
+  type SoftwareRegeditGroupKey,
 } from '@/models/Software.ts'
 import BaseUtil from '@/utils/base-util.ts'
+import { PluginConfig } from '@/plugins/plugin-config.ts'
 
 export type IconCache = {
-  path: string,
+  path: string
   base64: string
 }
 
+export interface MyConfig extends PluginConfig {
+  installDir: string
+  // type为'INSTALLER'需要关联软件的注册表位置
+  regeditDir?: string
+}
+
 const db = new Dexie('appDataBackupDatabase') as Dexie & {
-  installedSoftware: EntityTable<InstalledSoftware>,
-  iconCache: EntityTable<IconCache>,
+  installedSoftware: EntityTable<InstalledSoftware>
+  iconCache: EntityTable<IconCache>
+  pluginConfig: EntityTable<PluginConfig>
+  myConfig: EntityTable<MyConfig>
 }
 
 db.version(4).stores({
   installedSoftware: 'regeditDir, regeditGroupKey,name', // regeditDir作为主键,同时也是复合索引。
   iconCache: 'path',
+  pluginConfig: 'id',
+  myConfig: 'id',
 })
 
 export type QueryParam = {
@@ -49,45 +61,45 @@ const DBUtil = {
   },
 
   query<T extends Record<string, unknown>>(table: EntityTable<T>, queryParams: QueryParams): Promise<Array<T>> {
-  return new Promise<Array<T>>((resolve, reject) => {
-    let query: Collection<T, never, InsertType<T, never>> | EntityTable<T> = table
-    const eqObj: Record<string, unknown> = {}
-    const likeObj: Record<string, unknown> = {}
-    if (queryParams) {
-      for (const key in queryParams) {
-        const queryParam = queryParams[key]
-        if (queryParam.value) {
-          if (queryParam.connector === 'eq') {
-            eqObj[key] = queryParam.value
-          } else if (queryParam.connector === 'like') {
-            likeObj[key] = queryParam.value
+    return new Promise<Array<T>>((resolve, reject) => {
+      let query: Collection<T, never, InsertType<T, never>> | EntityTable<T> = table
+      const eqObj: Record<string, unknown> = {}
+      const likeObj: Record<string, unknown> = {}
+      if (queryParams) {
+        for (const key in queryParams) {
+          const queryParam = queryParams[key]
+          if (queryParam.value) {
+            if (queryParam.connector === 'eq') {
+              eqObj[key] = queryParam.value
+            } else if (queryParam.connector === 'like') {
+              likeObj[key] = queryParam.value
+            }
           }
         }
       }
-    }
-    if (Object.keys(eqObj).length > 0) {
-      query = query.where(eqObj)
-    }
-    if (Object.keys(likeObj).length > 0) {
-      query = query.filter((item) => {
-        for (const key in likeObj) {
-          if (!item[key] || !(item[key] as string).toLowerCase().includes((<string>likeObj[key]).toLowerCase())) {
-            return false
+      if (Object.keys(eqObj).length > 0) {
+        query = query.where(eqObj)
+      }
+      if (Object.keys(likeObj).length > 0) {
+        query = query.filter((item) => {
+          for (const key in likeObj) {
+            if (!item[key] || !(item[key] as string).toLowerCase().includes((<string>likeObj[key]).toLowerCase())) {
+              return false
+            }
           }
-        }
-        return true
-      })
-    }
-    query
-      .toArray()
-      .then((results) => {
-        resolve(results)
-      })
-      .catch((reason) => {
-        reject(reason)
-      })
-  })
-}
+          return true
+        })
+      }
+      query
+        .toArray()
+        .then((results) => {
+          resolve(results)
+        })
+        .catch((reason) => {
+          reject(reason)
+        })
+    })
+  },
 }
 
 export { db, DBUtil }

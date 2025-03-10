@@ -1,20 +1,49 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { IPC_CHANNELS } from '@/models/IpcChannels.ts'
-import { getBackupDir } from '@/plugins/plugin-config.ts'
+import { execPlugin } from '@/plugins/plugins-util.ts'
 
 onMounted(async () => {
   console.log('initSoftwareLib', await window.electronAPI?.ipcInvoke(IPC_CHANNELS.GET_PLUGINS))
 })
 
 function test1() {
-  window.electronAPI?.ipcInvoke(IPC_CHANNELS.EXEC_PLUGIN, 'MusicBee', {
-    execType: 'backup',
+  execPlugin({
+    id: 'MusicBee',
+    name: 'MusicBee',
     installDir: 'D:\\Program Files (x86)\\MusicBee/',
-    dataDir: getBackupDir('MusicBee'),
-  })
-  window.electronAPI?.ipcOn(IPC_CHANNELS.GET_PLUGIN_PROGRESS, (...args: unknown[]) => {
-    console.log('进度', ...args)
+    type: 'INSTALLER',
+    totalItemNum: 2,
+    backupConfigs: [
+      {
+        name: '插件',
+        items: [
+          {
+            type: 'directory',
+            sourcePath: '%installDir%/Plugins',
+            targetRelativePath: 'Plugins',
+          },
+        ],
+      },
+      {
+        name: '设置',
+        items: [
+          {
+            type: 'file',
+            sourcePath: '%APPDATA%/MusicBee/MusicBee3Settings.ini',
+            targetRelativePath: 'MusicBee3Settings.ini',
+          },
+        ],
+      },
+    ],
+  }, 'backup', {
+    progress(log: string, curr: number, total: number): void {
+      console.log('进度', log, curr, total)
+    }
+  }).then(data => {
+    console.log('结果：', data)
+  }).catch(error => {
+    console.log(error)
   })
 }
 </script>

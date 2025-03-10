@@ -7,7 +7,7 @@ import { app, BrowserWindow, globalShortcut } from 'electron'
 import path from 'node:path'
 // import os from 'node:os'
 import IPC from './ipc'
-import { initPluginSystem } from './utils/plugins-util'
+import { initPluginSystem } from './utils/plugins-system'
 
 // APP目录
 const rootPath = path.join(__dirname, '../')

@@ -80,6 +80,16 @@ export default defineComponent({
           viewPath: '/app',
         },
         {
+          text: '配置仓库',
+          iconClass: 'icon-app',
+          viewPath: '/app',
+        },
+        {
+          text: '我的配置',
+          iconClass: 'icon-app',
+          viewPath: '/app',
+        },
+        {
           text: '数据备份',
           iconClass: 'icon-app',
           viewPath: '/backup',
@@ -90,9 +100,9 @@ export default defineComponent({
           viewPath: '/res',
         },
         {
-          text: '应用管理',
-          iconClass: 'icon-app',
-          viewPath: '/man',
+          text: '任务进度',
+          iconClass: 'icon-setting',
+          viewPath: '/settings',
         },
         {
           text: '设置',

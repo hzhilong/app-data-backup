@@ -25,6 +25,19 @@ export class BuResult<T> {
   static createError<T>(e: unknown) {
     return new BuResult<T>(false, BaseUtil.getErrorMessage(e))
   }
+
+  /**
+   * 展开成Promise
+   */
+  static getPromise<T>(result: BuResult<T>): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+      if (result.success) {
+        resolve(result.data as T)
+      } else {
+        reject(result.msg)
+      }
+    })
+  }
 }
 
 /**

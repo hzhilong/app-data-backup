@@ -24,6 +24,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "async-mutex": "^0.5.0",
     "consola": "^3.4.0",
     "dayjs": "^1.11.13",
     "dexie": "^4.0.11",

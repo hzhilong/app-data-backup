@@ -113,6 +113,13 @@ export interface TaskMonitor {
   progress: (log: string, curr: number, total: number) => void
 }
 
+/**
+ * 配置属性校验逻辑
+ */
+const validateConfig = (condition: unknown, message: string): void => {
+  if (!condition) throw new CommonError(`插件配置错误，${message}`)
+}
+
 /** 插件配置 */
 export class PluginConfig {
   /** 类型：内置|自定义*/
@@ -128,25 +135,17 @@ export class PluginConfig {
 
   constructor(config: Record<string, unknown>) {
     const { type, id, name, backupConfigs } = config
-    this.validateConfig(typeof type === 'string' && type in BACKUP_PLUGIN_TYPE_KEY, '缺少有效的 type')
-    this.validateConfig(typeof id === 'string', '缺少 id')
-    this.validateConfig(Array.isArray(backupConfigs), '缺少 backupConfigs')
+    validateConfig(typeof type === 'string' && type in BACKUP_PLUGIN_TYPE_KEY, '缺少有效的 type')
+    validateConfig(typeof id === 'string', '缺少 id')
+    validateConfig(Array.isArray(backupConfigs), '缺少 backupConfigs')
     this.type = type as BackupPluginTypeKey
-    this.id = id
+    this.id = id as string
     this.name = (name ? name : id) as string
     this.backupConfigs = config.backupConfigs as BackupConfig[]
     this.backupConfigs = backupConfigs as BackupConfig[]
     this.totalItemNum = this.backupConfigs.reduce((sum, c) => sum + c.items.length, 0)
   }
-
-  /**
-   * 配置属性校验逻辑
-   */
-  validateConfig(condition: unknown, message: string): asserts condition {
-    if (!condition) throw new CommonError(`插件配置错误，${message}`)
-  }
 }
-
 
 export const DEFAULT_ROOT_DIR = '.backup-data'
 /**
@@ -154,4 +153,3 @@ export const DEFAULT_ROOT_DIR = '.backup-data'
  */
 export const getBackupDir = (softName: string, rootDir: string = DEFAULT_ROOT_DIR) =>
   `${rootDir}/${softName}/${dayjs().format('YYYY-MM-DD_HH-mm-ss')}/`
-

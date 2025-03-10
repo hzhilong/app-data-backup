@@ -51,28 +51,21 @@
         <div class="line">
           <div class="info-item">
             <span class="label">安装位置</span>
-            <span
-              class="value actionable"
-              :title="currentData?.installDir"
-              @click="openDir(currentData?.installDir)"
-              >{{ currentData?.installDir }}</span
-            >
+            <span class="value actionable" :title="currentData?.installDir" @click="openDir(currentData?.installDir)">{{
+              currentData?.installDir
+            }}</span>
           </div>
           <div class="info-item">
             <span class="label">卸载命令</span>
-            <span
-              class="value"
-              :title="currentData?.uninstallString"
-            >{{ currentData?.uninstallString }}</span
-            >
+            <span class="value" :title="currentData?.uninstallString">{{ currentData?.uninstallString }}</span>
           </div>
         </div>
         <div class="line">
           <div class="info-item">
             <span class="label">图标位置</span>
             <span class="value actionable" :title="currentData?.iconPath" @click="openDir(currentData?.iconPath)">{{
-                currentData?.iconPath
-              }}</span>
+              currentData?.iconPath
+            }}</span>
           </div>
           <div class="info-item">
             <div class="label">注册表　</div>
@@ -89,7 +82,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="tsx">
 import { type InstalledSoftware, SOFTWARE_REGEDIT_GROUP, type SoftwareRegeditGroupKey } from '@/models/Software.ts'
 import { db, DBUtil, type QueryParams } from '@/db/db.ts'
 import { h, type VNode } from 'vue'
@@ -108,11 +101,12 @@ export default {
           width: '50',
           align: 'center',
           formatter: (row: InstalledSoftware): VNode | string => {
-            return h('img', {
-              src: row.base64Icon ? row.base64Icon : defaultIcon,
-              alt: '',
-              style: 'display: block;width: 32px; height: 32px; object-fit: cover;',
-            })
+            return (
+              <img
+                src={row.base64Icon ? row.base64Icon : defaultIcon}
+                style="display: block;width: 32px; height: 32px; object-fit: cover;"
+              />
+            )
           },
         },
         { label: '软件名', prop: 'name', minWidth: '200', showOverflowTooltip: true, sortable: true },

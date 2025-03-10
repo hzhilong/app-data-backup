@@ -11,6 +11,12 @@
 
 版本限制
 
+配置仓库 -> 我的配置 <- 自定义配置
+
+插件分享
+
+// 全局状态：只能同时运行其中一项：备份、还原、获取插件
+
 ## 感谢
 
 - [node-regedit](https://github.com/kessler/node-regedit)

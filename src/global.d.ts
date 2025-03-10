@@ -24,7 +24,8 @@ declare global {
       ipcSendSync: (channel: IpcChannels, ...data: unknown[]) => unknown
       ipcOn: (channel: IpcChannels, listener: IpcListener) => void
       ipcOnce: (channel: IpcChannels, listener: IpcListener) => void
-      ipcOff: (channel: IpcChannels) => void
+      ipcOff: (channel: IpcChannels, listener: IpcListener) => void
+      ipcOffAll: (channel: IpcChannels) => void
       ipcInvoke: (channel: IpcChannels, ...data: unknown[]) => unknown
     }
   }

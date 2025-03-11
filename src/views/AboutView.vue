@@ -1,3 +1,21 @@
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { ThemeColorStore } from '@/stores/theme-color.ts'
+
+const appTitle = ref(import.meta.env.APP_PRODUCT_NAME)
+const env = ref(import.meta.env)
+
+const appVersion = computed(() => {
+  if (import.meta.env.MODE === 'production') {
+    return import.meta.env.APP_VERSION
+  } else {
+    return `${import.meta.env.APP_VERSION} ${import.meta.env.MODE}`
+  }
+})
+
+const { switchThemeColor, setDefaultTheme } = ThemeColorStore()
+</script>
+
 <template>
   <div class="about">
     <div class="app-logo" @click="switchThemeColor"></div>
@@ -22,42 +40,12 @@
       <div class="info">
         <div class="title">开源：</div>
         <div class="desc">
-          <a href="" @click.prevent="$appUtil.browsePage(env.APP_AUTHOR_URL)">{{
-            env.APP_AUTHOR_URL
-          }}</a>
+          <a href="" @click.prevent="$appUtil.browsePage(env.APP_AUTHOR_URL)">{{ env.APP_AUTHOR_URL }}</a>
         </div>
       </div>
     </div>
   </div>
 </template>
-
-<script lang="ts">
-import { mapActions } from 'pinia'
-import { ThemeColorStore } from '@/stores/theme-color'
-
-export default {
-  name: 'AboutView',
-  data() {
-    return {
-      appTitle: import.meta.env.APP_PRODUCT_NAME,
-      env: import.meta.env,
-    }
-  },
-  computed: {
-    appVersion: function (): string {
-      if (import.meta.env.MODE === 'production') {
-        return import.meta.env.APP_VERSION
-      } else {
-        return `${import.meta.env.APP_VERSION} ${import.meta.env.MODE}`
-      }
-    },
-  },
-  mounted() {},
-  methods: {
-    ...mapActions(ThemeColorStore, ['switchThemeColor', 'setDefaultTheme']),
-  },
-}
-</script>
 
 <style scoped lang="scss">
 @use '@/assets/scss/about';

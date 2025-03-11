@@ -10,12 +10,12 @@ import {
   type PluginOptions,
   type TaskMonitor,
 } from '@/plugins/plugin-config'
-import { WinUtil } from './win-util'
+import WinUtil from './win-util'
 
 /** 插件 */
 export class Plugin extends PluginConfig {
-  constructor(config: Record<string, unknown>) {
-    super(config)
+  constructor(config: Record<string, unknown>, cTime: string) {
+    super(config, cTime)
     // 覆盖方法
     Object.assign(this, config)
   }

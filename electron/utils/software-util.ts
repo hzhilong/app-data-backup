@@ -2,11 +2,11 @@
 import fs from 'fs'
 import {
   formatSize,
-  InstalledSoftware,
+  type InstalledSoftware,
   SOFTWARE_REGEDIT_GROUP,
-  SoftwareRegeditGroupKey,
+  type SoftwareRegeditGroupKey,
 } from '@/models/Software'
-import { promisified as regedit, RegistryItem, RegistryItemValue } from 'regedit'
+import { promisified as regedit, type RegistryItem, type RegistryItemValue } from 'regedit'
 import path from 'path'
 import { app } from 'electron'
 import os from 'os'
@@ -42,7 +42,7 @@ function iconPathTrimIndex(str: string) {
   if (!str) {
     return str
   }
-  const regex = /^(.*?)(?:,[-\d]+)?$/;
+  const regex = /^(.*?)(?:,[-\d]+)?$/
   const match = str?.match(regex)
   if (match) {
     return match[1]
@@ -77,7 +77,7 @@ function parseUninstallString(soft: InstalledSoftware, uninstallString: string):
     if (fs.existsSync(match[2])) {
       soft.uninstallFile = match[1]
       soft.uninstallDir = match[2]
-      if(!soft.installDir){
+      if (!soft.installDir) {
         soft.installDir = match[2]
       }
       return
@@ -238,7 +238,7 @@ function parseIconInfo(
           return
         }
       }
-      if(icoArr.length === 1){
+      if (icoArr.length === 1) {
         soft.iconPath = icoArr[0]
         return
       }
@@ -299,7 +299,6 @@ async function getDllIconBase64(dllPath: string): Promise<string> {
             const buffer = fs.readFileSync(tempIcoPath)
             const base64 = buffer.toString('base64')
             resolve(`data:image/x-icon;base64,${base64}`)
-
             // 删除临时文件
             // fs.unlinkSync(tempIcoPath)
           } else {
@@ -344,7 +343,7 @@ export async function parseInstalledSoftware(
     formatSize: formatSize(entry.EstimatedSize?.value as number),
     url: stripQuotesAndTrim(entry.URLUpdateInfo?.value as string),
   }
-  if(soft.installLocation){
+  if (soft.installLocation) {
     soft.installDir = soft.installLocation
   }
   parseVersion(soft, entry)

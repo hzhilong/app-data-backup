@@ -1,4 +1,4 @@
-import { CommonError } from '@/models/CommonError.ts'
+import { CommonError } from '@/models/CommonError'
 import dayjs from 'dayjs'
 
 /**
@@ -84,8 +84,8 @@ export const BACKUP_PLUGIN_TYPE: BackupPluginType = {
     desc: '从注册表读取的已安装软件',
   },
   [BACKUP_PLUGIN_TYPE_KEY.PORTABLE]: {
-    title: '免安装、绿色软件',
-    desc: '免安装的绿色软件',
+    title: '便捷软件',
+    desc: '免安装、绿色软件',
   },
   [BACKUP_PLUGIN_TYPE_KEY.CUSTOM]: {
     title: '自定义',
@@ -132,8 +132,10 @@ export class PluginConfig {
   backupConfigs: BackupConfig[]
   /** 总配置数 */
   totalItemNum: number
+  /** 创建时间 */
+  cTime?: string
 
-  constructor(config: Record<string, unknown>) {
+  constructor(config: Record<string, unknown>, cTime:string) {
     const { type, id, name, backupConfigs } = config
     validateConfig(typeof type === 'string' && type in BACKUP_PLUGIN_TYPE_KEY, '缺少有效的 type')
     validateConfig(typeof id === 'string', '缺少 id')
@@ -144,6 +146,7 @@ export class PluginConfig {
     this.backupConfigs = config.backupConfigs as BackupConfig[]
     this.backupConfigs = backupConfigs as BackupConfig[]
     this.totalItemNum = this.backupConfigs.reduce((sum, c) => sum + c.items.length, 0)
+    this.cTime = cTime
   }
 }
 

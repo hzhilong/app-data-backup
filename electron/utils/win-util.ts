@@ -10,7 +10,7 @@ interface ExecCmdOptions {
   codeIsSuccess: (number: number) => boolean
 }
 
-export class WinUtil {
+export default class WinUtil {
   static execCmd(command: string, options?: ExecCmdOptions): Promise<string>
   static execCmd(command: string, options?: ExecCmdOptions, filePath?: string): Promise<number>
   static execCmd(command: string, options?: ExecCmdOptions, filePath?: string): Promise<string | number> {

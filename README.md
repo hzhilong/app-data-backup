@@ -1,5 +1,10 @@
 # app-data-backup
 
+Vite + Vue + Electron + TS + Pinia + Dexie + ElementPlus
+
+其中Vue使用组合式API
+
+
 备份配置：
 - 软件备份库
 - 软件备份库修改
@@ -16,6 +21,8 @@
 插件分享
 
 // 全局状态：只能同时运行其中一项：备份、还原、获取插件
+
+设置：清空软件图标缓存
 
 ## 感谢
 

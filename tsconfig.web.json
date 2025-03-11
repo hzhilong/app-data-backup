@@ -1,21 +1,27 @@
 {
-  "extends": "@vue/tsconfig/tsconfig.dom.json",  // 继承 Vue 官方提供的 DOM 环境基础配置
-  "include": [                                   // 包含以下文件进行类型检查和编译
-    "env.d.ts",                                  // 全局类型声明文件
-    "auto-imports.d.ts",                         // 自动引入的组件声明文件
-    "components.d.ts",                           // 自动引入的组件声明文件
-    "src/**/*",                                  // src 目录下所有文件（含子目录）
-    "src/**/*.vue"                               // 所有 Vue 单文件组件
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "include": [
+    "vite-env.d.ts",
+    "auto-imports.d.ts",
+    "components.d.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue"
   ],
-  "exclude": ["node_modules","src/**/__tests__/*"],             // 排除测试目录下的文件
-  "compilerOptions": {                           // 编译器选项
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo", // 增量编译信息存储位置
-    "paths": {                                   // 路径别名配置
-      "@/*": ["./src/*"],                         // 将 `@/` 映射到 `./src/` 目录
+  "exclude": [
+    "node_modules",
+    "src/**/__tests__/*"
+  ],
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
     },
-    "jsx": "preserve",         // 保留 JSX 结构，由 Vue 插件处理
-    "jsxFactory": "h",         // Vue 3 的 JSX 工厂函数
+    "jsx": "preserve",
+    "jsxFactory": "h",
     "jsxImportSource": "vue",
-    "jsxFragmentFactory": "Fragment",
+    "jsxFragmentFactory": "Fragment"
   }
 }

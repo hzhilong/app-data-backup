@@ -81,14 +81,14 @@
         cursor: pointer;
 
         background-color: $app-color-content-background;
-        border: 1px solid $app-color-border;
+        border: 1px solid $app-color-border-shadow;
         border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 6px $app-color-border-shadow;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
 
         &:not(.no-transition):hover {
           transform: translateY(-5px);
-          box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 6px 12px $app-color-border-shadow-hover;
         }
 
         .card-name {

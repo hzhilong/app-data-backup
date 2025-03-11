@@ -1,13 +1,22 @@
-import Dexie, { type Collection, type EntityTable, type InsertType } from 'dexie'
+import Dexie, { type Collection, type EntityTable, type IDType, type InsertType, type Table } from 'dexie'
 import {
   type AllInstalledSoftware,
   type InstalledSoftware,
   parseInstalledSoftwareGroup,
   SOFTWARE_REGEDIT_GROUP_KEY,
   type SoftwareRegeditGroupKey,
-} from '@/models/Software.ts'
-import BaseUtil from '@/utils/base-util.ts'
-import { PluginConfig } from '@/plugins/plugin-config.ts'
+} from '@/models/Software'
+import BaseUtil from '@/utils/base-util'
+import { type PluginConfig } from '@/plugins/plugin-config'
+
+export type DexieTable<T, TKeyPropName extends keyof T = never, TInsertType = InsertType<T, TKeyPropName>> = Table<
+  T,
+  IDType<T, TKeyPropName>,
+  TInsertType
+>
+export type DexieQuery<T, TKeyPropName extends keyof T = never, TInsertType = InsertType<T, TKeyPropName>> =
+  | Collection<T, IDType<T, TKeyPropName>, TInsertType>
+  | Table<T, IDType<T, TKeyPropName>, TInsertType>
 
 export type IconCache = {
   path: string
@@ -20,7 +29,7 @@ export interface MyConfig extends PluginConfig {
   regeditDir?: string
 }
 
-const db = new Dexie('appDataBackupDatabase') as Dexie & {
+export const db = new Dexie('appDataBackupDatabase') as Dexie & {
   installedSoftware: EntityTable<InstalledSoftware>
   iconCache: EntityTable<IconCache>
   pluginConfig: EntityTable<PluginConfig>
@@ -35,7 +44,7 @@ db.version(4).stores({
 })
 
 export type QueryParam = {
-  value: unknown
+  value: any
   connector: 'eq' | 'like'
 }
 
@@ -43,8 +52,8 @@ export type QueryParams = {
   [key: string]: QueryParam
 }
 
-const DBUtil = {
-  getAllInstalledSoftware: async (): Promise<AllInstalledSoftware> => {
+export class DBUtil {
+  static async getAllInstalledSoftware(): Promise<AllInstalledSoftware> {
     return new Promise(async (resolve, reject) => {
       try {
         const allInstalledSoftware: AllInstalledSoftware = {} as AllInstalledSoftware
@@ -58,11 +67,11 @@ const DBUtil = {
         reject(BaseUtil.convertToCommonError(error, '读取数据库失败：'))
       }
     })
-  },
+  }
 
-  query<T extends Record<string, unknown>>(table: EntityTable<T>, queryParams: QueryParams): Promise<Array<T>> {
+  static query<T>(table: DexieTable<T>, queryParams: QueryParams): Promise<Array<T>> {
     return new Promise<Array<T>>((resolve, reject) => {
-      let query: Collection<T, never, InsertType<T, never>> | EntityTable<T> = table
+      let query: DexieQuery<T> = table
       const eqObj: Record<string, unknown> = {}
       const likeObj: Record<string, unknown> = {}
       if (queryParams) {
@@ -83,7 +92,8 @@ const DBUtil = {
       if (Object.keys(likeObj).length > 0) {
         query = query.filter((item) => {
           for (const key in likeObj) {
-            if (!item[key] || !(item[key] as string).toLowerCase().includes((<string>likeObj[key]).toLowerCase())) {
+            const obj = item as Record<string, unknown>
+            if (!obj[key] || !(obj[key] as string).toLowerCase().includes((<string>likeObj[key]).toLowerCase())) {
               return false
             }
           }
@@ -99,7 +109,13 @@ const DBUtil = {
           reject(reason)
         })
     })
-  },
-}
+  }
 
-export { db, DBUtil }
+  static reset<T, Key extends keyof T>(table: EntityTable<T, Key>, list: readonly T[]) {
+    table.clear()
+    if (!list) return
+    table.bulkAdd(list).catch((e) => {
+      throw BaseUtil.convertToCommonError(e, '写入数据库失败：')
+    })
+  }
+}

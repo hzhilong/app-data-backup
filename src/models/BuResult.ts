@@ -1,4 +1,4 @@
-import BaseUtil from '@/utils/base-util.ts'
+import BaseUtil from '@/utils/base-util'
 
 /**
  * 业务执行结果

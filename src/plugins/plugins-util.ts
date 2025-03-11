@@ -1,8 +1,8 @@
-import type { MyConfig } from '@/db/db.ts'
-import { IPC_CHANNELS } from '@/models/IpcChannels.ts'
-import { type BackupResult, getBackupDir, type TaskMonitor } from '@/plugins/plugin-config.ts'
-import { CommonError } from '@/models/CommonError.ts'
-import { BuResult } from '@/models/BuResult.ts'
+import type { MyConfig } from '@/db/db'
+import { IPC_CHANNELS } from '@/models/IpcChannels'
+import { type BackupResult, getBackupDir, type TaskMonitor } from '@/plugins/plugin-config'
+import { CommonError } from '@/models/CommonError'
+import { BuResult } from '@/models/BuResult'
 
 async function execPlugin(myConfig: MyConfig, execType: 'backup' | 'restore', monitor: TaskMonitor, dataDir?: string) {
   if (!dataDir) {

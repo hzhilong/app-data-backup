@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { IPC_CHANNELS } from '@/models/IpcChannels.ts'
-import { execPlugin } from '@/plugins/plugins-util.ts'
+import { IPC_CHANNELS } from '@/models/IpcChannels'
+import { execPlugin } from '@/plugins/plugins-util'
 
 onMounted(async () => {
   console.log('initSoftwareLib', await window.electronAPI?.ipcInvoke(IPC_CHANNELS.GET_PLUGINS))

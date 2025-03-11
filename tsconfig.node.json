@@ -1,24 +1,34 @@
 {
-  "extends": "@tsconfig/node22/tsconfig.json",    // 继承 Node.js 22.x 的官方推荐配置
-  "include": [                                    // 包含以下文件进行类型检查
-    "electron/*.d.ts",                          // 全局类型声明文件
-    "vite.config.*",                              // Vite 配置文件（所有变体）
-    "vite.*.config.*",                            // 其他 Vite 配置变体
-    "vitest.config.*",                            // Vitest 测试框架配置
-    "cypress.config.*",                           // Cypress 测试配置
-    "nightwatch.conf.*",                          // Nightwatch 测试配置
-    "playwright.config.*",                        // Playwright 测试配置
-    "eslint.config.*",                            // ESLint 配置
-    "electron/**.ts"                              // Electron 主进程代码目录
+  "extends": "@tsconfig/node22/tsconfig.json",
+  "include": [
+    "vite-env.d.ts",
+    "electron/*.d.ts",
+    "vite.config.*",
+    "vite.*.config.*",
+    "vitest.config.*",
+    "cypress.config.*",
+    "nightwatch.conf.*",
+    "playwright.config.*",
+    "eslint.config.*",
+    "electron/**.ts"
   ],
-  "compilerOptions": {                            // 编译器选项
-    "noEmit": true,                               // 不生成编译输出文件（仅类型检查）
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo", // 增量编译信息存储位置
-    "module": "ESNext",                           // 使用 ESM 模块语法
-    "moduleResolution": "Bundler",                // 模块解析策略（兼容 Vite/Rollup 等打包工具）
-    "types": ["node"],                             // 包含 Node.js 类型定义
-    "paths": {                                   // 路径别名配置
-      "@/*": ["./src/*"]                         // 将 `@/` 映射到 `./src/` 目录
+  "compilerOptions": {
+    "noEmit": true,
+    // 不生成编译输出文件（仅类型检查）
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    // 增量编译信息存储位置
+    "module": "ESNext",
+    // 使用 ESM 模块语法
+    "moduleResolution": "Bundler",
+    // 模块解析策略（兼容 Vite/Rollup 等打包工具）
+    "types": [
+      "node"
+    ],
+    // 包含 Node.js 类型定义
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
     }
   }
 }

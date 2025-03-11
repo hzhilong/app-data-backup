@@ -4,54 +4,38 @@
       <div class="header-left">
         <div class="search-item">
           <span class="label"> 类型 </span>
-          <el-select
-            class="value"
-            v-model="queryParams.regeditGroupKey.value as string"
-            placeholder=""
-            size="small"
-            clearable
-          >
-            <el-option v-for="(item, key) in SOFTWARE_REGEDIT_GROUP" :key="key" :label="item.title" :value="key" />
+          <el-select class="value" v-model="queryParams.type.value" placeholder="" size="small" clearable>
+            <el-option v-for="(item, key) in BACKUP_PLUGIN_TYPE" :key="key" :label="item.title" :value="key" />
           </el-select>
         </div>
         <div class="search-item">
           <span class="label"> 名称 </span>
-          <el-input class="value" v-model="queryParams.name.value as string" placeholder="" size="small" clearable />
+          <el-input class="value" v-model="queryParams.name.value" placeholder="" size="small" clearable />
         </div>
-        <el-button type="primary" @click="refreshData">搜索</el-button>
+        <el-button type="primary" @click="searchData" :loadingData="loadingData">搜索</el-button>
+        <el-button type="primary" @click="refreshData" :loadingData="loadingData">刷新</el-button>
       </div>
       <div class="header-right"></div>
     </div>
     <div class="table-wrapper">
-      <el-table
-        :data="tableData"
-        style="width: 100%"
-        height="100%"
-        stripe
-        border
-        highlight-current-row
-        @current-change="handleCurrentChange"
-      >
+      <el-table :data="tableData" style="width: 100%" height="100%" stripe border highlight-current-row>
         <el-table-column v-bind="item" v-for="item in tableColumns" :key="item.label"></el-table-column>
       </el-table>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import { type InstalledSoftware, SOFTWARE_REGEDIT_GROUP, type SoftwareRegeditGroupKey } from '@/models/Software.ts'
-import { db, DBUtil, type QueryParams } from '@/db/db.ts'
-import RegeditUtil from '@/utils/regedit-util.ts'
-import AppUtil from '@/utils/app-util.ts'
-import defaultIcon from '../assets/image/software-icon-default.png'
-import { BACKUP_PLUGIN_TYPE, PluginConfig } from '@/plugins/plugin-config.ts'
+<script lang="tsx">
+import { db, DBUtil, type QueryParams } from '@/db/db'
+import { BACKUP_PLUGIN_TYPE, type BackupPluginTypeKey, PluginConfig } from '@/plugins/plugin-config'
+import { IPC_CHANNELS } from '@/models/IpcChannels'
+import { BuResult } from '@/models/BuResult'
 
 export default {
   data() {
     return {
-      defaultIcon: defaultIcon,
       tableColumns: [
-        { label: '序号', type: 'index', width: '90'},
+        { label: '序号', type: 'index', width: '90' },
         { label: '名称', prop: 'name', minWidth: '200', showOverflowTooltip: true, sortable: true },
         {
           label: '类型',
@@ -67,56 +51,82 @@ export default {
           },
           sortable: true,
         },
+        { label: '添加时间', prop: 'cTime', minWidth: '200', showOverflowTooltip: true, sortable: true },
         {
           label: '备份项目',
           prop: 'type',
           align: 'center',
-          width: '100',
+          width: '200',
           formatter: (row: PluginConfig) => {
-            return <div>a</div>
+            const configs = row.backupConfigs
+            return (
+              <>
+                {configs.map(({ name, items }) => {
+                  return (
+                      <el-tooltip
+                        placement="top"
+                        v-slots={{
+                          content: () => <>{items.map((item) => item.sourcePath).join('<br/>')}</>,
+                        }}
+                      >
+                        <span class="">{name}({items.length})</span>
+                      </el-tooltip>
+                  )
+                })}
+              </>
+            )
           },
-          sortable: true,
         },
       ],
-      tableData: [] as InstalledSoftware[],
+      tableData: [] as PluginConfig[],
       queryParams: {
         name: {
           connector: 'like',
           value: '',
         },
-        regeditGroupKey: {
+        type: {
           connector: 'eq',
-          value: undefined as SoftwareRegeditGroupKey | undefined,
+          value: undefined as BackupPluginTypeKey | undefined,
         },
       } as QueryParams,
-      SOFTWARE_REGEDIT_GROUP: SOFTWARE_REGEDIT_GROUP,
-      currentData: null as InstalledSoftware | null,
+      BACKUP_PLUGIN_TYPE: BACKUP_PLUGIN_TYPE,
+      loadingData: false,
     }
   },
   created() {
-    this.queryParams.regeditGroupKey.value = this.$route.query.regeditGroupKey as SoftwareRegeditGroupKey
     this.refreshData()
   },
   mounted() {},
   methods: {
-    refreshData() {
-      DBUtil.query(db.installedSoftware, this.queryParams).then((data) => {
-        this.currentData = null
-        this.tableData = data
-      })
+    loadData(getData: () => Promise<PluginConfig[]>) {
+      this.loadingData = true
+      getData()
+        .then((data) => {
+          this.tableData = data
+        })
+        .finally(() => {
+          this.loadingData = false
+        })
     },
-    handleCurrentChange(currentRow: InstalledSoftware) {
-      this.currentData = currentRow
+    async refreshData() {
+      this.loadingData = true
+      BuResult.getPromise((await window.electronAPI?.ipcInvoke(IPC_CHANNELS.GET_PLUGINS)) as BuResult<PluginConfig[]>)
+        .then((data) => {
+          this.tableData = data
+        })
+        .finally(() => {
+          this.loadingData = false
+        })
     },
-    openDir(path: string | undefined) {
-      if (path) {
-        AppUtil.openPath(path)
-      }
-    },
-    openRegedit(path: string | undefined) {
-      if (path) {
-        RegeditUtil.openRegedit(path)
-      }
+    searchData() {
+      this.loadingData = true
+      DBUtil.query(db.pluginConfig, this.queryParams)
+        .then((data) => {
+          this.tableData = data
+        })
+        .finally(() => {
+          this.loadingData = false
+        })
     },
   },
 }

@@ -1,7 +1,7 @@
 module.exports = {
   type: 'INSTALLER',
   id: 'WinRAR',
-  backupConfigs: ([] = [
+  backupConfigs: [
     {
       name: '设置',
       items: [
@@ -12,5 +12,5 @@ module.exports = {
         },
       ],
     },
-  ]),
+  ],
 }

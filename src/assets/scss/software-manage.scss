@@ -42,6 +42,13 @@
     width: 100%;
     flex: 1;
     overflow: auto;
+
+    :deep(.soft-icon) {
+      display: block;
+      width: 32px;
+      height: 32px;
+      object-fit: cover;
+    }
   }
 
   .header {
@@ -54,11 +61,11 @@
     width: 100%;
     display: flex;
     align-items: center;
-    box-shadow: 0 0 6px $app-color-border;
+    border: 1px solid $app-color-border;
     box-sizing: border-box;
     padding: 10px;
 
-    .soft-icon{
+    .soft-icon {
       width: 48px;
       height: 48px;
       margin-right: 10px;
@@ -76,7 +83,7 @@
       $triangle-width: 10px;
       $info-item-height: 20px;
 
-      .line{
+      .line {
         width: 100%;
         display: flex;
 
@@ -107,7 +114,7 @@
             overflow: hidden;
             box-sizing: border-box;
 
-            &.actionable{
+            &.actionable {
               color: $app-color-primary;
               cursor: pointer;
             }

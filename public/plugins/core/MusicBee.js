@@ -1,7 +1,7 @@
 module.exports = {
   type: 'INSTALLER',
   id: 'MusicBee',
-  backupConfigs: ([] = [
+  backupConfigs: [
     {
       name: '插件',
       items: [
@@ -22,5 +22,5 @@ module.exports = {
         },
       ],
     },
-  ]),
+  ],
 }

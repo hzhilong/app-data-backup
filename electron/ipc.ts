@@ -4,7 +4,7 @@ import path from 'node:path'
 import { IPC_CHANNELS } from '@/models/IpcChannels'
 import { SoftwareRegeditGroupKey } from '@/models/Software'
 import BrowserWindow = Electron.BrowserWindow
-import { WinUtil } from './utils/win-util'
+import WinUtil from './utils/win-util'
 import { getIconBase64, getInstalledSoftware } from './utils/software-util'
 
 if (process.env.NODE_ENV === 'development') {

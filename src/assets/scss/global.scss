@@ -8,7 +8,9 @@ $app-theme-color: var(--app-theme-color);
 
 $app-color-primary: rgba($app-theme-color, 1);
 $app-color-hover: rgba($app-theme-color, 0.15);
-$app-color-border: #dcdfe6;
+$app-color-border: #ebeef5;
+$app-color-border-shadow: #dcdfe6;
+$app-color-border-shadow-hover: #e0dfdf;
 $app-color-background: #F5F7F9;
 $app-color-content-background: #ffffff;
 $app-color-content-color:  #0a0a0a;

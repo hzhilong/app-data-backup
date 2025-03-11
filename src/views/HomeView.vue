@@ -1,5 +1,42 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
+import { RouterView, useRoute, useRouter } from 'vue-router'
+import { computed, type Ref, ref } from 'vue'
+import { getMenus, type MenuItem } from '@/router/menus.ts'
+import { ThemeColorStore } from '@/stores/theme-color.ts'
+import AppUtil from '@/utils/app-util.ts'
+
+const route = useRoute()
+const router = useRouter()
+
+const windowMax = ref(false)
+const appTitle = ref(import.meta.env.APP_PRODUCT_NAME as string)
+const menus = ref(getMenus())
+
+const defaultMenuIndex = computed(() => {
+  // 当前页面所属菜单
+  const matchedItem = menus.value.find((item: MenuItem) => item.viewPath === route.path)
+  return matchedItem ? matchedItem.viewPath : menus.value[0].viewPath
+})
+
+const menuTitle = computed(() => {
+  const menuTitle: string = route.query.menuTitle as string
+  return menuTitle !== undefined ? menuTitle : getMenuTitle(menus.value[0])
+})
+
+const getMenuTitle = (menu: MenuItem): string => {
+  return menu.menuTitle !== undefined ? menu.menuTitle : menu.text
+}
+
+const onClickMenu = (menu: MenuItem): void => {
+  router.push({
+    path: menu.viewPath,
+    query: {
+      menuTitle: getMenuTitle(menu),
+    },
+  })
+}
+
+ThemeColorStore().initThemeColor()
 </script>
 
 <template>
@@ -27,133 +64,28 @@ import { RouterView } from 'vue-router'
     <el-container class="right-side">
       <div class="top-bar">
         <div class="top-bar-btns">
-          <span class="btn iconfont icon-min" @click="$appUtil.minApp()"></span>
+          <span class="btn iconfont icon-min" @click="AppUtil.minApp()"></span>
           <span
             class="btn iconfont"
             :class="windowMax ? 'icon-max2' : 'icon-max'"
             @click="
               () => {
                 windowMax = !windowMax
-                $appUtil.maxApp()
+                AppUtil.maxApp()
               }
             "
           ></span>
-          <span class="btn iconfont icon-close" @click="$appUtil.exitApp()"></span>
+          <span class="btn iconfont icon-close" @click="AppUtil.exitApp()"></span>
         </div>
       </div>
       <el-main class="content-wrapper">
         <div class="content">
-          <RouterView />
+          <router-view />
         </div>
       </el-main>
     </el-container>
   </el-container>
 </template>
-
-<script lang="ts">
-import { defineComponent } from 'vue'
-import { ThemeColorStore } from '@/stores/theme-color'
-
-interface MenuItem {
-  text: string
-  menuTitle?: string
-  iconClass: string
-  viewPath: string
-  onclick?: () => void
-}
-
-export default defineComponent({
-  components: {},
-  data: function () {
-    return {
-      windowMax: false as boolean,
-      appTitle: import.meta.env.APP_PRODUCT_NAME as string,
-      menus: [
-        {
-          text: '首页',
-          iconClass: 'icon-dashboard',
-          viewPath: '/dashboard',
-        },
-        {
-          text: '软件管理',
-          iconClass: 'icon-app',
-          viewPath: '/app',
-        },
-        {
-          text: '配置仓库',
-          iconClass: 'icon-app',
-          viewPath: '/app',
-        },
-        {
-          text: '我的配置',
-          iconClass: 'icon-app',
-          viewPath: '/app',
-        },
-        {
-          text: '数据备份',
-          iconClass: 'icon-app',
-          viewPath: '/backup',
-        },
-        {
-          text: '数据还原',
-          iconClass: 'icon-app',
-          viewPath: '/res',
-        },
-        {
-          text: '任务进度',
-          iconClass: 'icon-setting',
-          viewPath: '/settings',
-        },
-        {
-          text: '设置',
-          iconClass: 'icon-setting',
-          viewPath: '/settings',
-        },
-        {
-          text: '关于',
-          iconClass: 'icon-about',
-          viewPath: '/about',
-        },
-        {
-          text: '退出',
-          iconClass: 'icon-exit',
-          viewPath: '/exit',
-          onclick: () => {
-            this.$appUtil.exitApp()
-          },
-        },
-      ] as MenuItem[],
-    }
-  },
-  computed: {
-    defaultMenuIndex(): string {
-      // 当前页面所属菜单
-      const matchedItem = this.menus.find((item: MenuItem) => item.viewPath === this.$route.path)
-      return matchedItem ? matchedItem.viewPath : this.menus[0].viewPath
-    },
-    menuTitle: function (): string {
-      const menuTitle:string = this.$route.query.menuTitle as string
-      return menuTitle !== undefined ? menuTitle : this.getMenuTitle(this.menus[0])
-    },
-  },
-  created() {
-    ThemeColorStore().initThemeColor()
-  },
-  methods: {
-    getMenuTitle(menu: MenuItem): string {
-      return menu.menuTitle !== undefined ? menu.menuTitle : menu.text
-    },
-    onClickMenu(menu: MenuItem): void {
-      this.$router.push({
-        path: menu.viewPath,
-        query: {
-          menuTitle: this.getMenuTitle(menu),
-        },
-      })
-    },
-  },
-})
-</script>
 
 <style scoped lang="scss">
 @use '@/assets/scss/home';

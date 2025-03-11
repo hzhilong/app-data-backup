@@ -1,22 +1,22 @@
 import { CommonError } from '@/models/CommonError'
 
 export default class BaseUtil {
-  public static isCommonError(error: unknown): error is CommonError {
+  static isCommonError(error: unknown): error is CommonError {
     return error instanceof CommonError
   }
 
-  public static getErrorMessage(error: unknown): string {
+  static getErrorMessage(error: unknown): string {
     return this.convertToCommonError(error).message
   }
 
-  public static prependErrorMessage(error: CommonError, preMsg?: string): CommonError {
+  static prependErrorMessage(error: CommonError, preMsg?: string): CommonError {
     if (preMsg) {
       error.message = `${preMsg}${error.message}`
     }
     return error
   }
 
-  public static convertToCommonError(error: unknown, preMsg?: string): CommonError {
+  static convertToCommonError(error: unknown, preMsg?: string): CommonError {
     if (this.isCommonError(error)) {
       return this.prependErrorMessage(error, preMsg)
     }

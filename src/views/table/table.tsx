@@ -4,6 +4,7 @@ import { ref, type Ref } from 'vue'
 import { cloneDeep, merge } from 'lodash'
 import { type EntityTable } from 'dexie'
 import { DbInitStore } from '@/stores/db-init.ts'
+import type { LocationQuery, RouteLocationNormalized, RouteLocationNormalizedLoaded } from 'vue-router'
 
 export interface TableConfig<T> {
   entityTable: EntityTable<T>
@@ -64,4 +65,22 @@ export function initTableView<T>(config: TableConfig<T>, loading: Ref<boolean> =
     searchData,
     refreshData,
   }
+}
+
+/**
+ * 根据路由参数初始化表格查询参数，有变化则返回true
+ */
+export function initRouteQuery<T>(
+  config: TableConfig<T>,
+  route: RouteLocationNormalizedLoaded<string | symbol> | RouteLocationNormalized,
+  ...keys: string[]
+) {
+  let updated = false
+  for (let key of keys) {
+    if (key in route.query && key in config.queryParams && config.queryParams[key].value !== route.query[key]) {
+      config.queryParams[key].value = route.query[key]
+      updated = true
+    }
+  }
+  return updated
 }

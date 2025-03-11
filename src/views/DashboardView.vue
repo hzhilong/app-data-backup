@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
 import { computed, onMounted, ref } from 'vue'
-import { parseAllInstalledSoftware, type SoftwareLib } from '@/models/Software'
-import { AppSessionStore } from '@/stores/app-session.ts'
+import { parseAllInstalledSoftware, type SoftwareLib, type SoftwareRegeditGroupKey } from '@/models/Software'
 import { initTableView } from '@/views/table/table.tsx'
 import { useInstalledSoftwareTable } from '@/views/table/useInstalledSoftwareTable.tsx'
+import router from '@/router'
 
 const loading = ref(false)
 const loadingText = ref('正在获取已安装的软件列表，请稍候...')
@@ -17,6 +16,16 @@ const allInstalledSoftware = computed(() => {
 const softwareLib = ref({} as SoftwareLib)
 
 const initData = () => {}
+
+const gotoAppPage = (key:SoftwareRegeditGroupKey)=>{
+  console.log('gotoAppPage', key)
+  router.push({
+    path: '/app',
+    query: {
+      regeditGroupKey: key
+    }
+  })
+}
 
 onMounted(() => {
   initData()
@@ -31,7 +40,7 @@ onMounted(() => {
         <span class="iconfont icon-refresh icon-btn t-rotate" @click="refreshDB"></span>
       </div>
       <div class="cards cards-multiple">
-        <div class="card" v-for="group in allInstalledSoftware" :key="group.title">
+        <div class="card" v-for="(group, key) in allInstalledSoftware" :key="group.title" @click="gotoAppPage(key)">
           <div class="card-name">{{ group.title }}</div>
           <div class="card-info">
             <div class="info-item">

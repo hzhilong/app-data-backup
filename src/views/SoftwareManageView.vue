@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useInstalledSoftwareTable } from '@/views/table/useInstalledSoftwareTable.tsx'
-import { initTableView } from '@/views/table/table.tsx'
+import { initRouteQuery, initTableView } from '@/views/table/table.tsx'
 import { type InstalledSoftware, SOFTWARE_REGEDIT_GROUP, type SoftwareRegeditGroupKey } from '@/models/Software.ts'
 import { type Ref, ref } from 'vue'
 import defaultIcon from '../assets/image/software-icon-default.png'
@@ -11,16 +11,17 @@ import {
   onBeforeRouteUpdate,
   type RouteLocationNormalized,
   type RouteLocationNormalizedLoaded,
+  useRoute,
 } from 'vue-router'
 
-const { tableColumns, queryParams, tableData, searchData, refreshData, loading } =
-  initTableView(useInstalledSoftwareTable())
+let route = useRoute()
+const tableConfig = useInstalledSoftwareTable()
+initRouteQuery(tableConfig, route, 'regeditGroupKey')
+const { tableColumns, queryParams, tableData, searchData, refreshData, loading } = initTableView(tableConfig)
 const currentData: Ref<InstalledSoftware | null> = ref(null)
 
 onBeforeRouteUpdate((to: RouteLocationNormalized, from: RouteLocationNormalizedLoaded, next: NavigationGuardNext) => {
-  const newGroupKey = to.query.regeditGroupKey as SoftwareRegeditGroupKey
-  if (queryParams.value.regeditGroupKey.value !== newGroupKey) {
-    queryParams.value.regeditGroupKey.value = newGroupKey
+  if (initRouteQuery(tableConfig, route, 'regeditGroupKey')) {
     searchData()
   }
 })
@@ -32,13 +33,13 @@ onBeforeRouteUpdate((to: RouteLocationNormalized, from: RouteLocationNormalizedL
       <div class="header-left">
         <div class="search-item">
           <span class="label"> 类型 </span>
-          <el-select class="value" v-model="queryParams.regeditGroupKey.value" placeholder="" size="small" clearable>
+          <el-select class="value" v-model="queryParams.regeditGroupKey.value" placeholder="" size="small" clearable @change="searchData">
             <el-option v-for="(item, key) in SOFTWARE_REGEDIT_GROUP" :key="key" :label="item.title" :value="key" />
           </el-select>
         </div>
         <div class="search-item">
           <span class="label"> 名称 </span>
-          <el-input class="value" v-model="queryParams.name.value" placeholder="" size="small" clearable />
+          <el-input class="value" v-model="queryParams.name.value" placeholder="" size="small" clearable @change="searchData"/>
         </div>
         <el-button type="primary" @click="searchData" :loading="loading">搜索</el-button>
       </div>

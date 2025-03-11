@@ -9,42 +9,43 @@ import { db } from '@/db/db.ts'
 import { IPC_CHANNELS } from '@/models/IpcChannels.ts'
 import { BuResult } from '@/models/BuResult.ts'
 
-const tableColumns = [
-  {
-    label: '图标',
-    prop: 'iconPath',
-    width: '50',
-    align: 'center',
-    formatter: (row: InstalledSoftware): VNode | string => {
-      return <img src={row.base64Icon ? row.base64Icon : defaultIcon} class="soft-icon"  alt=''/>
+export function useInstalledSoftwareTable(): TableConfig<InstalledSoftware> {
+  const tableColumns = [
+    {
+      label: '图标',
+      prop: 'iconPath',
+      width: '50',
+      align: 'center',
+      formatter: (row: InstalledSoftware): VNode | string => {
+        return <img src={row.base64Icon ? row.base64Icon : defaultIcon} class="soft-icon"  alt=''/>
+      },
     },
-  },
-  { label: '软件名', prop: 'name', minWidth: '200', showOverflowTooltip: true, sortable: true },
-  { label: '安装日期', prop: 'installDate', width: '90', align: 'center', sortable: true },
-  { label: '大小', prop: 'formatSize', align: 'center', width: '70', sortable: true, sortBy: 'size' },
-  {
-    label: '类型',
-    prop: 'regeditGroupKey',
-    align: 'center',
-    width: '100',
-    formatter: (row: InstalledSoftware) => {
-      if (row.regeditGroupKey) {
-        return SOFTWARE_REGEDIT_GROUP[row.regeditGroupKey].title
-      } else {
-        return '-'
-      }
+    { label: '软件名', prop: 'name', minWidth: '200', showOverflowTooltip: true, sortable: true },
+    { label: '安装日期', prop: 'installDate', width: '90', align: 'center', sortable: true },
+    { label: '大小', prop: 'formatSize', align: 'center', width: '70', sortable: true, sortBy: 'size' },
+    {
+      label: '类型',
+      prop: 'regeditGroupKey',
+      align: 'center',
+      width: '100',
+      formatter: (row: InstalledSoftware) => {
+        if (row.regeditGroupKey) {
+          return SOFTWARE_REGEDIT_GROUP[row.regeditGroupKey].title
+        } else {
+          return '-'
+        }
+      },
+      sortable: true,
     },
-    sortable: true,
-  },
-  { label: '版本', prop: 'version', width: '80', showOverflowTooltip: true },
-  {
-    label: '操作',
-    prop: 'iconPath',
-    minWidth: '100',
-    align: 'center',
-    formatter: (row: InstalledSoftware): VNode | string => {
-      return (
-        <div class="table-opt-btns">
+    { label: '版本', prop: 'version', width: '80', showOverflowTooltip: true },
+    {
+      label: '操作',
+      prop: 'iconPath',
+      minWidth: '100',
+      align: 'center',
+      formatter: (row: InstalledSoftware): VNode | string => {
+        return (
+          <div class="table-opt-btns">
           <span
             class="table-opt-btn"
             onClick={() => {
@@ -53,24 +54,22 @@ const tableColumns = [
           >
             测试
           </span>
-        </div>
-      )
+          </div>
+        )
+      },
     },
-  },
-]
+  ]
 
-const queryParams = {
-  name: {
-    connector: 'like',
-    value: '',
-  },
-  regeditGroupKey: {
-    connector: 'eq',
-    value: undefined as SoftwareRegeditGroupKey | undefined,
-  },
-} as QueryParams
-
-export function useInstalledSoftwareTable(): TableConfig<InstalledSoftware> {
+  const queryParams = {
+    name: {
+      connector: 'like',
+      value: '',
+    },
+    regeditGroupKey: {
+      connector: 'eq',
+      value: undefined as SoftwareRegeditGroupKey | undefined,
+    },
+  } as QueryParams
   return {
     entityTable: db.installedSoftware,
     tableColumns: tableColumns,

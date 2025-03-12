@@ -17,6 +17,11 @@ $app-color-content-color:  #0a0a0a;
 $app-color-content-color2: #333333;
 $app-color-content-color3:  #666666;
 
+$app-color-btn-text:  #FFFFFF;
+$app-color-btn-text-hover:  #FFFFFF;
+$app-color-btn-bg:  rgba($app-theme-color, 1);
+$app-color-btn-bg-hover:  rgba($app-theme-color, 0.7);
+
 // 图标按钮
 $app-color-btn-icon: $app-color-primary;
 $app-color-btn-icon-bg: $app-color-hover;

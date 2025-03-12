@@ -1,7 +1,7 @@
-import { DBUtil, type QueryParams } from '@/db/db.ts'
+import { DBUtil, type QueryParams, type QueryParam } from '@/db/db.ts'
 import TableColumn from 'element-plus/es/components/table/src/tableColumn'
 import { ref, type Ref } from 'vue'
-import { cloneDeep, merge } from 'lodash'
+import { cloneDeep, merge, mergeWith } from 'lodash'
 import { type EntityTable } from 'dexie'
 import { DbInitStore } from '@/stores/db-init.ts'
 import {
@@ -13,7 +13,7 @@ import {
   useRoute,
 } from 'vue-router'
 
-export interface TableConfig<T, Q extends Record<string, QueryParam>> {
+export interface TableConfig<T, Q extends Record<string, QueryParam> = Record<string, QueryParam>> {
   entityTable: EntityTable<T>
   tableColumns: Partial<typeof TableColumn>
   queryParams: QueryParams<Q>
@@ -28,11 +28,15 @@ export interface TableConfig<T, Q extends Record<string, QueryParam>> {
  * @param loading 加载状态
  * @param routeQueryKeys 路由查询参数（首次加载组件和路由更新时会进行判断）
  */
-export function initTable<T, Q extends Record<string, QueryParam>>(config: TableConfig<T, Q>, loading: Ref<boolean> = ref(false), routeQueryKeys?: string[]) {
+export function initTable<T, Q extends Record<string, QueryParam>>(
+  config: TableConfig<T, Q>,
+  loading: Ref<boolean> = ref(false),
+  routeQueryKeys?: string[],
+) {
   const defaultQueryParams = config.queryParams
   const tableColumns = ref(cloneDeep(config.tableColumns))
   const queryParams = ref(cloneDeep(config.queryParams))
-  const tableData = ref([])
+  const tableData: Ref<T[]> = ref([])
   const tableDB = config.entityTable
   const { isInit, initialized } = DbInitStore()
   const needInit: boolean = !isInit(config)
@@ -48,9 +52,10 @@ export function initTable<T, Q extends Record<string, QueryParam>>(config: Table
     }
   }
   const setDefaultQueryParams = () => {
-    merge(queryParams.value, defaultQueryParams)
+    Object.assign(queryParams.value, cloneDeep(defaultQueryParams))
   }
   const refreshDB = async () => {
+    setDefaultQueryParams()
     const data = await loadTableData(config.initDBFn)
     DBUtil.reset(tableDB, data)
     initialized(config, true)
@@ -66,7 +71,7 @@ export function initTable<T, Q extends Record<string, QueryParam>>(config: Table
   // 初始化路由参数
   if (routeQueryKeys) {
     const route = useRoute()
-    initRouteQuery(config, route, routeQueryKeys)
+    initRouteQuery(config, route, ...routeQueryKeys)
     onBeforeRouteUpdate(
       (to: RouteLocationNormalized, from: RouteLocationNormalizedLoaded, next: NavigationGuardNext) => {
         // 路由更新时参数改变就搜索

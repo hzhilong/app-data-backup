@@ -2,7 +2,7 @@
 import { usePluginConfigTable } from '@/views/table/usePluginConfigTable.tsx'
 import { initTable } from '@/views/table/table.tsx'
 
-const { tableData, tableColumns, queryParams, loading, searchData, refreshData } = initTable(usePluginConfigTable())
+const { tableData, tableColumns, queryParams, loading, searchData, refreshDB } = initTable(usePluginConfigTable())
 </script>
 <template>
   <div class="content-wrapper">
@@ -10,16 +10,16 @@ const { tableData, tableColumns, queryParams, loading, searchData, refreshData }
       <div class="header-left">
         <div class="search-item">
           <span class="label">类型</span>
-          <el-select class="value" v-model="queryParams.type.value" placeholder="" size="small" clearable>
+          <el-select class="value" v-model="queryParams.type.value" placeholder="" size="small" clearable @change="searchData">
             <el-option v-for="(item, key) in queryParams.type.options" :key="key" :label="item" :value="key" />
           </el-select>
         </div>
         <div class="search-item">
           <span class="label">名称</span>
-          <el-input class="value" v-model="queryParams.name.value" placeholder="" size="small" clearable />
+          <el-input class="value" v-model="queryParams.name.value" placeholder="" size="small" clearable @change="searchData"/>
         </div>
         <el-button type="primary" @click="searchData" :loading="loading">搜索</el-button>
-        <el-button type="primary" @click="refreshData" :loading="loading">刷新</el-button>
+        <el-button type="primary" @click="refreshDB" :loading="loading">重新加载</el-button>
       </div>
       <div class="header-right"></div>
     </div>

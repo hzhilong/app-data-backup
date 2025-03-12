@@ -88,7 +88,7 @@ async function initPlugins(): Promise<PluginConfig[]> {
       // 动态导入插件模块
       const module = await import(pathToFileURL(filePath).href)
       const config = module.default as Record<string, unknown>
-      const cTime = dayjs(fs.statSync(filePath).birthtime).format('yyyy-MM-dd HH:mm:ss')
+      const cTime = dayjs(fs.statSync(filePath).birthtime).format('YYYY-MM-DD HH:mm:ss')
       // 实例化插件
       const pluginConfig = new PluginConfig(config, cTime)
       activePlugins.set(pluginConfig.id, new Plugin(config, cTime))
@@ -99,6 +99,7 @@ async function initPlugins(): Promise<PluginConfig[]> {
     }
   }
   initialized = true
+  console.log('initPlugins',JSON.stringify(loadedPluginConfigs))
   return loadedPluginConfigs
 }
 

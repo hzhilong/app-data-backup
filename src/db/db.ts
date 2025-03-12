@@ -40,11 +40,11 @@ export const db = new Dexie('appDataBackupDatabase') as Dexie & {
 db.version(4).stores({
   installedSoftware: 'regeditDir, regeditGroupKey,name', // regeditDir作为主键,同时也是复合索引。
   iconCache: 'path',
-  pluginConfig: 'id',
-  myConfig: 'id',
+  pluginConfig: 'id,type,name',
+  myConfig: 'id,type,name',
 })
 
-export type QueryParam<V extends Record<string, any>, O extends Record<string, any>, OVK extends string = never> = {
+export type QueryParam<O extends Record<string, any> = Record<string, any>, OVK extends string = never> = {
   value: any
   connector: 'eq' | 'like'
   options?: ParamOptions<O, OVK>
@@ -57,7 +57,7 @@ export function createParamOptions<O extends Record<string, any>, OVK extends st
   if (!vKey) {
     return data
   }
-  const ret = {}
+  const ret: ParamOptions<O, OVK> = {} as ParamOptions<O, OVK>
   for (let key in data) {
     const value = data[key]
     if (vKey in value) {
@@ -98,7 +98,10 @@ export class DBUtil {
     })
   }
 
-  static query<T>(table: DexieTable<T>, queryParams: QueryParams): Promise<Array<T>> {
+  static query<T, Q extends Record<string, QueryParam>>(
+    table: DexieTable<T>,
+    queryParams: QueryParams<Q>,
+  ): Promise<Array<T>> {
     return new Promise<Array<T>>((resolve, reject) => {
       let query: DexieQuery<T> = table
       const eqObj: Record<string, unknown> = {}

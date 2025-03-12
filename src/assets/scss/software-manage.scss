@@ -23,6 +23,8 @@
       align-items: center;
 
       .search-item {
+        display: flex;
+        align-items: center;
         margin-right: 12px;
 
         > .label {

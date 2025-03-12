@@ -18,7 +18,7 @@
     app-region: drag;
   }
 
-  >.left-side {
+  > .left-side {
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -27,19 +27,19 @@
     width: $app-left-side-width;
     user-select: none;
 
-    >.app-infos {
+    > .app-infos {
       display: flex;
       align-items: center;
       padding: 20px 0;
 
-      >.app-title {
+      > .app-title {
         display: flex;
         align-items: center;
         font-size: 18px;
         font-weight: bold;
         color: $app-color-primary;
 
-        >.app-logo {
+        > .app-logo {
           width: 28px;
           height: 28px;
           margin-right: 4px;
@@ -52,13 +52,13 @@
 
     }
 
-    >.menus {
+    > .menus {
       flex: 1;
       border-right: unset;
       letter-spacing: 1px;
       background: $app-color-background;
 
-      >.menu {
+      > .menu {
         width: calc($app-left-side-width - 10px);
         display: flex;
         align-items: center;
@@ -68,21 +68,21 @@
         z-index: 1;
         transition: border-color var(--el-transition-duration), background-color var(--el-transition-duration);
 
-        >.iconfont {
+        > .iconfont {
           font-size: 18px;
           margin-right: 20px;
         }
       }
 
-      >.el-menu-item:hover {
+      > .el-menu-item:hover {
         background: unset;
       }
 
-      >.el-menu-item.is-active {
+      > .el-menu-item.is-active {
         color: #FFF;
       }
 
-      >.el-menu-item:hover:after, .el-menu-item.is-active:after {
+      > .el-menu-item:hover:after, .el-menu-item.is-active:after {
         content: " ";
         position: absolute;
         left: 8px;
@@ -94,20 +94,20 @@
         z-index: -1;
       }
 
-      >.el-menu-item.is-active:after {
+      > .el-menu-item.is-active:after {
         background: $app-color-primary;
       }
     }
   }
 
-  >.right-side {
+  > .right-side {
     flex: 1;
     height: 100%;
     display: flex;
     flex-direction: column;
     align-items: start;
 
-    >.top-bar {
+    > .top-bar {
       width: 100%;
       height: $app-top-bar-height;
       display: flex;
@@ -118,7 +118,7 @@
       box-sizing: border-box;
       position: relative;
 
-      >.top-bar-btns {
+      > .top-bar-btns {
         $btn-margin: 2px;
         display: flex;
         align-items: center;
@@ -128,7 +128,7 @@
         top: 0;
         right: 0;
 
-        >.btn {
+        > .btn {
           width: calc($app-top-bar-height - $btn-margin);
           height: calc($app-top-bar-height - $btn-margin);
           font-size: 16px;
@@ -150,7 +150,7 @@
       }
     }
 
-    >.content-wrapper {
+    > .content-wrapper {
       flex: 1;
       background: $app-color-background;
       //padding: $app-main-content-margin calc($app-main-content-margin + 1px) calc($app-main-content-margin + 1px) $app-main-content-margin;
@@ -159,7 +159,7 @@
       height: 100%;
       width: 100%;
 
-      >.content {
+      > .content {
         height: 100%;
         width: 100%;
         box-sizing: border-box;
@@ -174,3 +174,16 @@
   }
 }
 
+
+:deep(.el-button--primary) {
+  background-color: $app-color-btn-bg;
+  border-color: $app-color-btn-bg;
+  color: $app-color-btn-text;
+
+  &:hover {
+    background-color: $app-color-btn-bg-hover;
+    border-color: $app-color-btn-bg-hover;
+    color: $app-color-btn-text-hover;
+    outline: none;
+  }
+}

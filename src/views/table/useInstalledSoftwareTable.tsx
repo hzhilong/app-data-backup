@@ -56,11 +56,11 @@ export function useInstalledSoftwareTable() {
 
   const queryParams = {
     name: {
-      connector: 'like',
+      connector: 'like' as const,
       value: '',
     },
     regeditGroupKey: {
-      connector: 'eq',
+      connector: 'eq' as const,
       value: undefined as SoftwareRegeditGroupKey | undefined,
       options: createParamOptions(SOFTWARE_REGEDIT_GROUP, 'title')
     },

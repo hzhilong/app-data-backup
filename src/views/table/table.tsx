@@ -130,10 +130,10 @@ export function initRouteQuery<T>(
  */
 export interface TableOptionBtn<T> {
   text: string
-  onClick?: (row: T) => void
+  onClick: (row: T) => void
 }
 
-export function createOptionList<T>(row: InstalledSoftware, list: TableOptionBtn<T>[]) {
+export function createOptionList<T>(row: T, list: TableOptionBtn<T>[]) {
   return (
     <div class="table-option-list">
       {list.map((item) => {

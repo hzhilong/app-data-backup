@@ -189,4 +189,10 @@ export class ValidatedPluginConfig extends PluginConfig {
  */
 export class MyPluginConfig extends ValidatedPluginConfig {
   installDir: string
+
+
+  constructor(config: Record<string, unknown>, cTime: string, soft: InstalledSoftware | string | undefined, installDir: string) {
+    super(config, cTime, soft)
+    this.installDir = installDir
+  }
 }

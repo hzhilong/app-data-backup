@@ -6,20 +6,20 @@ import type { SoftwareRegeditGroupKey } from '@/models/Software.ts'
 import { createParamOptions, type QueryParams } from '@/db/db.ts'
 import { createOptionList, initTable, type TableConfig } from '@/views/table/table.tsx'
 import { db } from '@/db/db.ts'
-import { usePluginConfigTable } from '@/views/table/usePluginConfigTable.tsx'
+import type { ValidatedPluginConfig } from '@/plugins/plugin-config.ts'
 
 export type ExtendedInstalledSoftware = InstalledSoftware & {
   supportPlugins?: ValidatedPluginConfig[]
 }
 
-export function useInstalledSoftwareTable<T = ExtendedInstalledSoftware, TE = ExtendedInstalledSoftware>() {
+export function useInstalledSoftwareTable() {
   const tableColumns = [
     {
       label: '图标',
       prop: 'iconPath',
       width: '50',
       align: 'center',
-      formatter: (row: T): VNode | string => {
+      formatter: (row: ExtendedInstalledSoftware): VNode | string => {
         return <img src={row.base64Icon ? row.base64Icon : defaultIcon} class="soft-icon" alt="" />
       },
     },
@@ -30,7 +30,7 @@ export function useInstalledSoftwareTable<T = ExtendedInstalledSoftware, TE = Ex
       label: '类型',
       prop: 'regeditGroupKey',
       width: '100',
-      formatter: (row: T) => {
+      formatter: (row: ExtendedInstalledSoftware) => {
         return row.regeditGroupKey ? SOFTWARE_REGEDIT_GROUP[row.regeditGroupKey].title : '-'
       },
       sortable: true,
@@ -54,17 +54,21 @@ export function useInstalledSoftwareTable<T = ExtendedInstalledSoftware, TE = Ex
       options: createParamOptions(SOFTWARE_REGEDIT_GROUP, 'title'),
     },
   }
-  const parseData = async (list: TE[]): TE => {
-    let table = initTable(usePluginConfigTable())
-    const configs = await table.refreshDB()
-    const mapConfig = configs.reduce((map, item) => {
-      if (map[item.softRegeditDir]) {
-        map[item.softRegeditDir].push(item)
-      } else {
-        map[item.softRegeditDir] = [item]
-      }
-      return map
-    }, {})
+  const parseData = async (list: ExtendedInstalledSoftware[]): Promise<ExtendedInstalledSoftware[]> => {
+    const configs = await db.pluginConfig.toArray()
+    const mapConfig = configs.reduce(
+      (map, item) => {
+        if (item.softRegeditDir) {
+          if (map[item.softRegeditDir]) {
+            map[item.softRegeditDir].push(item)
+          } else {
+            map[item.softRegeditDir] = [item]
+          }
+        }
+        return map
+      },
+      {} as Record<string, ValidatedPluginConfig[]>,
+    )
     console.log(mapConfig)
     return list.map((item): ExtendedInstalledSoftware => {
       return { ...item, supportPlugins: mapConfig[item.regeditDir] }
@@ -74,10 +78,10 @@ export function useInstalledSoftwareTable<T = ExtendedInstalledSoftware, TE = Ex
     entityTable: db.installedSoftware,
     tableColumns: tableColumns,
     queryParams: queryParams,
-    async initDBFn(): Promise<T[]> {
+    async initDBFn(): Promise<ExtendedInstalledSoftware[]> {
       return RegeditUtil.getInstalledSoftwareList()
     },
     parseData: parseData,
     persist: import.meta.env.DEV,
-  } as TableConfig<TE, typeof queryParams>
+  } as TableConfig<ExtendedInstalledSoftware, typeof queryParams>
 }

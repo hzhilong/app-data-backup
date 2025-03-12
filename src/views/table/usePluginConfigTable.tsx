@@ -37,7 +37,7 @@ export function usePluginConfigTable() {
               content: () => <>{row.cTime}</>,
             }}
           >
-            {maxWindow.value ? row.cTime : row?.cTime.split(' ')[0]}
+            {maxWindow.value ? row.cTime : row.cTime?.split(' ')[0]}
           </el-tooltip>
         )
       },
@@ -99,7 +99,7 @@ export function usePluginConfigTable() {
       label: '操作',
       minWidth: '100',
       formatter: (row: ValidatedPluginConfig) => {
-        const list: TableOptionBtn<ValidatedPluginConfig> = []
+        const list: TableOptionBtn<ValidatedPluginConfig>[] = []
         if (row.type === 'INSTALLER') {
           list.push({
             text: '备份',

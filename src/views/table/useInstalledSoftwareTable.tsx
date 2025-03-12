@@ -3,7 +3,7 @@ import { type InstalledSoftware, SOFTWARE_REGEDIT_GROUP } from '@/models/Softwar
 import defaultIcon from '@/assets/image/software-icon-default.png'
 import RegeditUtil from '@/utils/regedit-util.ts'
 import type { SoftwareRegeditGroupKey } from '@/models/Software.ts'
-import type { QueryParams } from '@/db/db.ts'
+import { createParamOptions, type QueryParams } from '@/db/db.ts'
 import type { TableConfig } from '@/views/table/table.tsx'
 import { db } from '@/db/db.ts'
 
@@ -62,6 +62,7 @@ export function useInstalledSoftwareTable() {
     regeditGroupKey: {
       connector: 'eq',
       value: undefined as SoftwareRegeditGroupKey | undefined,
+      options: createParamOptions(SOFTWARE_REGEDIT_GROUP, 'title')
     },
   }
   return {

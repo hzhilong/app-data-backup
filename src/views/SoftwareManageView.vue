@@ -29,7 +29,7 @@ const currentData: Ref<InstalledSoftware | null> = ref(null)
             clearable
             @change="searchData"
           >
-            <el-option v-for="(item, key) in SOFTWARE_REGEDIT_GROUP" :key="key" :label="item.title" :value="key" />
+            <el-option v-for="(item, key) in queryParams.regeditGroupKey.options" :key="key" :label="item" :value="key" />
           </el-select>
         </div>
         <div class="search-item">

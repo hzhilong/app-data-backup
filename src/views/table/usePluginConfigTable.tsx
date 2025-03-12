@@ -1,10 +1,17 @@
 import { h } from 'vue'
-import { db, type QueryParams } from '@/db/db.ts'
-import { BACKUP_PLUGIN_TYPE, type BackupPluginTypeKey, PluginConfig } from '@/plugins/plugin-config.ts'
+import { createParamOptions, db, type ParamOptions } from '@/db/db.ts'
+import {
+  BACKUP_PLUGIN_TYPE,
+  BACKUP_PLUGIN_TYPE_KEY,
+  type BackupPluginTypeKey,
+  PluginConfig,
+} from '@/plugins/plugin-config.ts'
 import { BuResult } from '@/models/BuResult.ts'
 import { IPC_CHANNELS } from '@/models/IpcChannels.ts'
+import type { TableConfig } from '@/views/table/table.tsx'
+import type { InstalledSoftware } from '@/models/Software.ts'
 
-export function usePluginConfigTable() {
+export function usePluginConfigTable<V extends Record<string, any>>() {
   const tableColumns = [
     { label: '序号', type: 'index', width: '90' },
     { label: '名称', prop: 'name', minWidth: '200', showOverflowTooltip: true, sortable: true },
@@ -48,6 +55,11 @@ export function usePluginConfigTable() {
     },
   ]
 
+  const temp = {
+    INSTALLER: '安装程序',
+    PORTABLE: '便捷软件',
+    CUSTOM: '自定义',
+  }
   const queryParams = {
     name: {
       connector: 'like',
@@ -56,8 +68,9 @@ export function usePluginConfigTable() {
     type: {
       connector: 'eq',
       value: undefined as BackupPluginTypeKey | undefined,
+      options: createParamOptions(BACKUP_PLUGIN_TYPE, 'title'),
     },
-  } as QueryParams
+  }
   return {
     entityTable: db.pluginConfig,
     tableColumns: tableColumns,
@@ -68,5 +81,5 @@ export function usePluginConfigTable() {
       )
     },
     persist: false,
-  }
+  } as TableConfig<PluginConfig, typeof queryParams>
 }

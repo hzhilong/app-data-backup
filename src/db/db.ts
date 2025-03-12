@@ -8,6 +8,7 @@ import {
 } from '@/models/Software'
 import BaseUtil from '@/utils/base-util'
 import { type PluginConfig } from '@/plugins/plugin-config'
+import { execBusiness } from '@/models/BuResult.ts'
 
 export type DexieTable<T, TKeyPropName extends keyof T = never, TInsertType = InsertType<T, TKeyPropName>> = Table<
   T,
@@ -43,13 +44,41 @@ db.version(4).stores({
   myConfig: 'id',
 })
 
-export type QueryParam = {
+export type QueryParam<V extends Record<string, any>, O extends Record<string, any>, OVK extends string = never> = {
   value: any
   connector: 'eq' | 'like'
+  options?: ParamOptions<O, OVK>
+}
+
+export function createParamOptions<O extends Record<string, any>, OVK extends string = never>(
+  data: O,
+  vKey: OVK,
+): ParamOptions<O, OVK> {
+  if (!vKey) {
+    return data
+  }
+  const ret = {}
+  for (let key in data) {
+    const value = data[key]
+    if (vKey in value) {
+      ret[key] = value[vKey]
+    } else {
+      ret[key] = value
+    }
+  }
+  return ret
 }
 
 export type QueryParams<T extends Record<string, QueryParam>> = {
   [K in keyof T]: T[K]
+}
+
+export type ParamOptions<O extends Record<string, any>, OVK extends string = never> = {
+  [P in keyof O]: OVK extends never // 如果没有传入 OVK
+    ? O[P] // 原样返回字段类型
+    : O[P] extends Record<string, any> // 如果传入了 OVK 并且 O[P] 是对象
+      ? O[P][OVK] // 提取对象中 OVK 字段的值
+      : O[P] // 如果字段不是对象，原样返回
 }
 
 export class DBUtil {

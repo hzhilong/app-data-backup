@@ -4,7 +4,7 @@ import defaultIcon from '@/assets/image/software-icon-default.png'
 import RegeditUtil from '@/utils/regedit-util.ts'
 import type { SoftwareRegeditGroupKey } from '@/models/Software.ts'
 import { createParamOptions, type QueryParams } from '@/db/db.ts'
-import type { TableConfig } from '@/views/table/table.tsx'
+import { createOptionList, type TableConfig } from '@/views/table/table.tsx'
 import { db } from '@/db/db.ts'
 
 export function useInstalledSoftwareTable() {
@@ -38,18 +38,14 @@ export function useInstalledSoftwareTable() {
       minWidth: '100',
       align: 'center',
       formatter: (row: InstalledSoftware): VNode | string => {
-        return (
-          <div class="table-opt-btns">
-            <span
-              class="table-opt-btn"
-              onClick={() => {
-                RegeditUtil.openRegedit(row.regeditDir)
-              }}
-            >
-              测试
-            </span>
-          </div>
-        )
+        return createOptionList(row, [
+          {
+            text: '注册表',
+            onClick: (row: InstalledSoftware) => {
+              RegeditUtil.openRegedit(row.regeditDir)
+            },
+          },
+        ])
       },
     },
   ]
@@ -62,7 +58,7 @@ export function useInstalledSoftwareTable() {
     regeditGroupKey: {
       connector: 'eq' as const,
       value: undefined as SoftwareRegeditGroupKey | undefined,
-      options: createParamOptions(SOFTWARE_REGEDIT_GROUP, 'title')
+      options: createParamOptions(SOFTWARE_REGEDIT_GROUP, 'title'),
     },
   }
   return {
@@ -72,6 +68,6 @@ export function useInstalledSoftwareTable() {
     async initDBFn(): Promise<InstalledSoftware[]> {
       return RegeditUtil.getInstalledSoftwareList()
     },
-    persist: false,
+    persist: import.meta.env.DEV,
   } as TableConfig<InstalledSoftware, typeof queryParams>
 }

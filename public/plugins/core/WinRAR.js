@@ -13,4 +13,7 @@ module.exports = {
       ],
     },
   ],
+  detect(list, env) {
+    return this.detectByInstallLocationDir(list)
+  },
 }

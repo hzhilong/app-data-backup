@@ -23,8 +23,7 @@ export class Plugin extends PluginConfig {
   /**
    * 验证插件支持的软件源
    * [安装程序]需返回 InstalledSoftware
-   * [免安装的]需返回 软件路径
-   * [自定义]不调用该方法
+   * [免安装的、自定义]需返回 软件路径
    */
   public detect(
     list: InstalledSoftware[],
@@ -36,11 +35,13 @@ export class Plugin extends PluginConfig {
       return this.detectOfInstaller(list, env)
     } else if (this.type === 'PORTABLE') {
       return this.detectOfPortable(env)
+    } else if (this.type === 'CUSTOM') {
+      return this.detectOfCustom(env)
     }
   }
 
   /**
-   * 验证插件支持的软件源（安装程序）
+   * 验证插件（安装程序）支持的软件源，默认使用nameWithoutVersion进行判断
    */
   public detectOfInstaller(
     list: InstalledSoftware[],
@@ -64,6 +65,27 @@ export class Plugin extends PluginConfig {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public detectOfPortable(env: { [key: string]: string | undefined }): string | undefined {
     return undefined
+  }
+
+  /**
+   * 验证插件支持的软件源（自定义的）
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public detectOfCustom(env: { [key: string]: string | undefined }): string | undefined {
+    return undefined
+  }
+
+  /**
+   * 验证插件支持的软件源（通过安装路径的文件夹名）
+   * @param list
+   * @param env
+   */
+  public detectByInstallLocationDir(list: InstalledSoftware[]) {
+    for (let soft of list) {
+      if (new RegExp(`[/\\\\]${this.name}\$`).test(soft.installLocation)) {
+        return soft
+      }
+    }
   }
 
   /** 判断可支持的软件版本 */

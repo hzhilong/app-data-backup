@@ -1,5 +1,6 @@
 import { CommonError } from '@/models/CommonError'
 import dayjs from 'dayjs'
+import { type InstalledSoftware } from '@/models/Software'
 
 /**
  * 备份配置 可根据该配置快速进行备份还原 也可自己实现备份还原方法
@@ -135,7 +136,7 @@ export class PluginConfig {
   /** 创建时间 */
   cTime?: string
 
-  constructor(config: Record<string, unknown>, cTime:string) {
+  constructor(config: Record<string, unknown>, cTime: string) {
     const { type, id, name, backupConfigs } = config
     validateConfig(typeof type === 'string' && type in BACKUP_PLUGIN_TYPE_KEY, '缺少有效的 type')
     validateConfig(typeof id === 'string', '缺少 id')
@@ -156,3 +157,36 @@ export const DEFAULT_ROOT_DIR = '.backup-data'
  */
 export const getBackupDir = (softName: string, rootDir: string = DEFAULT_ROOT_DIR) =>
   `${rootDir}/${softName}/${dayjs().format('YYYY-MM-DD_HH-mm-ss')}/`
+
+/**
+ * 已验证过的插件配置
+ */
+export class ValidatedPluginConfig extends PluginConfig {
+  // type为'INSTALLER'需要关联软件的名称
+  softName?: string
+  // type为'INSTALLER'需要关联软件的图标
+  softBase64Icon?: string
+  softInstallDir?: string
+  // type为'INSTALLER'需要关联软件的注册表位置
+  softRegeditDir?: string
+
+  constructor(config: Record<string, unknown>, cTime: string, soft: InstalledSoftware | string | undefined) {
+    super(config, cTime)
+    if (!soft) {
+    } else if (typeof soft === 'string') {
+      this.softInstallDir = soft
+    } else {
+      this.softName = soft.name
+      this.softBase64Icon = soft.base64Icon
+      this.softInstallDir = soft.installDir
+      this.softRegeditDir = soft.regeditDir
+    }
+  }
+}
+
+/**
+ * 我的配置
+ */
+export class MyPluginConfig extends ValidatedPluginConfig {
+  installDir: string
+}

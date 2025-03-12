@@ -89,7 +89,7 @@
         top: 8px;
         bottom: 8px;
         right: 8px;
-        background: $app-color-hover;
+        background: $app-color-bg-hover;
         border-radius: 8px;
         z-index: -1;
       }
@@ -139,7 +139,7 @@
           }
 
           &:hover {
-            background: $app-color-hover;
+            background: $app-color-bg-hover;
           }
 
           &:nth-child(3):hover {
@@ -171,19 +171,5 @@
         overflow: auto;
       }
     }
-  }
-}
-
-
-:deep(.el-button--primary) {
-  background-color: $app-color-btn-bg;
-  border-color: $app-color-btn-bg;
-  color: $app-color-btn-text;
-
-  &:hover {
-    background-color: $app-color-btn-bg-hover;
-    border-color: $app-color-btn-bg-hover;
-    color: $app-color-btn-text-hover;
-    outline: none;
   }
 }

@@ -32,5 +32,5 @@ const { tableData, tableColumns, queryParams, loading, searchData, refreshDB } =
 </template>
 
 <style scoped lang="scss">
-@use '@/assets/scss/software-manage';
+@use '@/assets/scss/plugin-config';
 </style>

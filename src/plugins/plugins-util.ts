@@ -1,10 +1,9 @@
-import type { MyConfig } from '@/db/db'
 import { IPC_CHANNELS } from '@/models/IpcChannels'
-import { type BackupResult, getBackupDir, type TaskMonitor } from '@/plugins/plugin-config'
+import { type BackupResult, getBackupDir, MyPluginConfig, type TaskMonitor } from '@/plugins/plugin-config'
 import { CommonError } from '@/models/CommonError'
 import { BuResult } from '@/models/BuResult'
 
-async function execPlugin(myConfig: MyConfig, execType: 'backup' | 'restore', monitor: TaskMonitor, dataDir?: string) {
+async function execPlugin(myConfig: MyPluginConfig, execType: 'backup' | 'restore', monitor: TaskMonitor, dataDir?: string) {
   if (!dataDir) {
     if (execType === 'restore') {
       throw new CommonError('执行失败，缺少参数[备份目录]')

@@ -116,7 +116,7 @@
       display: flex;
       align-items: center;
       padding: 0;
-      background: $app-color-hover;
+      background: $app-color-bg-hover;
       margin: 6px 0;
 
       .value{
@@ -151,7 +151,7 @@
           padding: 0 2px;
 
           &:hover {
-            background: $app-color-hover;
+            background: $app-color-bg-hover;
           }
 
           .proportion-chart {

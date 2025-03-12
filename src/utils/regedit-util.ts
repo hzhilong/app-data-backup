@@ -36,7 +36,7 @@ export default class RegeditUtil {
           const base64 = (await window.electronAPI?.ipcInvoke(IPC_CHANNELS.GET_ICON, iconPath)) as string
           if (base64) {
             soft.base64Icon = base64
-            db.iconCache.add({
+            db.iconCache.put({
               path: iconPath,
               base64: base64,
             })

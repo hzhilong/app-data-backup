@@ -1,0 +1,130 @@
+@use "global" as *;
+
+.content-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 10px;
+  padding: 10px;
+  box-sizing: border-box;
+
+  .header {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    .header-left, .header-right {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+
+      .search-item {
+        display: flex;
+        align-items: center;
+        margin-right: 12px;
+
+        > .label {
+          color: $app-color-content-color3;
+          margin-right: 3px;
+        }
+
+        > .value {
+          width: 120px;
+        }
+      }
+    }
+
+  }
+
+  .table-wrapper {
+    width: 100%;
+    flex: 1;
+    overflow: auto;
+
+    :deep(.soft-icon) {
+      display: block;
+      width: 20px;
+      height: 20px;
+      margin-right: 4px;
+      object-fit: cover;
+    }
+  }
+
+  .header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .footer {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    border: 1px solid $app-color-border;
+    box-sizing: border-box;
+    padding: 10px;
+
+    .soft-icon {
+      width: 48px;
+      height: 48px;
+      margin-right: 10px;
+    }
+
+    .soft-infos {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: start;
+      gap: 4px;
+      font-size: 12px;
+      overflow: hidden;
+
+      $triangle-width: 10px;
+      $info-item-height: 20px;
+
+      .line {
+        width: 100%;
+        display: flex;
+
+        .info-item {
+          width: 50%;
+          max-width: 50%;
+          height: $info-item-height;
+          line-height: $info-item-height;
+          display: flex;
+          align-items: center;
+          white-space: nowrap;
+          box-sizing: border-box;
+          padding-right: 6px;
+
+          .label {
+            color: $app-color-content-color3;
+            margin-right: 6px;
+            position: relative;
+            z-index: 1;
+            box-sizing: border-box;
+            user-select: none;
+          }
+
+          .value {
+            flex: 1;
+            color: $app-color-content-color;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            box-sizing: border-box;
+
+            &.actionable {
+              color: $app-color-primary;
+              cursor: pointer;
+            }
+          }
+        }
+      }
+
+    }
+  }
+}

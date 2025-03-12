@@ -7,7 +7,7 @@ import {
   type SoftwareRegeditGroupKey,
 } from '@/models/Software'
 import BaseUtil from '@/utils/base-util'
-import { type PluginConfig } from '@/plugins/plugin-config'
+import { type PluginConfig, ValidatedPluginConfig } from '@/plugins/plugin-config'
 import { execBusiness } from '@/models/BuResult.ts'
 
 export type DexieTable<T, TKeyPropName extends keyof T = never, TInsertType = InsertType<T, TKeyPropName>> = Table<
@@ -24,20 +24,14 @@ export type IconCache = {
   base64: string
 }
 
-export interface MyConfig extends PluginConfig {
-  installDir: string
-  // type为'INSTALLER'需要关联软件的注册表位置
-  regeditDir?: string
-}
-
 export const db = new Dexie('appDataBackupDatabase') as Dexie & {
   installedSoftware: EntityTable<InstalledSoftware>
   iconCache: EntityTable<IconCache>
-  pluginConfig: EntityTable<PluginConfig>
-  myConfig: EntityTable<MyConfig>
+  pluginConfig: EntityTable<ValidatedPluginConfig>
+  myConfig: EntityTable<ValidatedPluginConfig>
 }
 
-db.version(4).stores({
+db.version(5).stores({
   installedSoftware: 'regeditDir, regeditGroupKey,name', // regeditDir作为主键,同时也是复合索引。
   iconCache: 'path',
   pluginConfig: 'id,type,name',

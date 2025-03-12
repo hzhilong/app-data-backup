@@ -1,6 +1,6 @@
 import { DBUtil, type QueryParams, type QueryParam } from '@/db/db.ts'
 import TableColumn from 'element-plus/es/components/table/src/tableColumn'
-import { ref, type Ref } from 'vue'
+import { h, ref, type Ref } from 'vue'
 import { cloneDeep, merge, mergeWith } from 'lodash'
 import { type EntityTable } from 'dexie'
 import { DbInitStore } from '@/stores/db-init.ts'
@@ -12,6 +12,8 @@ import {
   type RouteLocationNormalizedLoaded,
   useRoute,
 } from 'vue-router'
+import RegeditUtil from '@/utils/regedit-util.ts'
+import type { InstalledSoftware } from '@/models/Software.ts'
 
 export interface TableConfig<T, Q extends Record<string, QueryParam> = Record<string, QueryParam>> {
   entityTable: EntityTable<T>
@@ -115,4 +117,32 @@ export function initRouteQuery<T>(
     }
   }
   return updated
+}
+
+/**
+ * 表格操作按钮
+ */
+export interface TableOptionBtn<T> {
+  text: string
+  onClick?: (row: T) => void
+}
+
+export function createOptionList<T>(row: InstalledSoftware, list: TableOptionBtn<T>[]) {
+  return (
+    <div class="table-option-list">
+      {list.map((item) => {
+        return (
+          <span
+            class="table-option-btn"
+            onClick={(e) => {
+              console.log(e)
+              item.onClick(row)
+            }}
+          >
+            {item.text}
+          </span>
+        )
+      })}
+    </div>
+  )
 }

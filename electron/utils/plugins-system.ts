@@ -7,20 +7,21 @@ import WinUtil from './win-util'
 import BrowserWindow = Electron.BrowserWindow
 import { CommonError } from '@/models/CommonError'
 import { BuResult, execBusiness } from '@/models/BuResult'
-import { PluginConfig, PluginOptions } from '@/plugins/plugin-config'
+import { PluginConfig, PluginOptions, ValidatedPluginConfig } from '@/plugins/plugin-config'
 import { Plugin } from './plugins'
 import { Mutex } from 'async-mutex'
 import dayjs from 'dayjs'
+import { InstalledSoftware } from '@/models/Software'
 
 const initMutex = new Mutex()
 let initialized = false
-const loadedPluginConfigs: PluginConfig[] = []
+const loadedPluginConfigs: ValidatedPluginConfig[] = []
 const activePlugins = new Map<string, Plugin>()
 
 const abortSignals = new Map<string, AbortController>()
 
 function initPluginSystem(mainWindow: BrowserWindow) {
-  ipcMain.handle(IPC_CHANNELS.GET_PLUGINS, async () => {
+  ipcMain.handle(IPC_CHANNELS.GET_PLUGINS, async (_event, softList: InstalledSoftware[]) => {
     // 🔒 获取锁（等待其他初始化操作完成）
     const release = await initMutex.acquire()
     try {
@@ -28,18 +29,18 @@ function initPluginSystem(mainWindow: BrowserWindow) {
         return BuResult.createSuccess(loadedPluginConfigs)
       }
       return execBusiness(() => {
-        return initPlugins()
+        return initPlugins(softList)
       })
     } finally {
       release()
     }
   })
-  ipcMain.handle(IPC_CHANNELS.REFRESH_PLUGINS, async () => {
+  ipcMain.handle(IPC_CHANNELS.REFRESH_PLUGINS, async (_event, softList: InstalledSoftware[]) => {
     const release = await initMutex.acquire()
     try {
       return execBusiness(() => {
         initialized = false
-        return initPlugins()
+        return initPlugins(softList)
       })
     } finally {
       release()
@@ -76,12 +77,13 @@ function getPluginFiles(...paths: string[]): string[] {
   return pluginFiles
 }
 
-async function initPlugins(): Promise<PluginConfig[]> {
+async function initPlugins(softList: InstalledSoftware[]): Promise<ValidatedPluginConfig[]> {
   loadedPluginConfigs.length = 0
   activePlugins.clear()
   abortSignals.clear()
 
   const pluginFiles = getPluginFiles('plugins/core', 'plugins/custom')
+  let env = WinUtil.getEnv()
 
   for (const filePath of pluginFiles) {
     try {
@@ -91,15 +93,16 @@ async function initPlugins(): Promise<PluginConfig[]> {
       const cTime = dayjs(fs.statSync(filePath).birthtime).format('YYYY-MM-DD HH:mm:ss')
       // 实例化插件
       const pluginConfig = new PluginConfig(config, cTime)
-      activePlugins.set(pluginConfig.id, new Plugin(config, cTime))
-      loadedPluginConfigs.push(pluginConfig)
+      let plugin = new Plugin(config, cTime)
+      let validatedPluginConfig = new ValidatedPluginConfig(config, cTime, plugin.detect(softList, env))
+      activePlugins.set(pluginConfig.id, plugin)
+      loadedPluginConfigs.push(validatedPluginConfig)
       console.log(`✔ 插件加载成功: ${config.id}`)
     } catch (error) {
       console.error(`❌ 加载插件 ${path.basename(filePath, '.js')} 失败:`, error)
     }
   }
   initialized = true
-  console.log('initPlugins',JSON.stringify(loadedPluginConfigs))
   return loadedPluginConfigs
 }
 

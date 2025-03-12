@@ -41,7 +41,7 @@
     cursor: pointer;
 
     &:hover {
-      background: $app-color-hover;
+      background: $app-color-bg-hover;
     }
   }
 
@@ -60,7 +60,7 @@
       border-radius: 4px;
 
       &:hover {
-        background: $app-color-hover;
+        background: $app-color-bg-hover;
       }
 
       .title {

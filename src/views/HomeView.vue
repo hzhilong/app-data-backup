@@ -18,22 +18,14 @@ const defaultMenuIndex = computed(() => {
   return matchedItem ? matchedItem.viewPath : menus.value[0].viewPath
 })
 
-const menuTitle = computed(() => {
-  const menuTitle: string = route.query.menuTitle as string
-  return menuTitle !== undefined ? menuTitle : getMenuTitle(menus.value[0])
-})
-
-const getMenuTitle = (menu: MenuItem): string => {
-  return menu.menuTitle !== undefined ? menu.menuTitle : menu.text
-}
-
 const onClickMenu = (menu: MenuItem): void => {
-  router.push({
-    path: menu.viewPath,
-    query: {
-      menuTitle: getMenuTitle(menu),
-    },
-  })
+  if (menu.onclick) {
+    menu.onclick()
+  } else {
+    router.push({
+      path: menu.viewPath,
+    })
+  }
 }
 
 ThemeColorStore().initThemeColor()
@@ -54,7 +46,7 @@ ThemeColorStore().initThemeColor()
           :index="menu.viewPath"
           v-for="menu in menus"
           :key="menu.text"
-          @click="menu.onclick !== undefined ? menu.onclick() : onClickMenu(menu)"
+          @click="onClickMenu(menu)"
         >
           <span class="iconfont" :class="menu.iconClass"></span>
           <span>{{ menu.text }}</span>

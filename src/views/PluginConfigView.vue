@@ -1,3 +1,7 @@
+<script setup lang="ts">
+
+use
+</script>
 <template>
   <div class="content-wrapper">
     <div class="header">
@@ -24,113 +28,6 @@
     </div>
   </div>
 </template>
-
-<script lang="tsx">
-import { db, DBUtil, type QueryParams } from '@/db/db'
-import { BACKUP_PLUGIN_TYPE, type BackupPluginTypeKey, PluginConfig } from '@/plugins/plugin-config'
-import { IPC_CHANNELS } from '@/models/IpcChannels'
-import { BuResult } from '@/models/BuResult'
-
-export default {
-  data() {
-    return {
-      tableColumns: [
-        { label: '序号', type: 'index', width: '90' },
-        { label: '名称', prop: 'name', minWidth: '200', showOverflowTooltip: true, sortable: true },
-        {
-          label: '类型',
-          prop: 'type',
-          align: 'center',
-          width: '100',
-          formatter: (row: PluginConfig) => {
-            if (row.type) {
-              return BACKUP_PLUGIN_TYPE[row.type].title
-            } else {
-              return '-'
-            }
-          },
-          sortable: true,
-        },
-        { label: '添加时间', prop: 'cTime', minWidth: '200', showOverflowTooltip: true, sortable: true },
-        {
-          label: '备份项目',
-          prop: 'type',
-          align: 'center',
-          width: '200',
-          formatter: (row: PluginConfig) => {
-            const configs = row.backupConfigs
-            return (
-              <>
-                {configs.map(({ name, items }) => {
-                  return (
-                      <el-tooltip
-                        placement="top"
-                        v-slots={{
-                          content: () => <>{items.map((item) => item.sourcePath).join('<br/>')}</>,
-                        }}
-                      >
-                        <span class="">{name}({items.length})</span>
-                      </el-tooltip>
-                  )
-                })}
-              </>
-            )
-          },
-        },
-      ],
-      tableData: [] as PluginConfig[],
-      queryParams: {
-        name: {
-          connector: 'like',
-          value: '',
-        },
-        type: {
-          connector: 'eq',
-          value: undefined as BackupPluginTypeKey | undefined,
-        },
-      } as QueryParams,
-      BACKUP_PLUGIN_TYPE: BACKUP_PLUGIN_TYPE,
-      loadingData: false,
-    }
-  },
-  created() {
-    this.refreshData()
-  },
-  mounted() {},
-  methods: {
-    loadData(getData: () => Promise<PluginConfig[]>) {
-      this.loadingData = true
-      getData()
-        .then((data) => {
-          this.tableData = data
-        })
-        .finally(() => {
-          this.loadingData = false
-        })
-    },
-    async refreshData() {
-      this.loadingData = true
-      BuResult.getPromise((await window.electronAPI?.ipcInvoke(IPC_CHANNELS.GET_PLUGINS)) as BuResult<PluginConfig[]>)
-        .then((data) => {
-          this.tableData = data
-        })
-        .finally(() => {
-          this.loadingData = false
-        })
-    },
-    searchData() {
-      this.loadingData = true
-      DBUtil.query(db.pluginConfig, this.queryParams)
-        .then((data) => {
-          this.tableData = data
-        })
-        .finally(() => {
-          this.loadingData = false
-        })
-    },
-  },
-}
-</script>
 
 <style scoped lang="scss">
 @use '@/assets/scss/software-manage';

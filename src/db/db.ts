@@ -48,8 +48,8 @@ export type QueryParam = {
   connector: 'eq' | 'like'
 }
 
-export type QueryParams = {
-  [key: string]: QueryParam
+export type QueryParams<T extends Record<string, QueryParam>> = {
+  [K in keyof T]: T[K]
 }
 
 export class DBUtil {

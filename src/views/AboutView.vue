@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { ThemeColorStore } from '@/stores/theme-color.ts'
+import AppUtil from '@/utils/app-util.ts'
 
 const appTitle = ref(import.meta.env.APP_PRODUCT_NAME)
 const env = ref(import.meta.env)
@@ -40,7 +41,7 @@ const { switchThemeColor, setDefaultTheme } = ThemeColorStore()
       <div class="info">
         <div class="title">开源：</div>
         <div class="desc">
-          <a href="" @click.prevent="$appUtil.browsePage(env.APP_AUTHOR_URL)">{{ env.APP_AUTHOR_URL }}</a>
+          <a href="" @click.prevent="AppUtil.browsePage(env.APP_AUTHOR_URL)">{{ env.APP_AUTHOR_URL }}</a>
         </div>
       </div>
     </div>

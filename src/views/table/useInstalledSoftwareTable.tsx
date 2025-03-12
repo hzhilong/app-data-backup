@@ -6,10 +6,8 @@ import type { SoftwareRegeditGroupKey } from '@/models/Software.ts'
 import type { QueryParams } from '@/db/db.ts'
 import type { TableConfig } from '@/views/table/table.tsx'
 import { db } from '@/db/db.ts'
-import { IPC_CHANNELS } from '@/models/IpcChannels.ts'
-import { BuResult } from '@/models/BuResult.ts'
 
-export function useInstalledSoftwareTable(): TableConfig<InstalledSoftware> {
+export function useInstalledSoftwareTable() {
   const tableColumns = [
     {
       label: '图标',
@@ -17,7 +15,7 @@ export function useInstalledSoftwareTable(): TableConfig<InstalledSoftware> {
       width: '50',
       align: 'center',
       formatter: (row: InstalledSoftware): VNode | string => {
-        return <img src={row.base64Icon ? row.base64Icon : defaultIcon} class="soft-icon"  alt=''/>
+        return <img src={row.base64Icon ? row.base64Icon : defaultIcon} class="soft-icon" alt="" />
       },
     },
     { label: '软件名', prop: 'name', minWidth: '200', showOverflowTooltip: true, sortable: true },
@@ -29,11 +27,7 @@ export function useInstalledSoftwareTable(): TableConfig<InstalledSoftware> {
       align: 'center',
       width: '100',
       formatter: (row: InstalledSoftware) => {
-        if (row.regeditGroupKey) {
-          return SOFTWARE_REGEDIT_GROUP[row.regeditGroupKey].title
-        } else {
-          return '-'
-        }
+        return row.regeditGroupKey ? SOFTWARE_REGEDIT_GROUP[row.regeditGroupKey].title : '-'
       },
       sortable: true,
     },
@@ -46,14 +40,14 @@ export function useInstalledSoftwareTable(): TableConfig<InstalledSoftware> {
       formatter: (row: InstalledSoftware): VNode | string => {
         return (
           <div class="table-opt-btns">
-          <span
-            class="table-opt-btn"
-            onClick={() => {
-              RegeditUtil.openRegedit(row.regeditDir)
-            }}
-          >
-            测试
-          </span>
+            <span
+              class="table-opt-btn"
+              onClick={() => {
+                RegeditUtil.openRegedit(row.regeditDir)
+              }}
+            >
+              测试
+            </span>
           </div>
         )
       },
@@ -69,7 +63,7 @@ export function useInstalledSoftwareTable(): TableConfig<InstalledSoftware> {
       connector: 'eq',
       value: undefined as SoftwareRegeditGroupKey | undefined,
     },
-  } as QueryParams
+  }
   return {
     entityTable: db.installedSoftware,
     tableColumns: tableColumns,
@@ -78,5 +72,5 @@ export function useInstalledSoftwareTable(): TableConfig<InstalledSoftware> {
       return RegeditUtil.getInstalledSoftwareList()
     },
     persist: false,
-  }
+  } as TableConfig<InstalledSoftware, typeof queryParams>
 }

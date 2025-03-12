@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { parseAllInstalledSoftware, type SoftwareLib, type SoftwareRegeditGroupKey } from '@/models/Software'
-import { initTableView } from '@/views/table/table.tsx'
+import { initTable } from '@/views/table/table.tsx'
 import { useInstalledSoftwareTable } from '@/views/table/useInstalledSoftwareTable.tsx'
-import router from '@/router'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const loading = ref(false)
 const loadingText = ref('正在获取已安装的软件列表，请稍候...')
 
-const { tableData, refreshDB } = initTableView(useInstalledSoftwareTable(), loading)
+const { tableData, refreshDB } = initTable(useInstalledSoftwareTable(), loading)
 const allInstalledSoftware = computed(() => {
   return parseAllInstalledSoftware(tableData.value ?? [])
 })

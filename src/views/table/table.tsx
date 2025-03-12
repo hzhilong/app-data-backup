@@ -4,25 +4,39 @@ import { ref, type Ref } from 'vue'
 import { cloneDeep, merge } from 'lodash'
 import { type EntityTable } from 'dexie'
 import { DbInitStore } from '@/stores/db-init.ts'
-import type { LocationQuery, RouteLocationNormalized, RouteLocationNormalizedLoaded } from 'vue-router'
+import {
+  type LocationQuery,
+  type NavigationGuardNext,
+  onBeforeRouteUpdate,
+  type RouteLocationNormalized,
+  type RouteLocationNormalizedLoaded,
+  useRoute,
+} from 'vue-router'
 
-export interface TableConfig<T> {
+export interface TableConfig<T, Q extends Record<string, QueryParam>> {
   entityTable: EntityTable<T>
   tableColumns: Partial<typeof TableColumn>
-  queryParams: QueryParams
+  queryParams: QueryParams<Q>
   initDBFn: () => Promise<T[]>
   // 持久化？默认 false，每次打开APP第一次查看数据都会自动调用 initDBFn 进行初始化
   persist: boolean
 }
 
-export function initTableView<T>(config: TableConfig<T>, loading: Ref<boolean> = ref(false)) {
+/**
+ * 初始化表格，返回各种响应式数据
+ * @param config 表格配置
+ * @param loading 加载状态
+ * @param routeQueryKeys 路由查询参数（首次加载组件和路由更新时会进行判断）
+ */
+export function initTable<T, Q extends Record<string, QueryParam>>(config: TableConfig<T, Q>, loading: Ref<boolean> = ref(false), routeQueryKeys?: string[]) {
   const defaultQueryParams = config.queryParams
-  const tableColumns = ref(config.tableColumns)
-  const queryParams: Ref<QueryParams> = ref(cloneDeep(config.queryParams))
-  const tableData: Ref<T[]> = ref([])
+  const tableColumns = ref(cloneDeep(config.tableColumns))
+  const queryParams = ref(cloneDeep(config.queryParams))
+  const tableData = ref([])
   const tableDB = config.entityTable
   const { isInit, initialized } = DbInitStore()
   const needInit: boolean = !isInit(config)
+
   const loadTableData = async (getData: () => Promise<T[]>) => {
     try {
       loading && (loading.value = true)
@@ -48,6 +62,19 @@ export function initTableView<T>(config: TableConfig<T>, loading: Ref<boolean> =
   const refreshData = async () => {
     setDefaultQueryParams()
     return searchData()
+  }
+  // 初始化路由参数
+  if (routeQueryKeys) {
+    const route = useRoute()
+    initRouteQuery(config, route, routeQueryKeys)
+    onBeforeRouteUpdate(
+      (to: RouteLocationNormalized, from: RouteLocationNormalizedLoaded, next: NavigationGuardNext) => {
+        // 路由更新时参数改变就搜索
+        if (initRouteQuery(config, route, 'regeditGroupKey')) {
+          searchData().then((r) => {})
+        }
+      },
+    )
   }
   if (needInit) {
     refreshDB().then((r) => {})

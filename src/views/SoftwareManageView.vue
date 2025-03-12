@@ -1,30 +1,18 @@
 <script setup lang="ts">
 import { useInstalledSoftwareTable } from '@/views/table/useInstalledSoftwareTable.tsx'
-import { initRouteQuery, initTableView } from '@/views/table/table.tsx'
-import { type InstalledSoftware, SOFTWARE_REGEDIT_GROUP, type SoftwareRegeditGroupKey } from '@/models/Software.ts'
+import { initTable } from '@/views/table/table.tsx'
+import { type InstalledSoftware, SOFTWARE_REGEDIT_GROUP } from '@/models/Software.ts'
 import { type Ref, ref } from 'vue'
 import defaultIcon from '../assets/image/software-icon-default.png'
 import RegeditUtil from '@/utils/regedit-util'
 import AppUtil from '@/utils/app-util'
-import {
-  type NavigationGuardNext,
-  onBeforeRouteUpdate,
-  type RouteLocationNormalized,
-  type RouteLocationNormalizedLoaded,
-  useRoute,
-} from 'vue-router'
 
-let route = useRoute()
-const tableConfig = useInstalledSoftwareTable()
-initRouteQuery(tableConfig, route, 'regeditGroupKey')
-const { tableColumns, queryParams, tableData, searchData, refreshData, loading } = initTableView(tableConfig)
+const { tableColumns, queryParams, tableData, searchData, refreshData, loading } = initTable(
+  useInstalledSoftwareTable(),
+  undefined,
+  ['regeditGroupKey'],
+)
 const currentData: Ref<InstalledSoftware | null> = ref(null)
-
-onBeforeRouteUpdate((to: RouteLocationNormalized, from: RouteLocationNormalizedLoaded, next: NavigationGuardNext) => {
-  if (initRouteQuery(tableConfig, route, 'regeditGroupKey')) {
-    searchData()
-  }
-})
 </script>
 
 <template>
@@ -33,13 +21,27 @@ onBeforeRouteUpdate((to: RouteLocationNormalized, from: RouteLocationNormalizedL
       <div class="header-left">
         <div class="search-item">
           <span class="label"> 类型 </span>
-          <el-select class="value" v-model="queryParams.regeditGroupKey.value" placeholder="" size="small" clearable @change="searchData">
+          <el-select
+            class="value"
+            v-model="queryParams.regeditGroupKey.value"
+            placeholder=""
+            size="small"
+            clearable
+            @change="searchData"
+          >
             <el-option v-for="(item, key) in SOFTWARE_REGEDIT_GROUP" :key="key" :label="item.title" :value="key" />
           </el-select>
         </div>
         <div class="search-item">
           <span class="label"> 名称 </span>
-          <el-input class="value" v-model="queryParams.name.value" placeholder="" size="small" clearable @change="searchData"/>
+          <el-input
+            class="value"
+            v-model="queryParams.name.value"
+            placeholder=""
+            size="small"
+            clearable
+            @change="searchData"
+          />
         </div>
         <el-button type="primary" @click="searchData" :loading="loading">搜索</el-button>
       </div>

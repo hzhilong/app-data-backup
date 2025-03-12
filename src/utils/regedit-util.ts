@@ -16,7 +16,7 @@ export default class RegeditUtil {
     }
   }
 
-  static async getInstalledSoftwareByGroup(path: SoftwareRegeditGroupKey) {
+  static async getInstalledSoftwareByGroup(path: SoftwareRegeditGroupKey): Promise<InstalledSoftware[]> {
     let list = undefined
     try {
       list = (await window.electronAPI?.ipcInvoke(IPC_CHANNELS.GET_INSTALLED_SOFTWARE, path)) as InstalledSoftware[]
@@ -47,7 +47,7 @@ export default class RegeditUtil {
     return list
   }
 
-  static async getInstalledSoftwareList() {
+  static async getInstalledSoftwareList(): Promise<InstalledSoftware[]> {
     const all = []
     for (const key in SOFTWARE_REGEDIT_GROUP) {
       const groupKey = key as SoftwareRegeditGroupKey
@@ -57,15 +57,5 @@ export default class RegeditUtil {
       }
     }
     return all
-  }
-
-  static async getAllInstalledSoftware(): Promise<AllInstalledSoftware> {
-    const allInstalledSoftware: AllInstalledSoftware = {} as AllInstalledSoftware
-    for (const key in SOFTWARE_REGEDIT_GROUP) {
-      const groupKey = key as SoftwareRegeditGroupKey
-      const list = await this.getInstalledSoftwareByGroup(groupKey)
-      allInstalledSoftware[groupKey] = parseInstalledSoftwareGroup(groupKey, list)
-    }
-    return allInstalledSoftware
   }
 }

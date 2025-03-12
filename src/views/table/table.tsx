@@ -22,6 +22,8 @@ export interface TableConfig<T, Q extends Record<string, QueryParam> = Record<st
   initDBFn: () => Promise<T[]>
   // 持久化？默认 false，每次打开APP第一次查看数据都会自动调用 initDBFn 进行初始化
   persist: boolean
+  // 额外解析数据
+  parseData?: (list: T[]) => Promise<T[]>
 }
 
 /**
@@ -47,7 +49,11 @@ export function initTable<T, Q extends Record<string, QueryParam>>(
     try {
       loading && (loading.value = true)
       const data = await getData()
-      tableData.value = data
+      if(config.parseData){
+        tableData.value = await config.parseData(data)
+      }else{
+        tableData.value = data
+      }
       return data
     } finally {
       loading && (loading.value = false)
@@ -135,7 +141,6 @@ export function createOptionList<T>(row: InstalledSoftware, list: TableOptionBtn
           <span
             class="table-option-btn"
             onClick={(e) => {
-              console.log(e)
               item.onClick(row)
             }}
           >

@@ -1,6 +1,7 @@
 module.exports = {
   type: 'INSTALLER',
-  id: 'WinRAR',
+  id: '备份WinRAR设置',
+  name: 'WinRAR',
   backupConfigs: [
     {
       name: '设置',

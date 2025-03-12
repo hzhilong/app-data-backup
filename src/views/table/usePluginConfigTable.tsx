@@ -1,35 +1,55 @@
-import { h } from 'vue'
+import { computed, h } from 'vue'
 import { createParamOptions, db, type ParamOptions, type QueryParam } from '@/db/db.ts'
 import { BACKUP_PLUGIN_TYPE, type BackupPluginTypeKey, ValidatedPluginConfig } from '@/plugins/plugin-config.ts'
 import { BuResult } from '@/models/BuResult.ts'
 import { IPC_CHANNELS } from '@/models/IpcChannels.ts'
-import type { TableConfig } from '@/views/table/table.tsx'
+import { createOptionList, type TableConfig, type TableOptionBtn } from '@/views/table/table.tsx'
 import defaultIcon from '@/assets/image/software-icon-default.png'
+import { AppSessionStore } from '@/stores/app-session.ts'
+import { storeToRefs } from 'pinia'
 
 export function usePluginConfigTable() {
+  const { maxWindow } = storeToRefs(AppSessionStore())
+  const cTimeWidth = computed(() => {
+    return maxWindow.value ? '140' : '90'
+  })
   const tableColumns = [
-    { label: '序号', type: 'index', width: '60', align: 'center' },
-    { label: '名称', prop: 'name', minWidth: '80', showOverflowTooltip: true, sortable: true, align: 'center' },
+    { label: '配置', prop: 'id', minWidth: '80', showOverflowTooltip: true, sortable: true },
     {
       label: '类型',
       prop: 'type',
-      align: 'center',
       width: '80',
       formatter: (row: ValidatedPluginConfig) => {
         return row.type ? BACKUP_PLUGIN_TYPE[row.type].title : '-'
       },
       sortable: true,
     },
-    { label: '添加时间', prop: 'cTime', width: '140', showOverflowTooltip: true, sortable: true, align: 'center' },
+    {
+      label: '添加时间',
+      prop: 'cTime',
+      width: cTimeWidth,
+      sortable: true,
+      formatter: (row: ValidatedPluginConfig) => {
+        return (
+          <el-tooltip
+            placement="top"
+            v-slots={{
+              content: () => <>{row.cTime}</>,
+            }}
+          >
+            {maxWindow.value ? row.cTime : row?.cTime.split(' ')[0]}
+          </el-tooltip>
+        )
+      },
+    },
     {
       label: '备份项目和数量',
       prop: 'type',
-      align: 'center',
-      minWidth: '120',
+      showOverflowTooltip: true,
       formatter: (row: ValidatedPluginConfig) => {
         const configs = row.backupConfigs
         return (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }} key={row.id}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }} key={row.id}>
             {configs.map(({ name, items }) => {
               return (
                 <el-tooltip
@@ -56,8 +76,7 @@ export function usePluginConfigTable() {
     },
     {
       label: '关联的软件',
-      prop: 'installDir',
-      align: 'center',
+      showOverflowTooltip: true,
       minWidth: '100',
       formatter: (row: ValidatedPluginConfig) => {
         if (row.type === 'INSTALLER') {
@@ -74,6 +93,22 @@ export function usePluginConfigTable() {
         } else {
           return <div style={{ color: 'red' }}>{row.softInstallDir}</div>
         }
+      },
+    },
+    {
+      label: '操作',
+      minWidth: '100',
+      formatter: (row: ValidatedPluginConfig) => {
+        const list: TableOptionBtn<ValidatedPluginConfig> = []
+        if (row.type === 'INSTALLER') {
+          list.push({
+            text: '备份',
+            onClick: () => {
+              console.log(`备份：${row.name}`)
+            },
+          })
+        }
+        return createOptionList(row, list)
       },
     },
   ]

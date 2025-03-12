@@ -4,6 +4,7 @@ import { computed, type Ref, ref } from 'vue'
 import { getMenus, type MenuItem } from '@/router/menus.ts'
 import { ThemeColorStore } from '@/stores/theme-color.ts'
 import AppUtil from '@/utils/app-util.ts'
+import { AppSessionStore } from '@/stores/app-session.ts'
 
 const route = useRoute()
 const router = useRouter()
@@ -26,6 +27,14 @@ const onClickMenu = (menu: MenuItem): void => {
       path: menu.viewPath,
     })
   }
+}
+
+const appSessionStore = AppSessionStore()
+
+const switchWindowMax = () => {
+  windowMax.value = !windowMax.value
+  appSessionStore.setMaxWindow(windowMax.value)
+  AppUtil.maxApp()
 }
 
 ThemeColorStore().initThemeColor()
@@ -57,16 +66,7 @@ ThemeColorStore().initThemeColor()
       <div class="top-bar">
         <div class="top-bar-btns">
           <span class="btn iconfont icon-min" @click="AppUtil.minApp()"></span>
-          <span
-            class="btn iconfont"
-            :class="windowMax ? 'icon-max2' : 'icon-max'"
-            @click="
-              () => {
-                windowMax = !windowMax
-                AppUtil.maxApp()
-              }
-            "
-          ></span>
+          <span class="btn iconfont" :class="windowMax ? 'icon-max2' : 'icon-max'" @click="switchWindowMax"></span>
           <span class="btn iconfont icon-close" @click="AppUtil.exitApp()"></span>
         </div>
       </div>

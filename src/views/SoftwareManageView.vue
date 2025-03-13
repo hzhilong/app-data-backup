@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useInstalledSoftwareTable } from '@/views/table/useInstalledSoftwareTable.tsx'
-import { initTable } from '@/views/table/table.tsx'
+import { useInstalledSoftwareTable } from '@/table/useInstalledSoftwareTable.tsx'
+import { initTable } from '@/table/table.tsx'
 import { type InstalledSoftware, SOFTWARE_REGEDIT_GROUP } from '@/models/Software.ts'
 import { type Ref, ref } from 'vue'
 import defaultIcon from '../assets/image/software-icon-default.png'

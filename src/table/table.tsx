@@ -1,27 +1,20 @@
-import { DBUtil, type QueryParams, type QueryParam } from '@/db/db.ts'
+import { type QueryParams, type QueryParam } from '@/db/db.ts'
 import TableColumn from 'element-plus/es/components/table/src/tableColumn'
-import { h, ref, type Ref } from 'vue'
-import { cloneDeep, merge, mergeWith } from 'lodash'
-import { type EntityTable } from 'dexie'
-import { DbInitStore } from '@/stores/db-init.ts'
+import { h, onMounted, ref, type Ref } from 'vue'
+import { cloneDeep } from 'lodash'
 import {
-  type LocationQuery,
   type NavigationGuardNext,
   onBeforeRouteUpdate,
   type RouteLocationNormalized,
   type RouteLocationNormalizedLoaded,
   useRoute,
 } from 'vue-router'
-import RegeditUtil from '@/utils/regedit-util.ts'
-import type { InstalledSoftware } from '@/models/Software.ts'
+import type { AppData } from '@/data/app-data.ts'
 
 export interface TableConfig<T, Q extends Record<string, QueryParam> = Record<string, QueryParam>> {
-  entityTable: EntityTable<T>
   tableColumns: Partial<typeof TableColumn>
   queryParams: QueryParams<Q>
-  initDBFn: () => Promise<T[]>
-  // 持久化？默认 false，每次打开APP第一次查看数据都会自动调用 initDBFn 进行初始化
-  persist: boolean
+  appData: AppData<T[]>
   // 额外解析数据
   parseData?: (list: T[]) => Promise<T[]>
 }
@@ -41,17 +34,16 @@ export function initTable<T, Q extends Record<string, QueryParam>>(
   const tableColumns = ref(cloneDeep(config.tableColumns))
   const queryParams = ref(cloneDeep(config.queryParams))
   const tableData: Ref<T[]> = ref([])
-  const tableDB = config.entityTable
-  const { isInit, initialized } = DbInitStore()
-  const needInit: boolean = !isInit(config)
+  let appData = config.appData
 
   const loadTableData = async (getData: () => Promise<T[]>) => {
+    console.log('load tableData')
     try {
       loading && (loading.value = true)
       const data = await getData()
-      if(config.parseData){
+      if (config.parseData) {
         tableData.value = await config.parseData(data)
-      }else{
+      } else {
         tableData.value = data
       }
       return data
@@ -64,13 +56,10 @@ export function initTable<T, Q extends Record<string, QueryParam>>(
   }
   const refreshDB = async () => {
     setDefaultQueryParams()
-    const data = await loadTableData(config.initDBFn)
-    DBUtil.reset(tableDB, data)
-    initialized(config, true)
-    return data
+    return await loadTableData(appData.refreshList)
   }
   const searchData = async () => {
-    return await loadTableData(() => DBUtil.query(tableDB, queryParams.value))
+    return await loadTableData(appData.getList)
   }
   const refreshData = async () => {
     setDefaultQueryParams()
@@ -89,11 +78,9 @@ export function initTable<T, Q extends Record<string, QueryParam>>(
       },
     )
   }
-  if (needInit) {
-    refreshDB().then((r) => {})
-  } else {
-    refreshData().then((r) => {})
-  }
+  onMounted(() => {
+    searchData().then((r) => {})
+  })
   return {
     tableColumns,
     queryParams,

@@ -1,35 +1,43 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { parseAllInstalledSoftware, type SoftwareLib, type SoftwareRegeditGroupKey } from '@/models/Software'
-import { initTable } from '@/views/table/table.tsx'
-import { useInstalledSoftwareTable } from '@/views/table/useInstalledSoftwareTable.tsx'
+import { computed, onMounted, type Ref, ref } from 'vue'
+import {
+  type InstalledSoftware,
+  parseAllInstalledSoftware,
+  type SoftwareLib,
+  type SoftwareRegeditGroupKey,
+} from '@/models/Software'
 import { useRouter } from 'vue-router'
+import { useInstalledSoftwareData } from '@/data/useInstalledSoftwareData.ts'
 
 const router = useRouter()
-const loading = ref(false)
+const loading = ref(true)
 const loadingText = ref('正在获取已安装的软件列表，请稍候...')
+const softwareList: Ref<InstalledSoftware[]> = ref([])
+const { getList: getInstalledList, refreshList: refreshInstalledList } = useInstalledSoftwareData(loading, false)
 
-const { tableData, refreshDB } = initTable(useInstalledSoftwareTable(), loading)
 const allInstalledSoftware = computed(() => {
-  return parseAllInstalledSoftware(tableData.value ?? [])
+  return parseAllInstalledSoftware(softwareList.value ?? [])
 })
 
 const softwareLib = ref({} as SoftwareLib)
 
-const initData = () => {}
-
-const gotoAppPage = (key:SoftwareRegeditGroupKey)=>{
-  console.log('gotoAppPage', key)
-  router.push({
-    path: '/app',
-    query: {
-      regeditGroupKey: key
-    }
+const initData = () => {
+  getInstalledList().then((list) => {
+    softwareList.value.push(...list)
   })
 }
 
+const gotoAppPage = (key: SoftwareRegeditGroupKey) => {
+  router.push({
+    path: '/app',
+    query: {
+      regeditGroupKey: key,
+    },
+  })
+}
+initData()
 onMounted(() => {
-  initData()
+
 })
 </script>
 
@@ -38,7 +46,7 @@ onMounted(() => {
     <div class="installed-container content-wrapper">
       <div class="header">
         <div class="title">已安装的软件</div>
-        <span class="iconfont icon-refresh icon-btn t-rotate" @click="refreshDB"></span>
+        <span class="iconfont icon-refresh icon-btn t-rotate" @click="refreshInstalledList"></span>
       </div>
       <div class="cards cards-multiple">
         <div class="card" v-for="(group, key) in allInstalledSoftware" :key="group.title" @click="gotoAppPage(key)">

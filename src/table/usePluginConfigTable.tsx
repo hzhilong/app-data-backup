@@ -1,12 +1,11 @@
 import { computed, h } from 'vue'
-import { createParamOptions, db, type ParamOptions, type QueryParam } from '@/db/db.ts'
+import { createParamOptions } from '@/db/db.ts'
 import { BACKUP_PLUGIN_TYPE, type BackupPluginTypeKey, ValidatedPluginConfig } from '@/plugins/plugin-config.ts'
-import { BuResult } from '@/models/BuResult.ts'
-import { IPC_CHANNELS } from '@/models/IpcChannels.ts'
-import { createOptionList, type TableConfig, type TableOptionBtn } from '@/views/table/table.tsx'
+import { createOptionList, type TableConfig, type TableOptionBtn } from '@/table/table.tsx'
 import defaultIcon from '@/assets/image/software-icon-default.png'
 import { AppSessionStore } from '@/stores/app-session.ts'
 import { storeToRefs } from 'pinia'
+import { usePluginConfigData } from '@/data/usePluginConfigData.ts'
 
 export function usePluginConfigTable() {
   const { maxWindow } = storeToRefs(AppSessionStore())
@@ -125,17 +124,8 @@ export function usePluginConfigTable() {
     },
   }
   return {
-    entityTable: db.pluginConfig,
     tableColumns: tableColumns,
     queryParams: queryParams,
-    async initDBFn(): Promise<ValidatedPluginConfig[]> {
-      return BuResult.getPromise(
-        (await window.electronAPI?.ipcInvoke(
-          IPC_CHANNELS.REFRESH_PLUGINS,
-          await db.installedSoftware.toArray(),
-        )) as BuResult<ValidatedPluginConfig[]>,
-      )
-    },
-    persist: import.meta.env.DEV,
+    appData: usePluginConfigData(),
   } as TableConfig<ValidatedPluginConfig, typeof queryParams>
 }

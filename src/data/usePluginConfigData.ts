@@ -19,7 +19,7 @@ export function usePluginConfigData(loading: Ref<boolean> = ref(false), isParseD
     parseData(list: ValidatedPluginConfig[]): Promise<ValidatedPluginConfig[]> {
       return Promise.resolve(list)
     },
-    cache: false,
+    cache: true,
     persist: true,
     getPersistData(): Promise<ValidatedPluginConfig[]> {
       return db.pluginConfig.toArray()

@@ -138,3 +138,33 @@ export function createOptionList<T>(row: T, list: TableOptionBtn<T>[]) {
     </div>
   )
 }
+
+export interface TableTag<T> {
+  text: string
+  onClick?: (row: T) => void
+}
+
+export function createTags<T>(row: T, tags: TableTag<T>[] | undefined, color?: string) {
+  if (!tags) {
+    return <></>
+  }
+  return (
+    <div class="table-tag-list">
+      {tags.map((tag) => {
+        return (
+          <el-tag
+            type="primary"
+            style={{ cursor: tag.onClick ? 'pointer' : 'unset' }}
+            onClick={() => {
+              if (tag.onClick) {
+                tag.onClick(row)
+              }
+            }}
+          >
+            {tag.text}
+          </el-tag>
+        )
+      })}
+    </div>
+  )
+}

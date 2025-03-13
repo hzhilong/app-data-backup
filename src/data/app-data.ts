@@ -1,5 +1,6 @@
 // app 数据
-// 部分需要缓存到数据库，在这里统一管理
+// 部分需要缓存或者读写数据库，在这里统一管理
+// 全局共享的数据就用pinia包装这个吧
 import { AppDataStore } from '@/stores/app-data-state.ts'
 import { ref, type Ref } from 'vue'
 
@@ -37,7 +38,7 @@ export function getAppData<T>(
   type: AppDataType,
   config: AppDataConfig<T>,
   loading: Ref<boolean> = ref(false),
-  isParseData: boolean = false
+  isParseData: boolean = false,
 ): AppData<T> {
   const { isInitialized, initialized } = AppDataStore()
   // 更新缓存

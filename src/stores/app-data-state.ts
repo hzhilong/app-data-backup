@@ -25,10 +25,9 @@ export const AppDataStore = defineStore('AppDataStore', {
     },
     initialized(key: string, flag = true) {
       if (flag) {
-        const info: AppDataInfo = {
+        this.persisted[key] = {
           lastTime: new Date(),
         }
-        this.persisted[key] = info
       } else {
         delete this.persisted[key]
       }

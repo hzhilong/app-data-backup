@@ -1,6 +1,6 @@
 module.exports = {
   type: 'INSTALLER',
-  id: '备份MusicBee设置和插件',
+  id: 'MusicBee设置和插件',
   name: 'MusicBee',
   backupConfigs: [
     {

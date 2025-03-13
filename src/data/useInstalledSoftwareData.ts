@@ -30,7 +30,6 @@ export function useInstalledSoftwareData(loading: Ref<boolean> = ref(false), isP
         },
         {} as Record<string, ValidatedPluginConfig[]>,
       )
-      console.log('mapConfig', mapConfig)
       return list.map((item): ExtendedInstalledSoftware => {
         return { ...item, supportPlugins: mapConfig[item.regeditDir] }
       })

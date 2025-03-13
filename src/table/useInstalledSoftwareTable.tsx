@@ -3,7 +3,7 @@ import type { SoftwareRegeditGroupKey } from '@/models/Software.ts'
 import { SOFTWARE_REGEDIT_GROUP } from '@/models/Software.ts'
 import defaultIcon from '@/assets/image/software-icon-default.png'
 import { createParamOptions } from '@/db/db.ts'
-import { type TableConfig } from '@/table/table.tsx'
+import { createTags, type TableConfig, type TableTag } from '@/table/table.tsx'
 import { type ExtendedInstalledSoftware, useInstalledSoftwareData } from '@/data/useInstalledSoftwareData.ts'
 
 export function useInstalledSoftwareTable() {
@@ -34,6 +34,20 @@ export function useInstalledSoftwareTable() {
       label: '关联的配置',
       prop: 'supportPlugins',
       minWidth: '100',
+      showOverflowTooltip: true,
+      formatter: (row: ExtendedInstalledSoftware) => {
+        return createTags(
+          row,
+          row?.supportPlugins?.map((item) => {
+            return {
+              text: item.id,
+              onClick: (row: ExtendedInstalledSoftware) => {
+                console.log('点击了tag', item)
+              },
+            } as TableTag<ExtendedInstalledSoftware>
+          }),
+        )
+      },
     },
   ]
 

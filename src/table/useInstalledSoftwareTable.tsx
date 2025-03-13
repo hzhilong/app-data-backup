@@ -5,8 +5,10 @@ import defaultIcon from '@/assets/image/software-icon-default.png'
 import { createParamOptions } from '@/db/db.ts'
 import { createTags, type TableConfig, type TableTag } from '@/table/table.tsx'
 import { type ExtendedInstalledSoftware, useInstalledSoftwareData } from '@/data/useInstalledSoftwareData.ts'
+import { useRouter } from 'vue-router'
 
 export function useInstalledSoftwareTable() {
+  let router = useRouter()
   const tableColumns = [
     {
       label: '图标',
@@ -42,7 +44,14 @@ export function useInstalledSoftwareTable() {
             return {
               text: item.id,
               onClick: (row: ExtendedInstalledSoftware) => {
-                console.log('点击了tag', item)
+                router
+                  .push({
+                    path: '/plugins',
+                    query: {
+                      id: item.id,
+                    },
+                  })
+                  .then((r) => {})
               },
             } as TableTag<ExtendedInstalledSoftware>
           }),

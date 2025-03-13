@@ -10,7 +10,7 @@ import { usePluginConfigData } from '@/data/usePluginConfigData.ts'
 export function usePluginConfigTable() {
   const { maxWindow } = storeToRefs(AppSessionStore())
   const cTimeWidth = computed(() => {
-    return maxWindow.value ? '140' : '90'
+    return maxWindow.value ? 140 : 90
   })
   const tableColumns = [
     { label: '配置', prop: 'id', minWidth: '80', showOverflowTooltip: true, sortable: true },
@@ -113,7 +113,7 @@ export function usePluginConfigTable() {
   ]
 
   const queryParams = {
-    name: {
+    id: {
       connector: 'like' as const,
       value: '',
     },

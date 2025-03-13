@@ -8,7 +8,6 @@ import {
 } from '@/models/Software'
 import BaseUtil from '@/utils/base-util'
 import { type PluginConfig, ValidatedPluginConfig } from '@/plugins/plugin-config'
-import { execBusiness } from '@/models/BuResult.ts'
 
 export type DexieTable<T, TKeyPropName extends keyof T = never, TInsertType = InsertType<T, TKeyPropName>> = Table<
   T,
@@ -94,8 +93,11 @@ export class DBUtil {
 
   static query<T, Q extends Record<string, QueryParam>>(
     table: DexieTable<T>,
-    queryParams: QueryParams<Q>,
+    queryParams?: QueryParams<Q>,
   ): Promise<Array<T>> {
+    if (!queryParams) {
+      return table.toArray()
+    }
     return new Promise<Array<T>>((resolve, reject) => {
       let query: DexieQuery<T> = table
       const eqObj: Record<string, unknown> = {}

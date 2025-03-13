@@ -1,7 +1,7 @@
 import { type AppDataConfig, AppDataType, getAppData } from '@/data/app-data.ts'
 import type { InstalledSoftware } from '@/models/Software.ts'
 import type { ValidatedPluginConfig } from '@/plugins/plugin-config.ts'
-import { db } from '@/db/db.ts'
+import { db, DBUtil, type QueryParam, type QueryParams } from '@/db/db.ts'
 import RegeditUtil from '@/utils/regedit-util.ts'
 import { ref, type Ref } from 'vue'
 import { usePluginConfigData } from '@/data/usePluginConfigData.ts'
@@ -16,7 +16,7 @@ export function useInstalledSoftwareData(loading: Ref<boolean> = ref(false), isP
       return await RegeditUtil.getInstalledSoftwareList()
     },
     async parseData(list: ExtendedInstalledSoftware[]): Promise<ExtendedInstalledSoftware[]> {
-      const configs = await usePluginConfigData(loading).getList()
+      const configs = await usePluginConfigData(loading, false).getList()
       const mapConfig = configs.reduce(
         (map, item) => {
           if (item.softRegeditDir) {
@@ -36,8 +36,10 @@ export function useInstalledSoftwareData(loading: Ref<boolean> = ref(false), isP
     },
     cache: false,
     persist: true,
-    getPersistData(): Promise<ExtendedInstalledSoftware[]> {
-      return db.installedSoftware.toArray()
+    getPersistData<Q extends Record<string, QueryParam> = Record<string, QueryParam>>(
+      queryParams?: QueryParams<Q>,
+    ): Promise<ExtendedInstalledSoftware[]> {
+      return DBUtil.query(db.installedSoftware, queryParams)
     },
     setPersistData(data: ExtendedInstalledSoftware[]): Promise<void> {
       return db.installedSoftware.bulkPut(data)

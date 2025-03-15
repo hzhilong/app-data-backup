@@ -1,16 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted, type Ref, ref } from 'vue'
-import {
-  type InstalledSoftware,
-  parseAllInstalledSoftware,
-  type SoftwareLib,
-  type SoftwareRegeditGroupKey,
-} from '@/models/Software'
-import { useRouter } from 'vue-router'
+import { type InstalledSoftware, parseAllInstalledSoftware, type SoftwareLib } from '@/models/Software'
 import { useInstalledSoftwareData } from '@/data/useInstalledSoftwareData.ts'
 import SoftwareGraph from '@/components/graph/SoftwareGraph.vue'
+import { RouterUtil } from '@/router/router-util'
 
-const router = useRouter()
 const loading = ref(true)
 const loadingText = ref('正在获取已安装的软件列表，请稍候...')
 const softwareList: Ref<InstalledSoftware[]> = ref([])
@@ -24,14 +18,6 @@ const allInstalledSoftware = computed(() => {
 
 const softwareLib = ref({} as SoftwareLib)
 
-const gotoAppPage = (key: SoftwareRegeditGroupKey) => {
-  router.push({
-    path: '/app',
-    query: {
-      regeditGroupKey: key,
-    },
-  })
-}
 onMounted(() => {
   getInstalledList().then((list) => {
     softwareList.value = list
@@ -55,7 +41,12 @@ onMounted(() => {
       </div>
       <div class="content-x">
         <div class="content-y installed-cards">
-          <div class="card" v-for="(group, key) in allInstalledSoftware" :key="group.title" @click="gotoAppPage(key)">
+          <div
+            class="card"
+            v-for="(group, key) in allInstalledSoftware"
+            :key="group.title"
+            @click="RouterUtil.gotoSoft({ regeditGroupKey: key })"
+          >
             <div class="card-name">{{ group.title }}</div>
             <div class="card-info">
               <div class="info-item">

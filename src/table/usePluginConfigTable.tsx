@@ -7,6 +7,22 @@ import { AppSessionStore } from '@/stores/app-session.ts'
 import { storeToRefs } from 'pinia'
 import { usePluginConfigData } from '@/data/usePluginConfigData.ts'
 
+const queryParams = {
+  id: {
+    connector: 'like' as const,
+    value: '',
+  },
+  type: {
+    connector: 'eq' as const,
+    value: undefined as BackupPluginTypeKey | undefined,
+    options: createParamOptions(BACKUP_PLUGIN_TYPE, 'title'),
+  },
+}
+
+export type PluginConfigQueryParams = {
+  [P in keyof typeof queryParams]?: (typeof queryParams)[P]['value']
+}
+
 export function usePluginConfigTable() {
   const { maxWindow } = storeToRefs(AppSessionStore())
   const cTimeWidth = computed(() => {
@@ -112,17 +128,6 @@ export function usePluginConfigTable() {
     },
   ]
 
-  const queryParams = {
-    id: {
-      connector: 'like' as const,
-      value: '',
-    },
-    type: {
-      connector: 'eq' as const,
-      value: undefined as BackupPluginTypeKey | undefined,
-      options: createParamOptions(BACKUP_PLUGIN_TYPE, 'title'),
-    },
-  }
   return {
     tableColumns: tableColumns,
     queryParams: queryParams,

@@ -72,7 +72,11 @@ ThemeColorStore().initThemeColor()
       </div>
       <el-main class="content-wrapper">
         <div class="content">
-          <router-view />
+          <router-view v-slot="{ Component }">
+            <keep-alive>
+              <component :is="Component" />
+            </keep-alive>
+          </router-view>
         </div>
       </el-main>
     </el-container>

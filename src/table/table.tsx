@@ -1,15 +1,10 @@
 import { type QueryParam, type QueryParams } from '@/db/db.ts'
 import TableColumn from 'element-plus/es/components/table/src/tableColumn'
-import { h, onMounted, ref, type Ref } from 'vue'
-import { cloneDeep, set } from 'lodash'
-import {
-  type NavigationGuardNext,
-  onBeforeRouteUpdate,
-  type RouteLocationNormalized,
-  type RouteLocationNormalizedLoaded,
-  useRoute,
-} from 'vue-router'
+import { h, ref, type Ref, watch } from 'vue'
+import { cloneDeep } from 'lodash'
+import { type RouteLocationNormalized, type RouteLocationNormalizedLoaded, useRoute, useRouter } from 'vue-router'
 import type { AppData } from '@/data/app-data.ts'
+import { logger } from '@/utils/logger.ts'
 
 export interface TableConfig<T, Q extends Record<string, QueryParam> = Record<string, QueryParam>> {
   tableColumns: Partial<typeof TableColumn>
@@ -31,12 +26,24 @@ export function initTable<T, Q extends Record<string, QueryParam>>(
   routeQueryKeys?: string[],
 ) {
   const tableColumns = ref(cloneDeep(config.tableColumns))
-  const defaultQueryParams: QueryParams<Q> = config.queryParams
-  const queryParams = ref(config.queryParams)
+  const defaultQueryParams: QueryParams<Q> = cloneDeep(config.queryParams)
+  const queryParams = ref(cloneDeep(config.queryParams))
   const tableData: Ref<T[]> = ref([])
   const appData = config.appData
+  if (routeQueryKeys === undefined) {
+    routeQueryKeys = Object.keys(config.queryParams)
+  }
 
+  // 表格刷新前监听，返回false则不刷新。参数queryParams声明可以使用 typeof queryParams.value
+  type BeforeTableRefreshListener = (queryParams:typeof config.queryParams)=> boolean|void
+  let beforeTableRefresh: BeforeTableRefreshListener|undefined = undefined
+  const onBeforeTableRefresh = (fn:BeforeTableRefreshListener)=>{
+    beforeTableRefresh = fn
+  }
   const loadTableData = async (getData: () => Promise<T[]>) => {
+    if(beforeTableRefresh != undefined && beforeTableRefresh(queryParams.value) === false){
+      return tableData.value
+    }
     try {
       loading && (loading.value = true)
       const data = await getData()
@@ -71,7 +78,8 @@ export function initTable<T, Q extends Record<string, QueryParam>>(
   const initRouteQuery = (
     route: RouteLocationNormalizedLoaded<string | symbol> | RouteLocationNormalized,
     ...keys: string[]
-  ) => {
+  ): boolean => {
+    if (!keys || keys.length === 0) return false
     let updated = false
     for (let key of keys) {
       if (key in route.query && key in queryParams.value && queryParams.value[key].value !== route.query[key]) {
@@ -79,21 +87,36 @@ export function initTable<T, Q extends Record<string, QueryParam>>(
         updated = true
       }
     }
+    if (updated) {
+      // 已更新，重置其他属性为默认值
+      for (let key of keys) {
+        if (!(key in route.query) && key in queryParams.value) {
+          queryParams.value[key].value = defaultQueryParams[key].value
+        }
+      }
+    }
     return updated
   }
   // 初始化路由参数
   if (routeQueryKeys) {
+    const router = useRouter()
     const route = useRoute()
+    const currRoutePath = route.path
     initRouteQuery(route, ...routeQueryKeys)
-    // onBeforeRouteUpdate(
-    //   (to: RouteLocationNormalized, from: RouteLocationNormalizedLoaded, next: NavigationGuardNext) => {
-    //     路由更新时参数改变就搜索
-        // if (initRouteQuery(route, ...routeQueryKeys)) {
-        //   searchData().then((r) => {})
-        // }
-      // },
-    // )
+    watch(
+      () => router.currentRoute.value.path,
+      async (query) => {
+        if (router.currentRoute.value.path === currRoutePath) {
+          logger.debug('当前组件路由变化', currRoutePath, router.currentRoute.value.query)
+          if (initRouteQuery(router.currentRoute.value, ...routeQueryKeys)) {
+            logger.debug('参数变更，重新搜索数据')
+            searchData().then((r) => {})
+          }
+        }
+      },
+    )
   }
+
   return {
     tableColumns,
     queryParams,
@@ -104,6 +127,7 @@ export function initTable<T, Q extends Record<string, QueryParam>>(
     refreshDB,
     searchData,
     refreshData,
+    onBeforeTableRefresh
   }
 }
 

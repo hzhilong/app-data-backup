@@ -1,20 +1,22 @@
 <script setup lang="ts">
 import { useInstalledSoftwareTable } from '@/table/useInstalledSoftwareTable.tsx'
 import { initTable } from '@/table/table.tsx'
-import { type InstalledSoftware, SOFTWARE_REGEDIT_GROUP } from '@/models/Software.ts'
+import { type InstalledSoftware } from '@/models/Software.ts'
 import { onMounted, type Ref, ref } from 'vue'
 import defaultIcon from '../assets/image/software-icon-default.png'
 import RegeditUtil from '@/utils/regedit-util'
 import AppUtil from '@/utils/app-util'
+import type { TableInstance } from 'element-plus'
 
-const { tableColumns, queryParams, tableData, searchData, refreshData, loading } = initTable(
-  useInstalledSoftwareTable(),
-  undefined,
-  ['regeditGroupKey'],
-)
+const softTable = ref<TableInstance | null>(null)
+const { tableColumns, queryParams, tableData, searchData, loading } = initTable(useInstalledSoftwareTable())
 const currentData: Ref<InstalledSoftware | null> = ref(null)
 onMounted(() => {
-  searchData().then((r) => {})
+  searchData().then((r) => {
+    if (r && r.length === 1) {
+      softTable.value?.setCurrentRow(r[0])
+    }
+  })
 })
 </script>
 
@@ -32,7 +34,12 @@ onMounted(() => {
             clearable
             @change="searchData"
           >
-            <el-option v-for="(item, key) in queryParams.regeditGroupKey.options" :key="key" :label="item" :value="key" />
+            <el-option
+              v-for="(item, key) in queryParams.regeditGroupKey.options"
+              :key="key"
+              :label="item"
+              :value="key"
+            />
           </el-select>
         </div>
         <div class="search-item">
@@ -52,6 +59,7 @@ onMounted(() => {
     </div>
     <div class="table-wrapper">
       <el-table
+        ref="softTable"
         :data="tableData"
         style="width: 100%"
         height="100%"

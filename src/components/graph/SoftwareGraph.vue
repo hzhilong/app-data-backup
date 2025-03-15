@@ -1,6 +1,7 @@
 <script setup lang="tsx">
 import { type CSSProperties, onMounted, ref, watch } from 'vue'
 import { type InstalledSoftware, SOFTWARE_REGEDIT_GROUP } from '@/models/Software.ts'
+import { RouterUtil } from '@/router/router-util.ts'
 
 const props = defineProps<{
   softwareList?: InstalledSoftware[]
@@ -64,7 +65,7 @@ const refreshGraph = () => {
     // 每次缩放的比例
     const scaleFactor = 0.9
     // 每个项最多重置次数
-    const maxAttempts = 100
+    const maxAttempts = 200
     // 最小间距
     const minSpacing = 6
 
@@ -170,7 +171,7 @@ window.onresize = () => {
         <div>{{ item.data.formatSize }}</div>
         <div>{{ item.data.regeditGroupKey ? SOFTWARE_REGEDIT_GROUP[item.data.regeditGroupKey].title : '-' }}</div>
       </template>
-      <div class="soft-icon" :style="item.style"></div>
+      <div class="soft-icon" :style="item.style" @click="RouterUtil.gotoSoft({ name: item.data.name })"></div>
     </el-tooltip>
   </div>
 </template>

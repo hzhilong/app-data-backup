@@ -3,11 +3,7 @@ import { usePluginConfigTable } from '@/table/usePluginConfigTable.tsx'
 import { initTable } from '@/table/table.tsx'
 import { onMounted } from 'vue'
 
-const { tableData, tableColumns, queryParams, loading, searchData, refreshDB,setDefaultQueryParams} = initTable(
-  usePluginConfigTable(),
-  undefined,
-  ['id'],
-)
+const { tableData, tableColumns, queryParams, loading, searchData, refreshDB } = initTable(usePluginConfigTable())
 onMounted(() => {
   searchData().then((r) => {})
 })
@@ -46,7 +42,15 @@ onMounted(() => {
       <div class="header-right"></div>
     </div>
     <div class="table-wrapper">
-      <el-table :data="tableData" style="width: 100%" height="100%" stripe border highlight-current-row v-loading="loading">
+      <el-table
+        :data="tableData"
+        style="width: 100%"
+        height="100%"
+        stripe
+        border
+        highlight-current-row
+        v-loading="loading"
+      >
         <el-table-column v-bind="item" v-for="item in tableColumns" :key="item.label"></el-table-column>
       </el-table>
     </div>

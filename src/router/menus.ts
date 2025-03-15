@@ -19,7 +19,7 @@ export function getMenus():MenuItem[] {
     {
       text: '软件管理',
       iconClass: 'icon-app',
-      viewPath: '/app',
+      viewPath: '/soft',
     },
     {
       text: '配置仓库',

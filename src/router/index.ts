@@ -16,8 +16,8 @@ const router = createRouter({
           component: () => import('../views/DashboardView.vue'),
         },
         {
-          path: '/app',
-          name: 'app',
+          path: '/soft',
+          name: 'soft',
           component: () => import('../views/SoftwareManageView.vue'),
         },
         {

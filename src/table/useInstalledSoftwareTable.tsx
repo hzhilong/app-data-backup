@@ -6,6 +6,24 @@ import { createParamOptions } from '@/db/db.ts'
 import { createTags, type TableConfig, type TableTag } from '@/table/table.tsx'
 import { type ExtendedInstalledSoftware, useInstalledSoftwareData } from '@/data/useInstalledSoftwareData.ts'
 import { useRouter } from 'vue-router'
+import { cloneDeep } from 'lodash'
+import { RouterUtil } from '@/router/router-util.ts'
+
+const queryParams = {
+  name: {
+    connector: 'like' as const,
+    value: '',
+  },
+  regeditGroupKey: {
+    connector: 'eq' as const,
+    value: undefined as SoftwareRegeditGroupKey | undefined,
+    options: createParamOptions(SOFTWARE_REGEDIT_GROUP, 'title'),
+  },
+}
+
+export type SoftwareQueryParams = {
+  [P in keyof typeof queryParams]?: (typeof queryParams)[P]['value']
+}
 
 export function useInstalledSoftwareTable() {
   let router = useRouter()
@@ -44,14 +62,7 @@ export function useInstalledSoftwareTable() {
             return {
               text: item.id,
               onClick: (row: ExtendedInstalledSoftware) => {
-                router
-                  .push({
-                    path: '/plugins',
-                    query: {
-                      id: item.id,
-                    },
-                  })
-                  .then((r) => {})
+                RouterUtil.gotoPluginConfig({ id: item.id })
               },
             } as TableTag<ExtendedInstalledSoftware>
           }),
@@ -60,17 +71,6 @@ export function useInstalledSoftwareTable() {
     },
   ]
 
-  const queryParams = {
-    name: {
-      connector: 'like' as const,
-      value: '',
-    },
-    regeditGroupKey: {
-      connector: 'eq' as const,
-      value: undefined as SoftwareRegeditGroupKey | undefined,
-      options: createParamOptions(SOFTWARE_REGEDIT_GROUP, 'title'),
-    },
-  }
   return {
     tableColumns: tableColumns,
     queryParams: queryParams,

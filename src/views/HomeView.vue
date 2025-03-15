@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterView, useRoute, useRouter } from 'vue-router'
-import { computed, type Ref, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { getMenus, type MenuItem } from '@/router/menus.ts'
 import { ThemeColorStore } from '@/stores/theme-color.ts'
 import AppUtil from '@/utils/app-util.ts'

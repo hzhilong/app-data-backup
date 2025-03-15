@@ -8,35 +8,28 @@ import { RouterUtil } from '@/router/router-util'
 const loading = ref(true)
 const loadingText = ref('正在获取已安装的软件列表，请稍候...')
 const softwareList: Ref<InstalledSoftware[]> = ref([])
-let installedSoftwareData = useInstalledSoftwareData(loading, false)
-const getInstalledList = installedSoftwareData.getList
-const refreshInstalledList = installedSoftwareData.refreshList
+const { getList: getInstalledList, refreshList: refreshInstalledList } = useInstalledSoftwareData(loading, false)
 
-const allInstalledSoftware = computed(() => {
-  return parseAllInstalledSoftware(softwareList.value ?? [])
-})
+const allInstalledSoftware = computed(() => parseAllInstalledSoftware(softwareList.value ?? []))
 
 const softwareLib = ref({} as SoftwareLib)
 
-onMounted(() => {
-  getInstalledList().then((list) => {
-    softwareList.value = list
-  })
+const refreshSoftList = async () => softwareList.value = await refreshInstalledList()
+
+onMounted(async () => {
+  softwareList.value = await getInstalledList()
 })
+
 </script>
 
 <template>
   <div class="dashboard-container" v-loading.fullscreen.lock="loading" :element-loading-text="loadingText">
     <div class="content-wrapper">
       <div class="header">
-        <div class="title">已安装的软件</div>
+        <div class="title" @click="RouterUtil.gotoSoft()">已安装的软件({{ softwareList?.length ?? 0 }})</div>
         <span
           class="iconfont icon-refresh icon-btn t-rotate"
-          @click="
-            () => {
-              refreshInstalledList()
-            }
-          "
+          @click="refreshSoftList"
         ></span>
       </div>
       <div class="content-x">

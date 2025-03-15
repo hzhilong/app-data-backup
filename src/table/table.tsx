@@ -35,13 +35,19 @@ export function initTable<T, Q extends Record<string, QueryParam>>(
   }
 
   // 表格刷新前监听，返回false则不刷新。参数queryParams声明可以使用 typeof queryParams.value
-  type BeforeTableRefreshListener = (queryParams:typeof config.queryParams)=> boolean|void
-  let beforeTableRefresh: BeforeTableRefreshListener|undefined = undefined
-  const onBeforeTableRefresh = (fn:BeforeTableRefreshListener)=>{
+  type BeforeTableRefreshListener = (queryParams: typeof config.queryParams) => boolean | void
+  let beforeTableRefresh: BeforeTableRefreshListener | undefined = undefined
+  const onBeforeTableRefresh = (fn: BeforeTableRefreshListener) => {
     beforeTableRefresh = fn
   }
+  // 表格刷新后监听，参数queryParams声明可以使用 typeof queryParams.value
+  type AfterTableRefreshListener = (queryParams: typeof config.queryParams) => void
+  let afterTableRefresh: AfterTableRefreshListener | undefined = undefined
+  const onAfterTableRefresh = (fn: AfterTableRefreshListener) => {
+    afterTableRefresh = fn
+  }
   const loadTableData = async (getData: () => Promise<T[]>) => {
-    if(beforeTableRefresh != undefined && beforeTableRefresh(queryParams.value) === false){
+    if (beforeTableRefresh?.(queryParams.value) === false) {
       return tableData.value
     }
     try {
@@ -52,6 +58,7 @@ export function initTable<T, Q extends Record<string, QueryParam>>(
       } else {
         tableData.value = data
       }
+      afterTableRefresh?.(queryParams.value)
       return data
     } finally {
       loading && (loading.value = false)
@@ -81,21 +88,37 @@ export function initTable<T, Q extends Record<string, QueryParam>>(
   ): boolean => {
     if (!keys || keys.length === 0) return false
     let updated = false
+    let emptyQuery = true
     for (let key of keys) {
-      if (key in route.query && key in queryParams.value && queryParams.value[key].value !== route.query[key]) {
-        queryParams.value[key].value = route.query[key]
-        updated = true
+      if (key in route.query) {
+        emptyQuery = false
+        if (key in queryParams.value && queryParams.value[key].value !== route.query[key]) {
+          queryParams.value[key].value = route.query[key]
+          updated = true
+        }
       }
     }
+    // 路由参数已更新
     if (updated) {
-      // 已更新，重置其他属性为默认值
+      // 重置其他属性为默认值
       for (let key of keys) {
         if (!(key in route.query) && key in queryParams.value) {
           queryParams.value[key].value = defaultQueryParams[key].value
         }
       }
+      return true
+      // 路由参数为空
+    }else if (emptyQuery) {
+      // 判断当前路由参数是否为默认值
+      for (let key of keys) {
+        if (queryParams.value[key].value !== defaultQueryParams[key].value) {
+          queryParams.value[key].value = defaultQueryParams[key].value
+          updated = true
+        }
+      }
+      return updated
     }
-    return updated
+    return false
   }
   // 初始化路由参数
   if (routeQueryKeys) {
@@ -127,7 +150,8 @@ export function initTable<T, Q extends Record<string, QueryParam>>(
     refreshDB,
     searchData,
     refreshData,
-    onBeforeTableRefresh
+    onBeforeTableRefresh,
+    onAfterTableRefresh,
   }
 }
 

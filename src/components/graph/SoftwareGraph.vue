@@ -152,6 +152,7 @@ onMounted(() => {
 watch(
   () => props.softwareList,
   (newValue) => {
+    console.log('watch')
     refreshGraph()
   },
 )

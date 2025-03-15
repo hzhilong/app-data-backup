@@ -8,15 +8,15 @@ export class RouterUtil {
     logger.debug('gotoPage', path, query)
     return router.push({
       path: path,
-      query: query ?? {},
+      query: query,
     })
   }
 
-  static gotoSoft(query: SoftwareQueryParams): any {
+  static gotoSoft(query?: SoftwareQueryParams): any {
     return this.gotoPage('/soft', query)
   }
 
-  static gotoPluginConfig(query: PluginConfigQueryParams): any {
+  static gotoPluginConfig(query?: PluginConfigQueryParams): any {
     return this.gotoPage('/plugins', query)
   }
 }

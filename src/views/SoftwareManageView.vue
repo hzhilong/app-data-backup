@@ -9,14 +9,16 @@ import AppUtil from '@/utils/app-util'
 import type { TableInstance } from 'element-plus'
 
 const softTable = ref<TableInstance | null>(null)
-const { tableColumns, queryParams, tableData, searchData, loading } = initTable(useInstalledSoftwareTable())
+const { tableColumns, queryParams, tableData, searchData, loading, onAfterTableRefresh } =
+  initTable(useInstalledSoftwareTable())
 const currentData: Ref<InstalledSoftware | null> = ref(null)
 onMounted(() => {
-  searchData().then((r) => {
-    if (r && r.length === 1) {
-      softTable.value?.setCurrentRow(r[0])
-    }
-  })
+  searchData()
+})
+onAfterTableRefresh(() => {
+  if (tableData.value?.length === 1) {
+    softTable.value?.setCurrentRow(tableData.value?.[0])
+  }
 })
 </script>
 

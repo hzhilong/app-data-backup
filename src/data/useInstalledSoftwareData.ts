@@ -10,12 +10,14 @@ export type ExtendedInstalledSoftware = InstalledSoftware & {
   supportPlugins?: ValidatedPluginConfig[]
 }
 
+type DataType = ExtendedInstalledSoftware
+
 export function useInstalledSoftwareData(loading: Ref<boolean> = ref(false), isParseData: boolean = true) {
-  const config: AppDataConfig<ExtendedInstalledSoftware[]> = {
+  const config: AppDataConfig<DataType[]> = {
     async initData() {
       return await RegeditUtil.getInstalledSoftwareList()
     },
-    async parseData(list: ExtendedInstalledSoftware[]): Promise<ExtendedInstalledSoftware[]> {
+    async parseData(list: DataType[]): Promise<DataType[]> {
       const configs = await usePluginConfigData(loading, false).getList()
       const mapConfig = configs.reduce(
         (map, item) => {
@@ -30,7 +32,7 @@ export function useInstalledSoftwareData(loading: Ref<boolean> = ref(false), isP
         },
         {} as Record<string, ValidatedPluginConfig[]>,
       )
-      return list.map((item): ExtendedInstalledSoftware => {
+      return list.map((item): DataType => {
         return { ...item, supportPlugins: mapConfig[item.regeditDir] }
       })
     },
@@ -38,10 +40,10 @@ export function useInstalledSoftwareData(loading: Ref<boolean> = ref(false), isP
     persist: true,
     getPersistData<Q extends Record<string, QueryParam> = Record<string, QueryParam>>(
       queryParams?: QueryParams<Q>,
-    ): Promise<ExtendedInstalledSoftware[]> {
+    ): Promise<DataType[]> {
       return DBUtil.query(db.installedSoftware, queryParams)
     },
-    setPersistData(data: ExtendedInstalledSoftware[]): Promise<void> {
+    setPersistData(data: DataType[]): Promise<void> {
       return db.installedSoftware.bulkPut(data)
     },
   }

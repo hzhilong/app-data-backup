@@ -1,9 +1,23 @@
 import { IPC_CHANNELS } from '@/models/IpcChannels'
-import { type BackupResult, getBackupDir, MyPluginConfig, type TaskMonitor } from '@/plugins/plugin-config'
+import {
+  BACKUP_PLUGIN_TYPE,
+  type BackupPluginGroup,
+  type BackupPluginTypeKey,
+  type BackupResult,
+  getBackupDir,
+  MyPluginConfig,
+  PluginConfig,
+  type TaskMonitor,
+} from '@/plugins/plugin-config'
 import { CommonError } from '@/models/CommonError'
 import { BuResult } from '@/models/BuResult'
 
-async function execPlugin(myConfig: MyPluginConfig, execType: 'backup' | 'restore', monitor: TaskMonitor, dataDir?: string) {
+async function execPlugin(
+  myConfig: MyPluginConfig,
+  execType: 'backup' | 'restore',
+  monitor: TaskMonitor,
+  dataDir?: string,
+) {
   if (!dataDir) {
     if (execType === 'restore') {
       throw new CommonError('执行失败，缺少参数[备份目录]')
@@ -32,4 +46,19 @@ async function execPlugin(myConfig: MyPluginConfig, execType: 'backup' | 'restor
   return BuResult.getPromise(buResult)
 }
 
-export { execPlugin }
+function parsePluginConfigGroup(list: PluginConfig[]): BackupPluginGroup {
+  const groupData: BackupPluginGroup = {
+    ...BACKUP_PLUGIN_TYPE,
+  }
+  for (const key in groupData) {
+    const type = key as BackupPluginTypeKey
+    groupData[type].list = []
+  }
+  list.reduce((group, curr) => {
+    groupData[curr.type].list?.push(curr)
+    return groupData
+  }, groupData)
+  return groupData
+}
+
+export { execPlugin, parsePluginConfigGroup }

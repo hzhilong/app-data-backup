@@ -94,6 +94,12 @@ export const BACKUP_PLUGIN_TYPE: BackupPluginType = {
   },
 } as const
 
+export type BackupPluginGroup = {
+  [P in BackupPluginTypeKey]: {
+    [K in keyof (typeof BACKUP_PLUGIN_TYPE)[P]]: (typeof BACKUP_PLUGIN_TYPE)[P][K]
+  } & { list?: PluginConfig[] }
+}
+
 /**
  * 插件选项
  */
@@ -190,8 +196,12 @@ export class ValidatedPluginConfig extends PluginConfig {
 export class MyPluginConfig extends ValidatedPluginConfig {
   installDir: string
 
-
-  constructor(config: Record<string, unknown>, cTime: string, soft: InstalledSoftware | string | undefined, installDir: string) {
+  constructor(
+    config: Record<string, unknown>,
+    cTime: string,
+    soft: InstalledSoftware | string | undefined,
+    installDir: string,
+  ) {
     super(config, cTime, soft)
     this.installDir = installDir
   }

@@ -55,66 +55,83 @@
       }
     }
 
+  }
 
-    $card-gap-x: 20px;
-    $card-gap-y: 20px;
-    $card-width: calc((100% - $card-gap-x) / 3);
-    $card-min-width: 180px;
-    $card-max-width: 220px;
-    $cards-single-width: min(calc((100% - $card-gap-x) / 2), 200px);
-    $card-padding: 5px 10px;
 
-    .content-x {
+  $content-x-gap: 20px;
+  $content-y-gap: 20px;
+  //$card-width: calc((100% - $content-x-gap) / 3);
+  $card-width: calc((100% - $content-x-gap) / 3);
+  $card-min-width: 180px;
+  $card-max-width: 300px;
+  $card-padding: 5px 10px;
+
+  .content-x {
+    width: 100%;
+    display: flex;
+    gap: 0 $content-x-gap;
+    flex-direction: row;
+    align-items: start;
+  }
+
+  .content-y {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    gap: $content-y-gap 0;
+  }
+
+  .card-container{
+    width: $card-width;
+    min-width: $card-min-width;
+    max-width: $card-max-width;
+  }
+
+  .card {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    padding: $card-padding;
+    cursor: pointer;
+    box-sizing: border-box;
+
+    background-color: $app-color-content-background;
+    border: 1px solid $app-color-border-shadow;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px $app-color-border-shadow;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &.has-transition:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px $app-color-border-shadow-hover;
+    }
+
+    .card-name {
+      margin: 0;
+      font-size: 1em;
+      color: $app-color-content-color2;
+    }
+
+    .card-info {
       width: 100%;
-      display: flex;
-      gap: 0 $card-gap-x;
-      flex-direction: row;
-      align-items: start;
-    }
+      font-size: 0.9em;
 
-    .content-y {
-      display: flex;
-      flex-direction: column;
-      justify-content: start;
-      gap: $card-gap-y 0;
-      width: max-content;
-    }
+      .info-item {
+        margin: 5px 0;
+        color: $app-color-content-color3;
 
-    .card {
-      width: $card-width;
-      min-width: $card-min-width;
-      max-width: $card-max-width;
-      display: flex;
-      flex-direction: column;
-      align-items: start;
-      padding: $card-padding;
-      cursor: pointer;
-      box-sizing: border-box;
+        &.has-transition:hover {
+          background: $app-color-bg-hover;
+        }
 
-      background-color: $app-color-content-background;
-      border: 1px solid $app-color-border-shadow;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px $app-color-border-shadow;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+        .proportion-chart {
+          flex: 1;
+        }
 
-      &:not(.no-transition):hover {
-        transform: translateY(-5px);
-        box-shadow: 0 6px 12px $app-color-border-shadow-hover;
-      }
-
-      .card-name {
-        margin: 0;
-        font-size: 1em;
-        color: $app-color-content-color2;
-      }
-
-      .card-info {
-        width: 100%;
-        font-size: 0.9em;
-
-        .info-item {
-          margin: 5px 0;
-          color: $app-color-content-color3;
+        > .value {
+          color: $app-color-primary;
+          margin: 6px 0;
         }
 
         .value {
@@ -122,81 +139,40 @@
         }
       }
     }
+  }
 
-    .installed-cards {
-      width: $card-width;
-      min-width: $card-min-width;
-      max-width: $card-max-width;
+  .soft-graph-wrapper {
+    flex: 1;
+    width: 100%;
+    min-width: 300px;
+    max-width: 100%;
+    align-self: stretch;
+    overflow: hidden;
 
-      .card {
-        width: 100%;
-      }
+    .card {
+      width: 100%;
+      height: 100%;
+      max-width: inherit;
+      min-width: inherit;
     }
+  }
 
-    .soft-graph-wrapper {
-      flex: 1;
-      min-width: 300px;
-      //max-width: 700px;
-      max-width: 100%;
-      align-self: stretch;
-      overflow: hidden;
+  .proportion-chart {
+    width: calc(100% - 0px);
+    height: 20px;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    background: $app-color-bg-hover;
+    margin: 6px 0;
 
-    }
-
-    .proportion-chart {
-      width: calc(100% - 0px);
-      height: 20px;
-      display: flex;
-      align-items: center;
-      padding: 0;
-      background: $app-color-bg-hover;
-      margin: 6px 0;
-
-      .value {
-        height: 100%;
-        display: inline-block;
-        color: $app-color-content-background;
-        min-width: 1em;
-        background: $app-color-primary;
-        text-align: center;
-      }
-    }
-
-    .cards-single222 {
-      width: $cards-single-width;
-      background-color: $app-color-content-background;
-      border: 1px solid $app-color-border;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      padding: $card-padding;
-
-      .card-info {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: start;
-
-        .info-item {
-          width: 100%;
-          display: flex;
-          align-items: center;
-          cursor: pointer;
-          padding: 0 2px;
-
-          &:hover {
-            background: $app-color-bg-hover;
-          }
-
-          .proportion-chart {
-            flex: 1;
-          }
-
-          > .value {
-            color: $app-color-primary;
-            margin: 6px 0;
-          }
-        }
-      }
+    .value {
+      height: 100%;
+      display: inline-block;
+      color: $app-color-content-background;
+      min-width: 1em;
+      background: $app-color-primary;
+      text-align: center;
     }
   }
 

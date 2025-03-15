@@ -1,41 +1,42 @@
 <script setup lang="ts">
 import { computed, onMounted, type Ref, ref } from 'vue'
-import { type InstalledSoftware, parseAllInstalledSoftware, type SoftwareLib } from '@/models/Software'
+import { type InstalledSoftware, parseAllInstalledSoftware } from '@/models/Software'
 import { useInstalledSoftwareData } from '@/data/useInstalledSoftwareData.ts'
 import SoftwareGraph from '@/components/graph/SoftwareGraph.vue'
 import { RouterUtil } from '@/router/router-util'
+import type { ValidatedPluginConfig } from '@/plugins/plugin-config.ts'
+import { usePluginConfigData } from '@/data/usePluginConfigData.ts'
+import { parsePluginConfigGroup } from '@/plugins/plugins-util.ts'
 
 const loading = ref(true)
 const loadingText = ref('正在获取已安装的软件列表，请稍候...')
 const softwareList: Ref<InstalledSoftware[]> = ref([])
+const pluginList: Ref<ValidatedPluginConfig[]> = ref([])
 const { getList: getInstalledList, refreshList: refreshInstalledList } = useInstalledSoftwareData(loading, false)
+const { getList: getPluginList, refreshList: refreshPluginList } = usePluginConfigData(loading, false)
 
 const allInstalledSoftware = computed(() => parseAllInstalledSoftware(softwareList.value ?? []))
+const pluginConfigGroup = computed(() => parsePluginConfigGroup(pluginList.value ?? []))
 
-const softwareLib = ref({} as SoftwareLib)
-
-const refreshSoftList = async () => softwareList.value = await refreshInstalledList()
+const refreshSoftList = async () => (softwareList.value = await refreshInstalledList())
 
 onMounted(async () => {
   softwareList.value = await getInstalledList()
+  pluginList.value = await getPluginList()
 })
-
 </script>
 
 <template>
   <div class="dashboard-container" v-loading.fullscreen.lock="loading" :element-loading-text="loadingText">
-    <div class="content-wrapper">
+    <div class="content-wrapper installed-cards">
       <div class="header">
         <div class="title" @click="RouterUtil.gotoSoft()">已安装的软件({{ softwareList?.length ?? 0 }})</div>
-        <span
-          class="iconfont icon-refresh icon-btn t-rotate"
-          @click="refreshSoftList"
-        ></span>
+        <span class="iconfont icon-refresh icon-btn t-rotate" @click="() => refreshSoftList()"></span>
       </div>
       <div class="content-x">
-        <div class="content-y installed-cards">
+        <div class="content-y card-container">
           <div
-            class="card"
+            class="card has-transition"
             v-for="(group, key) in allInstalledSoftware"
             :key="group.title"
             @click="RouterUtil.gotoSoft({ regeditGroupKey: key })"
@@ -46,33 +47,45 @@ onMounted(async () => {
                 个数：<span class="value">{{ group.totalNumber }}</span>
               </div>
               <div class="info-item">
-                大小：<span class="value">{{ group.totalSize }}</span>
+                安装大小：<span class="value">{{ group.totalSize }}</span>
               </div>
             </div>
           </div>
         </div>
-        <div class="card soft-graph-wrapper no-transition">
-          <SoftwareGraph :softwareList="softwareList"></SoftwareGraph>
+        <div class="soft-graph-wrapper">
+          <div class="card no-transition">
+            <SoftwareGraph :softwareList="softwareList"></SoftwareGraph>
+          </div>
         </div>
       </div>
     </div>
 
     <div class="content-wrapper">
-      <div class="header">
-        <div class="title">可备份的软件</div>
-      </div>
-      <div class="cards cards-single">
-        <div class="card-info">
-          <div class="info-item" v-for="type in softwareLib" :key="type.title">
-            {{ type.title }}：
-            <div class="value">{{ type.list ? type.list.length : 0 }}</div>
+      <div class="content-x">
+        <div class="card-container">
+          <div class="header">
+            <div class="title">备份配置({{ pluginList?.length ?? 0 }})</div>
+            <span class="iconfont icon-refresh icon-btn t-rotate" @click="() => refreshPluginList()"></span>
+          </div>
+          <div class="card">
+            <div class="card-info">
+              <div
+                class="info-item has-transition"
+                v-for="(type, key) in pluginConfigGroup"
+                :key="type.title"
+                @click="RouterUtil.gotoPluginConfig({ type: key })"
+              >
+                {{ type.title }}：<span class="value">{{ type.list?.length ?? 0 }}</span>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-    <div class="content-wrapper">
-      <div class="header">
-        <div class="title">已备份的数据</div>
+        <div class="card-container">
+          <div class="header">
+            <div class="title">已备份的数据</div>
+          </div>
+          <div class="card"></div>
+        </div>
       </div>
     </div>
   </div>

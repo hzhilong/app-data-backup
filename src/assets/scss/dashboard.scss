@@ -4,13 +4,15 @@
   width: 100%;
   height: 100%;
   user-select: none;
+  position: relative;
+  z-index: 0;
 
   .content-wrapper {
     font-size: 14px;
     padding: 10px;
     margin-bottom: 10px;
 
-    .header{
+    .header {
       display: flex;
       align-items: center;
       margin-bottom: 20px;
@@ -48,18 +50,21 @@
         }
       }
 
-      .icon-btn{
+      .icon-btn {
 
       }
     }
 
 
     $card-gap-x: 20px;
-    $card-width: min(calc((100% - $card-gap-x) / 3), 180px);
+    $card-gap-y: 20px;
+    $card-width: calc((100% - $card-gap-x) / 3);
+    $card-min-width: 180px;
+    $card-max-width: 220px;
     $cards-single-width: min(calc((100% - $card-gap-x) / 2), 200px);
     $card-padding: 5px 10px;
 
-    .cards{
+    .content-x {
       width: 100%;
       display: flex;
       gap: 0 $card-gap-x;
@@ -67,50 +72,78 @@
       align-items: start;
     }
 
-    .cards-multiple {
+    .content-y {
+      display: flex;
+      flex-direction: column;
+      justify-content: start;
+      gap: $card-gap-y 0;
+      width: max-content;
+    }
 
-      .card {
-        width: $card-width;
-        display: flex;
-        flex-direction: column;
-        align-items: start;
-        padding: $card-padding;
-        cursor: pointer;
+    .card {
+      width: $card-width;
+      min-width: $card-min-width;
+      max-width: $card-max-width;
+      display: flex;
+      flex-direction: column;
+      align-items: start;
+      padding: $card-padding;
+      cursor: pointer;
+      box-sizing: border-box;
 
-        background-color: $app-color-content-background;
-        border: 1px solid $app-color-border-shadow;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px $app-color-border-shadow;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      background-color: $app-color-content-background;
+      border: 1px solid $app-color-border-shadow;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px $app-color-border-shadow;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
 
-        &:not(.no-transition):hover {
-          transform: translateY(-5px);
-          box-shadow: 0 6px 12px $app-color-border-shadow-hover;
+      &:not(.no-transition):hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px $app-color-border-shadow-hover;
+      }
+
+      .card-name {
+        margin: 0;
+        font-size: 1em;
+        color: $app-color-content-color2;
+      }
+
+      .card-info {
+        width: 100%;
+        font-size: 0.9em;
+
+        .info-item {
+          margin: 5px 0;
+          color: $app-color-content-color3;
         }
 
-        .card-name {
-          margin: 0;
-          font-size: 1em;
-          color: $app-color-content-color2;
-        }
-
-        .card-info {
-          width: 100%;
-          font-size: 0.9em;
-
-          .info-item {
-            margin: 5px 0;
-            color: $app-color-content-color3;
-          }
-
-          .value {
-            color: $app-color-primary;
-          }
+        .value {
+          color: $app-color-primary;
         }
       }
     }
 
-    .proportion-chart{
+    .installed-cards {
+      width: $card-width;
+      min-width: $card-min-width;
+      max-width: $card-max-width;
+
+      .card {
+        width: 100%;
+      }
+    }
+
+    .soft-graph-wrapper {
+      flex: 1;
+      min-width: 300px;
+      //max-width: 700px;
+      max-width: 100%;
+      align-self: stretch;
+      overflow: hidden;
+
+    }
+
+    .proportion-chart {
       width: calc(100% - 0px);
       height: 20px;
       display: flex;
@@ -119,7 +152,7 @@
       background: $app-color-bg-hover;
       margin: 6px 0;
 
-      .value{
+      .value {
         height: 100%;
         display: inline-block;
         color: $app-color-content-background;
@@ -129,7 +162,7 @@
       }
     }
 
-    .cards-single {
+    .cards-single222 {
       width: $cards-single-width;
       background-color: $app-color-content-background;
       border: 1px solid $app-color-border;
@@ -143,7 +176,7 @@
         flex-direction: column;
         align-items: start;
 
-        .info-item{
+        .info-item {
           width: 100%;
           display: flex;
           align-items: center;
@@ -158,7 +191,7 @@
             flex: 1;
           }
 
-          >.value {
+          > .value {
             color: $app-color-primary;
             margin: 6px 0;
           }

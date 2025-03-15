@@ -17,6 +17,9 @@ $app-color-content-color: #0a0a0a;
 $app-color-content-color2: #333333;
 $app-color-content-color3: #666666;
 
+$app-color-list-item-label: #888888;
+$app-color-list-item-content: #333333;
+
 // 文本按钮
 $app-color-btn-text: #FFFFFF;
 $app-color-btn-text-hover: #FFFFFF;
@@ -65,6 +68,10 @@ $app-main-content-padding: var(--app-main-content-padding, 10px);
 
   &:hover {
     background: $app-color-icon-btn-bg;
+
+    &.t-rotate {
+      animation: rotate 3s linear infinite;
+    }
   }
 }
 

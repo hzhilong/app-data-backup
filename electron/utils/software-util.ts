@@ -343,6 +343,9 @@ export async function parseInstalledSoftware(
     formatSize: formatSize(entry.EstimatedSize?.value as number),
     url: stripQuotesAndTrim(entry.URLUpdateInfo?.value as string),
   }
+  if (isNaN(soft.size)) {
+    soft.size = 0
+  }
   if (soft.installLocation) {
     soft.installDir = soft.installLocation
   }

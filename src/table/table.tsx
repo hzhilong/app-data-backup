@@ -94,9 +94,6 @@ export function initTable<T, Q extends Record<string, QueryParam>>(
       // },
     // )
   }
-  onMounted(() => {
-    searchData().then((r) => {})
-  })
   return {
     tableColumns,
     queryParams,

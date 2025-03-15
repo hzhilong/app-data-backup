@@ -2,7 +2,7 @@
 import { useInstalledSoftwareTable } from '@/table/useInstalledSoftwareTable.tsx'
 import { initTable } from '@/table/table.tsx'
 import { type InstalledSoftware, SOFTWARE_REGEDIT_GROUP } from '@/models/Software.ts'
-import { type Ref, ref } from 'vue'
+import { onMounted, type Ref, ref } from 'vue'
 import defaultIcon from '../assets/image/software-icon-default.png'
 import RegeditUtil from '@/utils/regedit-util'
 import AppUtil from '@/utils/app-util'
@@ -13,6 +13,9 @@ const { tableColumns, queryParams, tableData, searchData, refreshData, loading }
   ['regeditGroupKey'],
 )
 const currentData: Ref<InstalledSoftware | null> = ref(null)
+onMounted(() => {
+  searchData().then((r) => {})
+})
 </script>
 
 <template>

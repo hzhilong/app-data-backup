@@ -33,7 +33,7 @@ export function useInstalledSoftwareTable() {
     },
     { label: '版本', prop: 'version', minWidth: '80', showOverflowTooltip: true },
     {
-      label: '关联的配置',
+      label: '可备份的内容',
       prop: 'supportPlugins',
       minWidth: '100',
       showOverflowTooltip: true,

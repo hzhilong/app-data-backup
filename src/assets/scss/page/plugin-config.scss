@@ -1,0 +1,12 @@
+@use "../global" as *;
+@use "../table-page" as *;
+
+.table-wrapper {
+  :deep(.soft-icon) {
+    display: block;
+    width: 20px;
+    height: 20px;
+    margin-right: 4px;
+    object-fit: cover;
+  }
+}

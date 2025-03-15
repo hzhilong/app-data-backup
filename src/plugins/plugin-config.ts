@@ -1,6 +1,5 @@
 import { CommonError } from '@/models/CommonError'
 import dayjs from 'dayjs'
-import { type InstalledSoftware } from '@/models/Software'
 
 /**
  * 备份配置 可根据该配置快速进行备份还原 也可自己实现备份还原方法
@@ -128,7 +127,7 @@ const validateConfig = (condition: unknown, message: string): void => {
 }
 
 /** 插件配置 */
-export class PluginConfig {
+export interface PluginConfig {
   /** 类型：内置|自定义*/
   type: BackupPluginTypeKey
   /** 插件唯一标识符 (如：'Everything') */
@@ -141,20 +140,22 @@ export class PluginConfig {
   totalItemNum: number
   /** 创建时间 */
   cTime?: string
+}
 
-  constructor(config: Record<string, unknown>, cTime: string) {
-    const { type, id, name, backupConfigs } = config
-    validateConfig(typeof type === 'string' && type in BACKUP_PLUGIN_TYPE_KEY, '缺少有效的 type')
-    validateConfig(typeof id === 'string', '缺少 id')
-    validateConfig(Array.isArray(backupConfigs), '缺少 backupConfigs')
-    this.type = type as BackupPluginTypeKey
-    this.id = id as string
-    this.name = (name ? name : id) as string
-    this.backupConfigs = config.backupConfigs as BackupConfig[]
-    this.backupConfigs = backupConfigs as BackupConfig[]
-    this.totalItemNum = this.backupConfigs.reduce((sum, c) => sum + c.items.length, 0)
-    this.cTime = cTime
-  }
+export function loadPluginConfig(config: Record<string, unknown>, cTime: string): PluginConfig {
+  const { type, id, name, backupConfigs } = config
+  validateConfig(typeof type === 'string' && type in BACKUP_PLUGIN_TYPE_KEY, '缺少有效的 type')
+  validateConfig(typeof id === 'string', '缺少 id')
+  validateConfig(Array.isArray(backupConfigs), '缺少 backupConfigs')
+  let configs = config.backupConfigs as BackupConfig[]
+  return {
+    type: type as BackupPluginTypeKey,
+    id: id as string,
+    name: (name ? name : id) as string,
+    backupConfigs: configs,
+    totalItemNum: configs.reduce((sum, c) => sum + c.items.length, 0),
+    cTime: cTime,
+  } as PluginConfig
 }
 
 export const DEFAULT_ROOT_DIR = '.backup-data'
@@ -167,7 +168,7 @@ export const getBackupDir = (softName: string, rootDir: string = DEFAULT_ROOT_DI
 /**
  * 已验证过的插件配置
  */
-export class ValidatedPluginConfig extends PluginConfig {
+export interface ValidatedPluginConfig extends PluginConfig {
   // type为'INSTALLER'需要关联软件的名称
   softName?: string
   // type为'INSTALLER'需要关联软件的图标
@@ -175,34 +176,11 @@ export class ValidatedPluginConfig extends PluginConfig {
   softInstallDir?: string
   // type为'INSTALLER'需要关联软件的注册表位置
   softRegeditDir?: string
-
-  constructor(config: Record<string, unknown>, cTime: string, soft: InstalledSoftware | string | undefined) {
-    super(config, cTime)
-    if (!soft) {
-    } else if (typeof soft === 'string') {
-      this.softInstallDir = soft
-    } else {
-      this.softName = soft.name
-      this.softBase64Icon = soft.base64Icon
-      this.softInstallDir = soft.installDir
-      this.softRegeditDir = soft.regeditDir
-    }
-  }
 }
 
 /**
  * 我的配置
  */
-export class MyPluginConfig extends ValidatedPluginConfig {
-  installDir: string
-
-  constructor(
-    config: Record<string, unknown>,
-    cTime: string,
-    soft: InstalledSoftware | string | undefined,
-    installDir: string,
-  ) {
-    super(config, cTime, soft)
-    this.installDir = installDir
-  }
+export interface MyPluginConfig extends ValidatedPluginConfig {
+  softInstallDir: string
 }

@@ -128,5 +128,5 @@ onAfterTableRefresh(() => {
 </template>
 
 <style scoped lang="scss">
-@use '@/assets/scss/software-manage';
+@use '@/assets/scss/page/software-manage';
 </style>

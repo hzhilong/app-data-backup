@@ -86,7 +86,11 @@ export function initTable<T, Q extends Record<string, QueryParam>>(
     route: RouteLocationNormalizedLoaded<string | symbol> | RouteLocationNormalized,
     ...keys: string[]
   ): boolean => {
+    logger.debug('initRouteQuery', route.query)
     if (!keys || keys.length === 0) return false
+    if ('__refresh' in route.query && route.query['__refresh'] === 'false') {
+      return false
+    }
     let updated = false
     let emptyQuery = true
     for (let key of keys) {

@@ -1,13 +1,7 @@
 import Dexie, { type Collection, type EntityTable, type IDType, type InsertType, type Table } from 'dexie'
-import {
-  type AllInstalledSoftware,
-  type InstalledSoftware,
-  parseInstalledSoftwareGroup,
-  SOFTWARE_REGEDIT_GROUP_KEY,
-  type SoftwareRegeditGroupKey,
-} from '@/models/Software'
+import { type InstalledSoftware } from '@/models/Software'
 import BaseUtil from '@/utils/base-util'
-import { type PluginConfig, ValidatedPluginConfig } from '@/plugins/plugin-config'
+import { type MyPluginConfig, type ValidatedPluginConfig } from '@/plugins/plugin-config'
 
 export type DexieTable<T, TKeyPropName extends keyof T = never, TInsertType = InsertType<T, TKeyPropName>> = Table<
   T,
@@ -27,10 +21,10 @@ export const db = new Dexie('appDataBackupDatabase') as Dexie & {
   installedSoftware: EntityTable<InstalledSoftware>
   iconCache: EntityTable<IconCache>
   pluginConfig: EntityTable<ValidatedPluginConfig>
-  myConfig: EntityTable<ValidatedPluginConfig>
+  myConfig: EntityTable<MyPluginConfig>
 }
 
-db.version(5).stores({
+db.version(7).stores({
   installedSoftware: 'regeditDir, regeditGroupKey,name', // regeditDir作为主键,同时也是复合索引。
   iconCache: 'path',
   pluginConfig: 'id,type,name',
@@ -75,7 +69,6 @@ export type ParamOptions<O extends Record<string, any>, OVK extends string = nev
 }
 
 export class DBUtil {
-
   static query<T, Q extends Record<string, QueryParam>>(
     table: DexieTable<T>,
     queryParams?: QueryParams<Q>,

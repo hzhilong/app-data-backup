@@ -1,0 +1,29 @@
+@use "../global" as *;
+@use "../table-page" as *;
+
+.table-wrapper {
+
+  :deep(.soft-icon) {
+    display: block;
+    width: 20px;
+    height: 20px;
+    margin-right: 4px;
+    object-fit: cover;
+  }
+
+  :deep(.empty-hint) {
+    line-height: 1.4;
+    font-size: 1.2em;
+    user-select: none;
+
+    .link{
+      color: $app-color-primary;
+      padding: 0 2px;
+      cursor: pointer;
+
+      &:hover{
+        background: $app-color-bg-hover;
+      }
+    }
+  }
+}

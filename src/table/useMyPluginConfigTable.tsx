@@ -1,20 +1,12 @@
 import { computed, h } from 'vue'
-import { createParamOptions, db } from '@/db/db.ts'
-import {
-  BACKUP_PLUGIN_TYPE,
-  type BackupPluginTypeKey,
-  type MyPluginConfig,
-  type ValidatedPluginConfig as DataType,
-} from '@/plugins/plugin-config.ts'
+import { createParamOptions } from '@/db/db.ts'
+import { BACKUP_PLUGIN_TYPE, type BackupPluginTypeKey, type MyPluginConfig as DataType } from '@/plugins/plugin-config.ts'
 import { createOptionList, type TableConfig, type TableOptionBtn } from '@/table/table.tsx'
 import defaultIcon from '@/assets/image/software-icon-default.png'
 import { AppSessionStore } from '@/stores/app-session.ts'
 import { storeToRefs } from 'pinia'
-import { usePluginConfigData } from '@/data/usePluginConfigData.ts'
 import { RouterUtil } from '@/router/router-util.ts'
-import AppUtil from '@/utils/app-util.ts'
-import { logger } from '@/utils/logger.ts'
-import { cloneDeep } from 'lodash'
+import { useMyPluginConfigData } from '@/data/useMyPluginConfigData.ts'
 
 const queryParams = {
   id: {
@@ -28,11 +20,11 @@ const queryParams = {
   },
 }
 
-export type PluginConfigQueryParams = {
+export type MyPluginConfigQueryParams = {
   [P in keyof typeof queryParams]?: (typeof queryParams)[P]['value']
 }
 
-export function usePluginConfigTable() {
+export function useMyPluginConfigTable() {
   const { maxWindow } = storeToRefs(AppSessionStore())
   const cTimeWidth = computed(() => {
     return maxWindow.value ? 140 : 90
@@ -135,26 +127,11 @@ export function usePluginConfigTable() {
       minWidth: '100',
       formatter: (row: DataType) => {
         const list: TableOptionBtn<DataType>[] = []
-        if (row.softInstallDir) {
+        if (row.type === 'INSTALLER') {
           list.push({
             text: '备份',
             onClick: () => {
               console.log(`备份：${row.name}`)
-            },
-          })
-          list.push({
-            text: '添加到我的配置',
-            onClick: () => {
-              const data = cloneDeep(row as MyPluginConfig)
-              logger.debug('添加到我的配置', data)
-              db.myConfig
-                .bulkPut([data])
-                .then(() => {
-                  AppUtil.message('添加成功')
-                })
-                .catch((e) => {
-                  logger.debug(e)
-                })
             },
           })
         }
@@ -166,6 +143,6 @@ export function usePluginConfigTable() {
   return {
     tableColumns: tableColumns,
     queryParams: queryParams,
-    appData: usePluginConfigData(),
+    appData: useMyPluginConfigData(),
   } as TableConfig<DataType, typeof queryParams>
 }

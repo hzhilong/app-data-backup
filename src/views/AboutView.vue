@@ -49,5 +49,5 @@ const { switchThemeColor, setDefaultTheme } = ThemeColorStore()
 </template>
 
 <style scoped lang="scss">
-@use '@/assets/scss/about';
+@use '@/assets/scss/page/about';
 </style>

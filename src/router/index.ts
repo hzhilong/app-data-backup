@@ -26,6 +26,11 @@ const router = createRouter({
           component: () => import('../views/PluginConfigView.vue'),
         },
         {
+          path: '/my-plugins',
+          name: 'my-plugins',
+          component: () => import('../views/MyPluginConfigView.vue'),
+        },
+        {
           path: '/backup',
           name: 'backup',
           component: () => import('../views/BackupView.vue'),

@@ -5,6 +5,7 @@ import { getMenus, type MenuItem } from '@/router/menus.ts'
 import { ThemeColorStore } from '@/stores/theme-color.ts'
 import AppUtil from '@/utils/app-util.ts'
 import { AppSessionStore } from '@/stores/app-session.ts'
+import { RouterUtil } from '@/router/router-util.ts'
 
 const route = useRoute()
 const router = useRouter()
@@ -23,9 +24,7 @@ const onClickMenu = (menu: MenuItem): void => {
   if (menu.onclick) {
     menu.onclick()
   } else {
-    router.push({
-      path: menu.viewPath,
-    })
+    RouterUtil.gotoPage(menu.viewPath)
   }
 }
 
@@ -84,5 +83,5 @@ ThemeColorStore().initThemeColor()
 </template>
 
 <style scoped lang="scss">
-@use '@/assets/scss/home';
+@use '@/assets/scss/page/home';
 </style>

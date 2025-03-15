@@ -30,7 +30,7 @@ onMounted(async () => {
   <div class="dashboard-container" v-loading.fullscreen.lock="loading" :element-loading-text="loadingText">
     <div class="content-wrapper installed-cards">
       <div class="header">
-        <div class="title" @click="RouterUtil.gotoSoft()">已安装的软件({{ softwareList?.length ?? 0 }})</div>
+        <div class="title" @click="RouterUtil.gotoSoft({})">已安装的软件({{ softwareList?.length ?? 0 }})</div>
         <span class="iconfont icon-refresh icon-btn t-rotate" @click="() => refreshSoftList()"></span>
       </div>
       <div class="content-x">
@@ -64,7 +64,7 @@ onMounted(async () => {
       <div class="content-x">
         <div class="card-container">
           <div class="header">
-            <div class="title">备份配置({{ pluginList?.length ?? 0 }})</div>
+            <div class="title" @click="RouterUtil.gotoPluginConfig({})">备份配置({{ pluginList?.length ?? 0 }})</div>
             <span class="iconfont icon-refresh icon-btn t-rotate" @click="() => refreshPluginList()"></span>
           </div>
           <div class="card">
@@ -92,5 +92,5 @@ onMounted(async () => {
 </template>
 
 <style scoped lang="scss">
-@use '@/assets/scss/dashboard';
+@use '@/assets/scss/page/dashboard';
 </style>

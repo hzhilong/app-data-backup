@@ -5,19 +5,22 @@ import {
   type BackupPluginTypeKey,
   type BackupResult,
   getBackupDir,
-  MyPluginConfig,
-  PluginConfig,
+  type PluginConfig,
   type TaskMonitor,
+  type ValidatedPluginConfig,
 } from '@/plugins/plugin-config'
 import { CommonError } from '@/models/CommonError'
 import { BuResult } from '@/models/BuResult'
 
 async function execPlugin(
-  myConfig: MyPluginConfig,
+  validatedPluginConfig: ValidatedPluginConfig,
   execType: 'backup' | 'restore',
   monitor: TaskMonitor,
   dataDir?: string,
 ) {
+  if (!validatedPluginConfig.softInstallDir) {
+    throw new CommonError('执行失败，缺少参数[安装目录]')
+  }
   if (!dataDir) {
     if (execType === 'restore') {
       throw new CommonError('执行失败，缺少参数[备份目录]')
@@ -28,15 +31,15 @@ async function execPlugin(
   let progressListener
   if (monitor) {
     progressListener = (event: unknown, id: string, log: string, curr: number, total: number) => {
-      if (id === myConfig.id) {
+      if (id === validatedPluginConfig.id) {
         monitor.progress(log, curr, total)
       }
     }
     window.electronAPI?.ipcOn(IPC_CHANNELS.GET_PLUGIN_PROGRESS, progressListener)
   }
-  const buResult = (await window.electronAPI?.ipcInvoke(IPC_CHANNELS.EXEC_PLUGIN, myConfig.id, {
+  const buResult = (await window.electronAPI?.ipcInvoke(IPC_CHANNELS.EXEC_PLUGIN, validatedPluginConfig.id, {
     execType: execType,
-    installDir: myConfig.installDir,
+    installDir: validatedPluginConfig.softInstallDir,
     dataDir: dataDir,
   })) as BuResult<BackupResult[]>
   // 移除进度监听

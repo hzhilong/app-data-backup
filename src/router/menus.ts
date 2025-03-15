@@ -29,7 +29,7 @@ export function getMenus():MenuItem[] {
     {
       text: '我的配置',
       iconClass: 'icon-app',
-      viewPath: '/app2',
+      viewPath: '/my-plugins',
     },
     {
       text: '数据备份',

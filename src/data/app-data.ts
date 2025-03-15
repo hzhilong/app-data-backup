@@ -4,6 +4,7 @@
 import { AppDataStore } from '@/stores/app-data-state.ts'
 import { ref, type Ref } from 'vue'
 import type { QueryParam, QueryParams } from '@/db/db.ts'
+import { CommonError } from '@/models/CommonError.ts'
 
 // 所有的数据类型
 export enum AppDataType {
@@ -13,7 +14,7 @@ export enum AppDataType {
 
 export type AppDataConfig<T> = {
   // 初始化数据
-  initData: () => Promise<T>
+  initData?: () => Promise<T>
   // 额外解析数据
   parseData?: (list: T) => Promise<T>
   // 全局缓存
@@ -21,11 +22,11 @@ export type AppDataConfig<T> = {
   // 是否持久化（保存到数据库），默认 false
   persist: boolean
   // 获取持久化数据
-  getPersistData: <Q extends Record<string, QueryParam> = Record<string, QueryParam>>(
+  getPersistData?: <Q extends Record<string, QueryParam> = Record<string, QueryParam>>(
     queryParams?: QueryParams<Q>,
   ) => Promise<T>
   // 设置持久化数据
-  setPersistData: (data: T) => Promise<void>
+  setPersistData?: (data: T) => Promise<void>
 }
 
 export type AppData<T> = {
@@ -68,13 +69,20 @@ export function getAppData<T>(
   ): Promise<T> => {
     try {
       if (updateLoading) loading.value = true
+      let data: T | undefined = undefined
       // 初始化
-      let data = await config.initData()
-      // 持久化
-      if (config.persist) {
-        await config.setPersistData(data)
-        initialized(type, true)
-        return updateCache(await parseData(await config.getPersistData(queryParams)))
+      if (config.initData) {
+        data = await config.initData()
+        // 持久化
+        if (config.persist) {
+          await config.setPersistData?.(data)
+          initialized(type, true)
+        }
+      }
+      if (config.persist && config.getPersistData) {
+        data = await config.getPersistData(queryParams)
+      } else if (data === undefined) {
+        throw new CommonError('内部错误 缺少 config.initData 或者 config.getPersistData')
       }
       // 解析后缓存
       return updateCache(await parseData(data))
@@ -95,7 +103,11 @@ export function getAppData<T>(
         // 需要持久化
         if (isInitialized(type)) {
           // 已持久化，直接获取接着解析，最后更新缓存
-          return updateCache(await parseData(await config.getPersistData(queryParams)))
+          if (config.getPersistData) {
+            return updateCache(await parseData(await config.getPersistData(queryParams)))
+          } else {
+            throw new CommonError('内部错误 缺少config.getPersistData')
+          }
         } else {
           // 未持久化，刷新
           return await refreshList(queryParams, false)

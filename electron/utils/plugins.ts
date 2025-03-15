@@ -3,19 +3,35 @@ import { CommonError } from '@/models/CommonError'
 import { formatSize, type InstalledSoftware } from '@/models/Software'
 import BaseUtil from '@/utils/base-util'
 import {
-  PluginConfig,
+  BackupConfig,
   type BackupItem,
   type BackupItemConfig,
+  BackupPluginTypeKey,
   type BackupResult,
+  loadPluginConfig,
+  PluginConfig,
   type PluginOptions,
-  type TaskMonitor,
+  type TaskMonitor
 } from '@/plugins/plugin-config'
 import WinUtil from './win-util'
 
 /** 插件 */
-export class Plugin extends PluginConfig {
-  constructor(config: Record<string, unknown>, cTime: string) {
-    super(config, cTime)
+export class Plugin implements PluginConfig {
+  id: string
+  name: string
+  type: BackupPluginTypeKey
+  backupConfigs: BackupConfig[]
+  totalItemNum: number
+  cTime: string
+
+  constructor(config: PluginConfig, cTime: string) {
+    const { id, name, type, backupConfigs, totalItemNum } = config
+    this.id = id
+    this.name = name
+    this.type = type
+    this.backupConfigs = backupConfigs
+    this.totalItemNum = totalItemNum
+    this.cTime = cTime
     // 覆盖方法
     Object.assign(this, config)
   }

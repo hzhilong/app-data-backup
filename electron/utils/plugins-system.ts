@@ -4,15 +4,14 @@ import path from 'path'
 import { pathToFileURL } from 'url'
 import { IPC_CHANNELS } from '@/models/IpcChannels'
 import WinUtil from './win-util'
-import BrowserWindow = Electron.BrowserWindow
 import { CommonError } from '@/models/CommonError'
 import { BuResult, execBusiness } from '@/models/BuResult'
-import { PluginConfig, PluginOptions, ValidatedPluginConfig } from '@/plugins/plugin-config'
+import { loadPluginConfig, PluginOptions, ValidatedPluginConfig } from '@/plugins/plugin-config'
 import { Plugin } from './plugins'
 import { Mutex } from 'async-mutex'
-import dayjs from 'dayjs'
 import { InstalledSoftware } from '@/models/Software'
 import BaseUtil from '@/utils/base-util'
+import BrowserWindow = Electron.BrowserWindow
 
 const initMutex = new Mutex()
 let initialized = false
@@ -93,9 +92,12 @@ async function initPlugins(softList: InstalledSoftware[]): Promise<ValidatedPlug
       const config = module.default as Record<string, unknown>
       const cTime = BaseUtil.getFormatedDateTime(fs.statSync(filePath).birthtime)
       // 实例化插件
-      const pluginConfig = new PluginConfig(config, cTime)
-      let plugin = new Plugin(config, cTime)
-      let validatedPluginConfig = new ValidatedPluginConfig(config, cTime, plugin.detect(softList, env))
+      const pluginConfig = loadPluginConfig(config, cTime)
+      let plugin = new Plugin(pluginConfig, cTime)
+      let validatedPluginConfig: ValidatedPluginConfig = {
+        ...pluginConfig,
+        ...getValidatedFields(plugin.detect(softList, env)),
+      }
       activePlugins.set(pluginConfig.id, plugin)
       loadedPluginConfigs.push(validatedPluginConfig)
       console.log(`✔ 插件加载成功: ${config.id}`)
@@ -105,6 +107,24 @@ async function initPlugins(softList: InstalledSoftware[]): Promise<ValidatedPlug
   }
   initialized = true
   return loadedPluginConfigs
+}
+
+// 获取验证后的字段
+function getValidatedFields(detectResult: InstalledSoftware | string | undefined) {
+  if (!detectResult) {
+    return {}
+  } else if (typeof detectResult === 'string') {
+    return {
+      softInstallDir: detectResult,
+    }
+  } else {
+    return {
+      softName: detectResult.name,
+      softBase64Icon: detectResult.base64Icon,
+      softInstallDir: detectResult.installDir,
+      softRegeditDir: detectResult.regeditDir,
+    }
+  }
 }
 
 function clearOnPluginStop(pluginOrId: Plugin | string) {

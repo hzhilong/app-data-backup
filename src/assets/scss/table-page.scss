@@ -40,25 +40,56 @@
 
   }
 
+
   .table-wrapper {
     width: 100%;
     flex: 1;
     overflow: auto;
 
-    :deep(.soft-icon) {
-      display: block;
-      width: 20px;
-      height: 20px;
-      margin-right: 4px;
-      object-fit: cover;
+    :deep(.table-tag-list) {
+      .el-tag--primary {
+        user-select: none;
+        color: $app-color-table-tag;
+        background-color: $app-color-table-tag-bg;
+        border-color: $app-color-table-tag-border;
+        margin-right: 6px;
+
+        &:last-child {
+          margin-right: 0;
+        }
+
+        &.hover-able {
+          &:hover {
+            color: $app-color-table-tag-hover;
+            background-color: $app-color-table-tag-bg-hover;
+          }
+        }
+      }
+    }
+
+    :deep(.table-option-list) {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+
+      .table-option-btn {
+        line-height: 1em;
+        padding: 4px 6px;
+        border-radius: 4px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: $app-color-option-btn;
+        user-select: none;
+        cursor: pointer;
+
+        &:hover {
+          background: $app-color-option-btn-hover-bg;
+        }
+      }
     }
   }
 
-  .header {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-  }
 
   .footer {
     width: 100%;

@@ -4,9 +4,11 @@ import { SOFTWARE_REGEDIT_GROUP } from '@/models/Software.ts'
 import defaultIcon from '@/assets/image/software-icon-default.png'
 import { createParamOptions } from '@/db/db.ts'
 import { createTags, type TableConfig, type TableTag } from '@/table/table.tsx'
-import { type ExtendedInstalledSoftware, useInstalledSoftwareData } from '@/data/useInstalledSoftwareData.ts'
+import {
+  type ExtendedInstalledSoftware as DataType,
+  useInstalledSoftwareData,
+} from '@/data/useInstalledSoftwareData.ts'
 import { useRouter } from 'vue-router'
-import { cloneDeep } from 'lodash'
 import { RouterUtil } from '@/router/router-util.ts'
 
 const queryParams = {
@@ -33,7 +35,7 @@ export function useInstalledSoftwareTable() {
       prop: 'iconPath',
       width: '50',
       align: 'center',
-      formatter: (row: ExtendedInstalledSoftware): VNode | string => {
+      formatter: (row: DataType): VNode | string => {
         return <img src={row.base64Icon ? row.base64Icon : defaultIcon} class="soft-icon" alt="" />
       },
     },
@@ -44,7 +46,7 @@ export function useInstalledSoftwareTable() {
       label: '类型',
       prop: 'regeditGroupKey',
       width: '100',
-      formatter: (row: ExtendedInstalledSoftware) => {
+      formatter: (row: DataType) => {
         return row.regeditGroupKey ? SOFTWARE_REGEDIT_GROUP[row.regeditGroupKey].title : '-'
       },
       sortable: true,
@@ -54,16 +56,16 @@ export function useInstalledSoftwareTable() {
       label: '可备份的内容',
       minWidth: '100',
       showOverflowTooltip: true,
-      formatter: (row: ExtendedInstalledSoftware) => {
+      formatter: (row: DataType) => {
         return createTags(
           row,
           row?.supportPlugins?.map((item) => {
             return {
               text: item.id,
-              onClick: (row: ExtendedInstalledSoftware) => {
+              onClick: (row: DataType) => {
                 RouterUtil.gotoPluginConfig({ id: item.id })
               },
-            } as TableTag<ExtendedInstalledSoftware>
+            } as TableTag<DataType>
           }),
         )
       },
@@ -74,5 +76,5 @@ export function useInstalledSoftwareTable() {
     tableColumns: tableColumns,
     queryParams: queryParams,
     appData: useInstalledSoftwareData(),
-  } as TableConfig<ExtendedInstalledSoftware, typeof queryParams>
+  } as TableConfig<DataType, typeof queryParams>
 }

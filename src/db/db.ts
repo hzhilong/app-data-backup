@@ -75,21 +75,6 @@ export type ParamOptions<O extends Record<string, any>, OVK extends string = nev
 }
 
 export class DBUtil {
-  static async getAllInstalledSoftware(): Promise<AllInstalledSoftware> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const allInstalledSoftware: AllInstalledSoftware = {} as AllInstalledSoftware
-        for (const key in SOFTWARE_REGEDIT_GROUP_KEY) {
-          const groupKey = key as SoftwareRegeditGroupKey
-          const list: InstalledSoftware[] = await db.installedSoftware.where({ regeditGroupKey: groupKey }).toArray()
-          allInstalledSoftware[groupKey] = parseInstalledSoftwareGroup(groupKey, list)
-        }
-        resolve(allInstalledSoftware)
-      } catch (error: unknown) {
-        reject(BaseUtil.convertToCommonError(error, '读取数据库失败：'))
-      }
-    })
-  }
 
   static query<T, Q extends Record<string, QueryParam>>(
     table: DexieTable<T>,

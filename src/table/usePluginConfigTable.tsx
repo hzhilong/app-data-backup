@@ -1,11 +1,12 @@
 import { computed, h } from 'vue'
 import { createParamOptions } from '@/db/db.ts'
 import { BACKUP_PLUGIN_TYPE, type BackupPluginTypeKey, ValidatedPluginConfig } from '@/plugins/plugin-config.ts'
-import { createOptionList, type TableConfig, type TableOptionBtn } from '@/table/table.tsx'
+import { createOptionList, createTags, type TableConfig, type TableOptionBtn } from '@/table/table.tsx'
 import defaultIcon from '@/assets/image/software-icon-default.png'
 import { AppSessionStore } from '@/stores/app-session.ts'
 import { storeToRefs } from 'pinia'
 import { usePluginConfigData } from '@/data/usePluginConfigData.ts'
+import { RouterUtil } from '@/router/router-util.ts'
 
 const queryParams = {
   id: {
@@ -60,7 +61,6 @@ export function usePluginConfigTable() {
     {
       label: '备份项目和数量',
       prop: 'type',
-      showOverflowTooltip: true,
       formatter: (row: ValidatedPluginConfig) => {
         const configs = row.backupConfigs
         return (
@@ -91,13 +91,25 @@ export function usePluginConfigTable() {
     },
     {
       label: '关联的软件',
+      prop: 'softName',
       showOverflowTooltip: true,
       minWidth: '100',
       formatter: (row: ValidatedPluginConfig) => {
         if (row.type === 'INSTALLER') {
           if (row.softInstallDir) {
             return (
-              <div style={{ color: 'blue', display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
+              <div
+                style={{
+                  color: 'blue',
+                  display: 'flex',
+                  alignItems: 'center',
+                  whiteSpace: 'nowrap',
+                  cursor: 'pointer',
+                }}
+                onClick={() => {
+                  RouterUtil.gotoSoft({ name: row.softName })
+                }}
+              >
                 <img src={row.softBase64Icon ?? defaultIcon} class="soft-icon" alt="" />
                 {row.softName}
               </div>

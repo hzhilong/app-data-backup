@@ -108,7 +108,7 @@ export function initTable<T, Q extends Record<string, QueryParam>>(
       }
       return true
       // 路由参数为空
-    }else if (emptyQuery) {
+    } else if (emptyQuery) {
       // 判断当前路由参数是否为默认值
       for (let key of keys) {
         if (queryParams.value[key].value !== defaultQueryParams[key].value) {
@@ -187,27 +187,38 @@ export interface TableTag<T> {
   onClick?: (row: T) => void
 }
 
-export function createTags<T>(row: T, tags: TableTag<T>[] | undefined, color?: string) {
+export function createTags<T>(row: T, tags: TableTag<T>[] | string[] | undefined, color?: string) {
   if (!tags) {
     return <></>
   }
-  return (
-    <div class="table-tag-list">
-      {tags.map((tag) => {
-        return (
-          <el-tag
-            type="primary"
-            style={{ cursor: tag.onClick ? 'pointer' : 'unset' }}
-            onClick={() => {
-              if (tag.onClick) {
-                tag.onClick(row)
-              }
-            }}
-          >
-            {tag.text}
-          </el-tag>
-        )
-      })}
-    </div>
-  )
+  if (tags.every((tag) => typeof tag === 'string')) {
+    return (
+      <div class="table-tag-list">
+        {tags.map((tag) => {
+          return <el-tag type="primary">{tag}</el-tag>
+        })}
+      </div>
+    )
+  } else {
+    return (
+      <div class="table-tag-list">
+        {tags.map((tag) => {
+          return (
+            <el-tag
+              type="primary"
+              disable-transitions
+              style={{ cursor: tag.onClick ? 'pointer' : 'unset' }}
+              onClick={() => {
+                if (tag.onClick) {
+                  tag.onClick(row)
+                }
+              }}
+            >
+              {tag.text}
+            </el-tag>
+          )
+        })}
+      </div>
+    )
+  }
 }

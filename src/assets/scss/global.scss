@@ -94,16 +94,16 @@ $app-main-content-padding: var(--app-main-content-padding, 10px);
   overflow: auto;
 
   :deep(.table-tag-list) {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
-
     .el-tag--primary {
       user-select: none;
       color: $app-color-table-tag;
       background-color: $app-color-table-tag-bg;
       border-color: $app-color-table-tag-border;
+      margin-right: 6px;
+
+      &:last-child {
+        margin-right: 0;
+      }
 
       &.hover-able {
         &:hover {

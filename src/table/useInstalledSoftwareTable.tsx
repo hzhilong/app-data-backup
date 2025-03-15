@@ -37,7 +37,7 @@ export function useInstalledSoftwareTable() {
         return <img src={row.base64Icon ? row.base64Icon : defaultIcon} class="soft-icon" alt="" />
       },
     },
-    { label: '软件名', prop: 'name', minWidth: '200', showOverflowTooltip: true, sortable: true },
+    { label: '软件名', prop: 'name', minWidth: '100', showOverflowTooltip: true, sortable: true },
     { label: '安装日期', prop: 'installDate', width: '90', sortable: true },
     { label: '大小', prop: 'formatSize', width: '70', sortable: true, sortBy: 'size' },
     {
@@ -49,10 +49,9 @@ export function useInstalledSoftwareTable() {
       },
       sortable: true,
     },
-    { label: '版本', prop: 'version', minWidth: '80', showOverflowTooltip: true },
+    { label: '版本', prop: 'version', width: '130', showOverflowTooltip: true },
     {
       label: '可备份的内容',
-      prop: 'supportPlugins',
       minWidth: '100',
       showOverflowTooltip: true,
       formatter: (row: ExtendedInstalledSoftware) => {

@@ -12,6 +12,7 @@ import { Plugin } from './plugins'
 import { Mutex } from 'async-mutex'
 import dayjs from 'dayjs'
 import { InstalledSoftware } from '@/models/Software'
+import BaseUtil from '@/utils/base-util'
 
 const initMutex = new Mutex()
 let initialized = false
@@ -90,7 +91,7 @@ async function initPlugins(softList: InstalledSoftware[]): Promise<ValidatedPlug
       // 动态导入插件模块
       const module = await import(pathToFileURL(filePath).href)
       const config = module.default as Record<string, unknown>
-      const cTime = dayjs(fs.statSync(filePath).birthtime).format('YYYY-MM-DD HH:mm:ss')
+      const cTime = BaseUtil.getFormatedDateTime(fs.statSync(filePath).birthtime)
       // 实例化插件
       const pluginConfig = new PluginConfig(config, cTime)
       let plugin = new Plugin(config, cTime)

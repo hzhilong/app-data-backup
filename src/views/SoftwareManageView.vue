@@ -68,7 +68,7 @@ onAfterTableRefresh(() => {
         stripe
         border
         highlight-current-row
-        @current-change="(curr) => (currentData = curr)"
+        @current-change="(curr: InstalledSoftware) => (currentData = curr)"
         v-loading="loading"
       >
         <el-table-column v-bind="item" v-for="item in tableColumns" :key="item.label"></el-table-column>

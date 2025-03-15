@@ -1,4 +1,5 @@
 import { CommonError } from '@/models/CommonError'
+import dayjs from 'dayjs'
 
 export default class BaseUtil {
   static isCommonError(error: unknown): error is CommonError {
@@ -32,5 +33,17 @@ export default class BaseUtil {
       // 如果抛出的异常不是object
       return this.prependErrorMessage(new CommonError(String(error)), preMsg)
     }
+  }
+
+  static getFormatedDateTime(date?: Date): string {
+    return dayjs(date).format('YYYY-MM-DD HH:mm:ss')
+  }
+
+  static getFormatedDate(date?: Date): string {
+    return dayjs(date).format('YYYY-MM-DD')
+  }
+
+  static getFormatedTime(date?: Date): string {
+    return dayjs(date).format('HH:mm:ss')
   }
 }

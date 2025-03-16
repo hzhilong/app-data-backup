@@ -14,6 +14,7 @@ import {
   type TaskMonitor
 } from '@/plugins/plugin-config'
 import WinUtil from './win-util'
+import { logger } from '@/utils/logger'
 
 /** 插件 */
 export class Plugin implements PluginConfig {
@@ -32,8 +33,6 @@ export class Plugin implements PluginConfig {
     this.backupConfigs = backupConfigs
     this.totalItemNum = totalItemNum
     this.cTime = cTime
-    // 覆盖方法
-    Object.assign(this, config)
   }
 
   /**

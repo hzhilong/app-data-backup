@@ -10,11 +10,12 @@ import { createOptionList, type TableConfig, type TableOptionBtn } from '@/table
 import defaultIcon from '@/assets/image/software-icon-default.png'
 import { AppSessionStore } from '@/stores/app-session.ts'
 import { storeToRefs } from 'pinia'
-import { usePluginConfigData } from '@/data/usePluginConfigData.ts'
 import { RouterUtil } from '@/router/router-util.ts'
 import AppUtil from '@/utils/app-util.ts'
 import { logger } from '@/utils/logger.ts'
 import { cloneDeep } from 'lodash'
+import { BuResult } from '@/models/BuResult.ts'
+import { IPC_CHANNELS } from '@/models/IpcChannels.ts'
 
 const queryParams = {
   id: {
@@ -163,9 +164,19 @@ export function usePluginConfigTable() {
     },
   ]
 
+  const initData = async (): Promise<DataType[]> => {
+    return BuResult.getPromise(
+      (await window.electronAPI?.ipcInvoke(
+        IPC_CHANNELS.REFRESH_PLUGINS,
+        await db.installedSoftware.toArray(),
+      )) as BuResult<DataType[]>,
+    )
+  }
+
   return {
     tableColumns: tableColumns,
     queryParams: queryParams,
-    appData: usePluginConfigData(),
+    initData: initData,
+    table: db.pluginConfig,
   } as TableConfig<DataType, typeof queryParams>
 }

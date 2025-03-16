@@ -1,12 +1,8 @@
 <script setup lang="ts">
 import { usePluginConfigTable } from '@/table/usePluginConfigTable.tsx'
 import { initTable } from '@/table/table.tsx'
-import { onMounted } from 'vue'
 
 const { tableData, tableColumns, queryParams, loading, searchData, refreshDB } = initTable(usePluginConfigTable())
-onMounted(() => {
-  searchData().then((r) => {})
-})
 </script>
 <template>
   <div class="content-wrapper">

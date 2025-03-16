@@ -2,7 +2,7 @@
 import { useInstalledSoftwareTable } from '@/table/useInstalledSoftwareTable.tsx'
 import { initTable } from '@/table/table.tsx'
 import { type InstalledSoftware } from '@/models/Software.ts'
-import { onMounted, type Ref, ref } from 'vue'
+import { type Ref, ref } from 'vue'
 import defaultIcon from '../assets/image/software-icon-default.png'
 import RegeditUtil from '@/utils/regedit-util'
 import AppUtil from '@/utils/app-util'
@@ -12,9 +12,6 @@ const softTable = ref<TableInstance | null>(null)
 const { tableColumns, queryParams, tableData, searchData, loading, onAfterTableRefresh } =
   initTable(useInstalledSoftwareTable())
 const currentData: Ref<InstalledSoftware | null> = ref(null)
-onMounted(() => {
-  searchData()
-})
 onAfterTableRefresh(() => {
   if (tableData.value?.length === 1) {
     softTable.value?.setCurrentRow(tableData.value?.[0])

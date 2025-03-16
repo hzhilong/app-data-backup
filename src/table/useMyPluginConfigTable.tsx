@@ -1,12 +1,15 @@
 import { computed, h } from 'vue'
-import { createParamOptions } from '@/db/db.ts'
-import { BACKUP_PLUGIN_TYPE, type BackupPluginTypeKey, type MyPluginConfig as DataType } from '@/plugins/plugin-config.ts'
+import { createParamOptions, db } from '@/db/db.ts'
+import {
+  BACKUP_PLUGIN_TYPE,
+  type BackupPluginTypeKey,
+  type MyPluginConfig as DataType,
+} from '@/plugins/plugin-config.ts'
 import { createOptionList, type TableConfig, type TableOptionBtn } from '@/table/table.tsx'
 import defaultIcon from '@/assets/image/software-icon-default.png'
 import { AppSessionStore } from '@/stores/app-session.ts'
 import { storeToRefs } from 'pinia'
 import { RouterUtil } from '@/router/router-util.ts'
-import { useMyPluginConfigData } from '@/data/useMyPluginConfigData.ts'
 
 const queryParams = {
   id: {
@@ -143,6 +146,6 @@ export function useMyPluginConfigTable() {
   return {
     tableColumns: tableColumns,
     queryParams: queryParams,
-    appData: useMyPluginConfigData(),
+    table: db.myConfig,
   } as TableConfig<DataType, typeof queryParams>
 }

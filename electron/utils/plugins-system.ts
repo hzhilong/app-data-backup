@@ -12,6 +12,7 @@ import { Mutex } from 'async-mutex'
 import { InstalledSoftware } from '@/models/Software'
 import BaseUtil from '@/utils/base-util'
 import BrowserWindow = Electron.BrowserWindow
+import { logger } from '@/utils/logger'
 
 const initMutex = new Mutex()
 let initialized = false
@@ -87,14 +88,17 @@ async function initPlugins(softList: InstalledSoftware[]): Promise<ValidatedPlug
 
   for (const filePath of pluginFiles) {
     try {
+      logger.debug('加载插件', filePath)
       // 动态导入插件模块
       const module = await import(pathToFileURL(filePath).href)
       const config = module.default as Record<string, unknown>
       const cTime = BaseUtil.getFormatedDateTime(fs.statSync(filePath).birthtime)
       // 实例化插件
       const pluginConfig = loadPluginConfig(config, cTime)
-      let plugin = new Plugin(pluginConfig, cTime)
-      let validatedPluginConfig: ValidatedPluginConfig = {
+      const plugin = new Plugin(pluginConfig, cTime)
+      // 覆盖方法
+      Object.assign(plugin, config)
+      const validatedPluginConfig: ValidatedPluginConfig = {
         ...pluginConfig,
         ...getValidatedFields(plugin.detect(softList, env)),
       }

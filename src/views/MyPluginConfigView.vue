@@ -1,13 +1,9 @@
 <script setup lang="ts">
 import { initTable } from '@/table/table.tsx'
-import { onMounted } from 'vue'
 import { useMyPluginConfigTable } from '@/table/useMyPluginConfigTable.tsx'
 import { RouterUtil } from '@/router/router-util.ts'
 
 const { tableData, tableColumns, queryParams, loading, searchData, refreshData } = initTable(useMyPluginConfigTable())
-onMounted(() => {
-  searchData().then((r) => {})
-})
 </script>
 <template>
   <div class="content-wrapper">
@@ -54,8 +50,8 @@ onMounted(() => {
       >
         <template #empty>
           <div class="empty-hint">
-            当前数据为空。<br/>
-            可前往<span class="link" @click="RouterUtil.gotoPluginConfig()">配置仓库</span>添加需要备份的配置。<br/>
+            当前数据为空。<br />
+            可前往<span class="link" @click="RouterUtil.gotoPluginConfig()">配置仓库</span>添加需要备份的配置。<br />
             后续可在当前页面一键备份所有配置。
           </div>
         </template>

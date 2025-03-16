@@ -1,16 +1,19 @@
-import { type QueryParam, type QueryParams } from '@/db/db.ts'
+import { DBUtil, type DexieTable, type QueryParam, type QueryParams } from '@/db/db.ts'
 import TableColumn from 'element-plus/es/components/table/src/tableColumn'
 import { h, ref, type Ref, watch } from 'vue'
 import { cloneDeep } from 'lodash'
 import { type RouteLocationNormalized, type RouteLocationNormalizedLoaded, useRoute, useRouter } from 'vue-router'
-import type { AppData } from '@/data/app-data.ts'
 import { logger } from '@/utils/logger.ts'
+import { from, useObservable } from '@vueuse/rxjs'
+import { type InsertType, liveQuery } from 'dexie'
+import BaseUtil from '@/utils/base-util.ts'
+import { CommonError } from '@/models/CommonError.ts'
 
 export interface TableConfig<T, Q extends Record<string, QueryParam> = Record<string, QueryParam>> {
+  initData?: () => Promise<T[]>
   tableColumns: Partial<typeof TableColumn>
   queryParams: QueryParams<Q>
-  appData: AppData<T[]>
-  // 额外解析数据
+  table: DexieTable<T>
   parseData?: (list: T[]) => Promise<T[]>
 }
 
@@ -22,71 +25,109 @@ export interface TableConfig<T, Q extends Record<string, QueryParam> = Record<st
  */
 export function initTable<T, Q extends Record<string, QueryParam>>(
   config: TableConfig<T, Q>,
-  loading: Ref<boolean> = ref(false),
+  loading?: Ref<boolean>,
   routeQueryKeys?: string[],
 ) {
+  if (!loading) {
+    loading = ref(false)
+  }
+
+  const parseData = (list: T[]): Promise<T[]> => {
+    if (config.parseData) {
+      return config.parseData(list)
+    }
+    return Promise.resolve(list)
+  }
+
+  const table = config.table
   const tableColumns = ref(cloneDeep(config.tableColumns))
   const defaultQueryParams: QueryParams<Q> = cloneDeep(config.queryParams)
   const queryParams = ref(cloneDeep(config.queryParams))
-  const tableData: Ref<T[]> = ref([])
-  const appData = config.appData
   if (routeQueryKeys === undefined) {
     routeQueryKeys = Object.keys(config.queryParams)
   }
 
-  // 表格刷新前监听，返回false则不刷新。参数queryParams声明可以使用 typeof queryParams.value
-  type BeforeTableRefreshListener = (queryParams: typeof config.queryParams) => boolean | void
-  let beforeTableRefresh: BeforeTableRefreshListener | undefined = undefined
-  const onBeforeTableRefresh = (fn: BeforeTableRefreshListener) => {
-    beforeTableRefresh = fn
+  const tableData = useObservable<T[]>(
+    from(
+      liveQuery<T[]>(async () => {
+        logger.debug(`[${table.name}] liveQuery`, queryParams.value)
+        return await loadTableData(
+          () => {
+            return DBUtil.query(table, queryParams.value)
+          },
+          loading,
+          false,
+        )
+      }),
+    ),
+  )
+
+  const loadTableData = async (getData: () => Promise<T[]>, tempLoading?: Ref<boolean>, updateData: boolean = true) => {
+    try {
+      logger.debug(`[${table.name}] loadTableData s`, queryParams.value)
+      tempLoading && (tempLoading.value = true)
+      let data = await parseData(await getData())
+      if(data.length === 0 && config.initData){
+        logger.debug(`[${table.name}] loadTableData 数据为空，尝试初始化`, queryParams.value)
+        data = await config.initData()
+        table.bulkPut(data as InsertType<T, never>[])
+      }else{
+        if (updateData && tableData && tableData.value) {
+          tableData.value.length = 0
+          tableData.value.push(...data)
+        }
+      }
+      afterTableRefresh?.(queryParams.value)
+      return data
+    } catch (e) {
+      throw BaseUtil.convertToCommonError(e, `加载[${table.name}]数据失败：`)
+    } finally {
+      tempLoading && (tempLoading.value = false)
+      logger.debug(`[${table.name}] loadTableData e`, queryParams.value)
+    }
   }
+
   // 表格刷新后监听，参数queryParams声明可以使用 typeof queryParams.value
   type AfterTableRefreshListener = (queryParams: typeof config.queryParams) => void
   let afterTableRefresh: AfterTableRefreshListener | undefined = undefined
   const onAfterTableRefresh = (fn: AfterTableRefreshListener) => {
     afterTableRefresh = fn
   }
-  const loadTableData = async (getData: () => Promise<T[]>) => {
-    if (beforeTableRefresh?.(queryParams.value) === false) {
-      return tableData.value
-    }
-    try {
-      loading && (loading.value = true)
-      const data = await getData()
-      if (config.parseData) {
-        tableData.value = await config.parseData(data)
-      } else {
-        tableData.value = data
-      }
-      afterTableRefresh?.(queryParams.value)
-      return data
-    } finally {
-      loading && (loading.value = false)
-    }
-  }
   const setDefaultQueryParams = () => {
     Object.assign(queryParams.value, cloneDeep(defaultQueryParams))
   }
-  const refreshDB = async () => {
-    setDefaultQueryParams()
-    return await loadTableData(() => {
-      return appData.refreshList(queryParams.value)
-    })
+  const searchData = () => {
+    logger.debug(`[${table.name}] searchData`, queryParams.value)
+    return loadTableData(
+      () => {
+        return DBUtil.query(table, queryParams.value)
+      },
+      loading,
+      true,
+    )
   }
-  const searchData = async () => {
-    return await loadTableData(() => {
-      return appData.getList(queryParams.value)
-    })
+  const refreshDB = async () => {
+    if (!config.initData) {
+      throw new CommonError(`内部错误，[${table.name}]无法重置`)
+    }
+    try {
+      logger.debug(`[${table.name}] refreshDB s`, queryParams.value)
+      loading && (loading.value = true)
+      setDefaultQueryParams()
+      table.bulkPut((await config.initData()) as InsertType<T, never>[])
+    } finally {
+      loading && (loading.value = false)
+      logger.debug(`[${table.name}] refreshDB e`, queryParams.value)
+    }
   }
   const refreshData = async () => {
     setDefaultQueryParams()
-    return searchData()
   }
   const initRouteQuery = (
     route: RouteLocationNormalizedLoaded<string | symbol> | RouteLocationNormalized,
     ...keys: string[]
   ): boolean => {
-    logger.debug('initRouteQuery', route.query)
+    logger.debug(`[${table.name}] initRouteQuery`, route.query, queryParams.value)
     if (!keys || keys.length === 0) return false
     if ('__refresh' in route.query && route.query['__refresh'] === 'false') {
       return false
@@ -134,9 +175,9 @@ export function initTable<T, Q extends Record<string, QueryParam>>(
       () => router.currentRoute.value.path,
       async (query) => {
         if (router.currentRoute.value.path === currRoutePath) {
-          logger.debug('当前组件路由变化', currRoutePath, router.currentRoute.value.query)
+          logger.debug(`[${table.name}] 当前组件路由变化`, currRoutePath, router.currentRoute.value.query)
           if (initRouteQuery(router.currentRoute.value, ...routeQueryKeys)) {
-            logger.debug('参数变更，重新搜索数据')
+            logger.debug(`[${table.name}] 当前组件路由变化参数变更，重新搜索数据`)
             searchData().then((r) => {})
           }
         }
@@ -154,7 +195,6 @@ export function initTable<T, Q extends Record<string, QueryParam>>(
     refreshDB,
     searchData,
     refreshData,
-    onBeforeTableRefresh,
     onAfterTableRefresh,
   }
 }

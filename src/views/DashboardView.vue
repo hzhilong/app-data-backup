@@ -1,33 +1,33 @@
 <script setup lang="ts">
-import { computed, onMounted, type Ref, ref } from 'vue'
-import { type InstalledSoftware, parseAllInstalledSoftware } from '@/models/Software'
-import { useInstalledSoftwareData } from '@/data/useInstalledSoftwareData.ts'
+import { computed, ref } from 'vue'
+import { parseAllInstalledSoftware } from '@/models/Software'
 import SoftwareGraph from '@/components/graph/SoftwareGraph.vue'
 import { RouterUtil } from '@/router/router-util'
-import type { ValidatedPluginConfig } from '@/plugins/plugin-config.ts'
-import { usePluginConfigData } from '@/data/usePluginConfigData.ts'
 import { parsePluginConfigGroup } from '@/plugins/plugins-util.ts'
+import { initTable } from '@/table/table.tsx'
+import { useInstalledSoftwareTable } from '@/table/useInstalledSoftwareTable.tsx'
+import { usePluginConfigTable } from '@/table/usePluginConfigTable.tsx'
 
-const loading = ref(true)
+const loading1 = ref(true)
+const loading2 = ref(true)
 const loadingText = ref('正在获取已安装的软件列表，请稍候...')
-const softwareList: Ref<InstalledSoftware[]> = ref([])
-const pluginList: Ref<ValidatedPluginConfig[]> = ref([])
-const { getList: getInstalledList, refreshList: refreshInstalledList } = useInstalledSoftwareData(loading, false)
-const { getList: getPluginList, refreshList: refreshPluginList } = usePluginConfigData(loading, false)
+
+const { refreshDB: refreshInstalledList, tableData: softwareList } = initTable(
+  useInstalledSoftwareTable(false),
+  loading1,
+)
+const { refreshDB: refreshPluginList, tableData: pluginList } = initTable(usePluginConfigTable(false), loading2)
 
 const allInstalledSoftware = computed(() => parseAllInstalledSoftware(softwareList.value ?? []))
 const pluginConfigGroup = computed(() => parsePluginConfigGroup(pluginList.value ?? []))
 
-const refreshSoftList = async () => (softwareList.value = await refreshInstalledList())
-
-onMounted(async () => {
-  softwareList.value = await getInstalledList()
-  pluginList.value = await getPluginList()
-})
+const refreshSoftList = async () => {
+  await refreshInstalledList()
+}
 </script>
 
 <template>
-  <div class="dashboard-container" v-loading.fullscreen.lock="loading" :element-loading-text="loadingText">
+  <div class="dashboard-container" v-loading.fullscreen.lock="loading1 || loading2" :element-loading-text="loadingText">
     <div class="content-wrapper installed-cards">
       <div class="header">
         <div class="title" @click="RouterUtil.gotoSoft({})">已安装的软件({{ softwareList?.length ?? 0 }})</div>

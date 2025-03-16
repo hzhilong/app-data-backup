@@ -2,6 +2,7 @@ import Dexie, { type Collection, type EntityTable, type IDType, type InsertType,
 import { type InstalledSoftware } from '@/models/Software'
 import BaseUtil from '@/utils/base-util'
 import { type MyPluginConfig, type ValidatedPluginConfig } from '@/plugins/plugin-config'
+import { logger } from '@/utils/logger.ts'
 
 export type DexieTable<T, TKeyPropName extends keyof T = never, TInsertType = InsertType<T, TKeyPropName>> = Table<
   T,
@@ -73,6 +74,7 @@ export class DBUtil {
     table: DexieTable<T>,
     queryParams?: QueryParams<Q>,
   ): Promise<Array<T>> {
+    logger.debug('DBUtil query', table.name, queryParams)
     if (!queryParams) {
       return table.toArray()
     }

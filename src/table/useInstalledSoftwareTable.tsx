@@ -1,15 +1,19 @@
 import { h, type VNode } from 'vue'
-import type { SoftwareRegeditGroupKey } from '@/models/Software.ts'
+import type { InstalledSoftware, SoftwareRegeditGroupKey } from '@/models/Software.ts'
 import { SOFTWARE_REGEDIT_GROUP } from '@/models/Software.ts'
 import defaultIcon from '@/assets/image/software-icon-default.png'
-import { createParamOptions } from '@/db/db.ts'
+import { createParamOptions, db } from '@/db/db.ts'
 import { createTags, type TableConfig, type TableTag } from '@/table/table.tsx'
-import {
-  type ExtendedInstalledSoftware as DataType,
-  useInstalledSoftwareData,
-} from '@/data/useInstalledSoftwareData.ts'
-import { useRouter } from 'vue-router'
 import { RouterUtil } from '@/router/router-util.ts'
+import RegeditUtil from '@/utils/regedit-util.ts'
+import type { ValidatedPluginConfig } from '@/plugins/plugin-config.ts'
+import { logger } from '@/utils/logger.ts'
+
+export type ExtendedInstalledSoftware = InstalledSoftware & {
+  supportPlugins?: ValidatedPluginConfig[]
+}
+
+type DataType = ExtendedInstalledSoftware
 
 const queryParams = {
   name: {
@@ -27,8 +31,7 @@ export type SoftwareQueryParams = {
   [P in keyof typeof queryParams]?: (typeof queryParams)[P]['value']
 }
 
-export function useInstalledSoftwareTable() {
-  let router = useRouter()
+export function useInstalledSoftwareTable(isExtendData: boolean = true) {
   const tableColumns = [
     {
       label: '图标',
@@ -72,9 +75,38 @@ export function useInstalledSoftwareTable() {
     },
   ]
 
+  const initData = async (): Promise<DataType[]> => {
+    logger.debug(`[installedSoftware] initData`)
+    return await RegeditUtil.getInstalledSoftwareList()
+  }
+  const parseData = async (list: DataType[]): Promise<DataType[]> => {
+    logger.debug(`[installedSoftware] parseData`)
+    if (!isExtendData) {
+      return Promise.resolve(list)
+    }
+    const configs = await db.pluginConfig.toArray()
+    const mapConfig = configs.reduce(
+      (map, item) => {
+        if (item.softRegeditDir) {
+          if (map[item.softRegeditDir]) {
+            map[item.softRegeditDir].push(item)
+          } else {
+            map[item.softRegeditDir] = [item]
+          }
+        }
+        return map
+      },
+      {} as Record<string, ValidatedPluginConfig[]>,
+    )
+    return list.map((item): DataType => {
+      return { ...item, supportPlugins: mapConfig[item.regeditDir] }
+    })
+  }
   return {
     tableColumns: tableColumns,
     queryParams: queryParams,
-    appData: useInstalledSoftwareData(),
+    initData: initData,
+    table: db.installedSoftware,
+    parseData: parseData,
   } as TableConfig<DataType, typeof queryParams>
 }

@@ -16,7 +16,7 @@ const { refreshDB: refreshInstalledList, tableData: softwareList } = initTable(
   useInstalledSoftwareTable(false),
   loading1,
 )
-const { refreshDB: refreshPluginList, tableData: pluginList } = initTable(usePluginConfigTable(false), loading2)
+const { refreshDB: refreshPluginList, tableData: pluginList } = initTable(usePluginConfigTable(), loading2)
 
 const allInstalledSoftware = computed(() => parseAllInstalledSoftware(softwareList.value ?? []))
 const pluginConfigGroup = computed(() => parsePluginConfigGroup(pluginList.value ?? []))

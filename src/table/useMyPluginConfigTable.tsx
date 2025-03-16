@@ -3,6 +3,7 @@ import { createParamOptions, db } from '@/db/db.ts'
 import {
   BACKUP_PLUGIN_TYPE,
   type BackupPluginTypeKey,
+  type MyPluginConfig,
   type MyPluginConfig as DataType,
 } from '@/plugins/plugin-config.ts'
 import { createOptionList, type TableConfig, type TableOptionBtn } from '@/table/table.tsx'
@@ -10,6 +11,7 @@ import defaultIcon from '@/assets/image/software-icon-default.png'
 import { AppSessionStore } from '@/stores/app-session.ts'
 import { storeToRefs } from 'pinia'
 import { RouterUtil } from '@/router/router-util.ts'
+import type { IDType } from 'dexie'
 
 const queryParams = {
   id: {
@@ -130,6 +132,15 @@ export function useMyPluginConfigTable() {
       minWidth: '100',
       formatter: (row: DataType) => {
         const list: TableOptionBtn<DataType>[] = []
+        list.push({
+          text: '移除',
+          confirmContent: (row: DataType) => {
+            return `是否从我的配置中移除[${row.id}]？`
+          },
+          onClick: () => {
+            db.myConfig.delete(row.id as IDType<MyPluginConfig, never>)
+          },
+        })
         if (row.type === 'INSTALLER') {
           list.push({
             text: '备份',

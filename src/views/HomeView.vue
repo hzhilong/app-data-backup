@@ -8,7 +8,6 @@ import { AppSessionStore } from '@/stores/app-session.ts'
 import { RouterUtil } from '@/router/router-util.ts'
 
 const route = useRoute()
-const router = useRouter()
 
 const windowMax = ref(false)
 const appTitle = ref(import.meta.env.APP_PRODUCT_NAME as string)

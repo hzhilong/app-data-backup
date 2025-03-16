@@ -67,11 +67,11 @@ export function initTable<T, Q extends Record<string, QueryParam>>(
       logger.debug(`[${table.name}] loadTableData s`, queryParams.value)
       tempLoading && (tempLoading.value = true)
       let data = await parseData(await getData())
-      if(data.length === 0 && config.initData){
+      if (data.length === 0 && config.initData) {
         logger.debug(`[${table.name}] loadTableData 数据为空，尝试初始化`, queryParams.value)
         data = await config.initData()
         table.bulkPut(data as InsertType<T, never>[])
-      }else{
+      } else {
         if (updateData && tableData && tableData.value) {
           tableData.value.length = 0
           tableData.value.push(...data)
@@ -122,6 +122,7 @@ export function initTable<T, Q extends Record<string, QueryParam>>(
   }
   const refreshData = async () => {
     setDefaultQueryParams()
+    searchData().then(data => {})
   }
   const initRouteQuery = (
     route: RouteLocationNormalizedLoaded<string | symbol> | RouteLocationNormalized,
@@ -205,22 +206,40 @@ export function initTable<T, Q extends Record<string, QueryParam>>(
 export interface TableOptionBtn<T> {
   text: string
   onClick: (row: T) => void
+  confirmContent?: (row: T) => string
 }
 
 export function createOptionList<T>(row: T, list: TableOptionBtn<T>[]) {
   return (
     <div class="table-option-list">
       {list.map((item) => {
-        return (
-          <span
-            class="table-option-btn"
-            onClick={(e) => {
-              item.onClick(row)
-            }}
-          >
-            {item.text}
-          </span>
-        )
+        if (item.confirmContent) {
+          return (
+            <el-popconfirm
+              title={item.confirmContent(row)}
+              confirmButtonText="Yes"
+              cancelButtonText="No"
+              hideIcon
+              onConfirm={(e) => {
+                item.onClick(row)
+              }}
+              v-slots={{
+                reference: () => <span class="table-option-btn">{item.text}</span>,
+              }}
+            ></el-popconfirm>
+          )
+        } else {
+          return (
+            <span
+              class="table-option-btn"
+              onClick={(e) => {
+                item.onClick(row)
+              }}
+            >
+              {item.text}
+            </span>
+          )
+        }
       })}
     </div>
   )

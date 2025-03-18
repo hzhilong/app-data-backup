@@ -3,6 +3,7 @@ import { type InstalledSoftware } from '@/models/Software'
 import BaseUtil from '@/utils/base-util'
 import { type MyPluginConfig, type ValidatedPluginConfig } from '@/plugins/plugin-config'
 import { logger } from '@/utils/logger.ts'
+import type { BackupRecord } from '@/models/BackupRecord.ts'
 
 export type DexieTable<T, TKeyPropName extends keyof T = never, TInsertType = InsertType<T, TKeyPropName>> = Table<
   T,
@@ -23,13 +24,15 @@ export const db = new Dexie('appDataBackupDatabase') as Dexie & {
   iconCache: EntityTable<IconCache>
   pluginConfig: EntityTable<ValidatedPluginConfig>
   myConfig: EntityTable<MyPluginConfig>
+  backupRecord: EntityTable<BackupRecord>
 }
 
-db.version(7).stores({
+db.version(8).stores({
   installedSoftware: 'regeditDir, regeditGroupKey,name', // regeditDir作为主键,同时也是复合索引。
   iconCache: 'path',
   pluginConfig: 'id,type,name',
   myConfig: 'id,type,name',
+  backupRecord: '++id,runType,pluginId,pluginName,softInstallDir,cTime',
 })
 
 export type QueryParam<O extends Record<string, any> = Record<string, any>, OVK extends string = never> = {

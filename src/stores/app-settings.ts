@@ -1,12 +1,13 @@
 import { defineStore } from 'pinia'
-import { type Ref, ref } from 'vue'
+import { ref } from 'vue'
 
 export const useAppSettingsStore = defineStore(
   'AppSettings',
   () => {
     const backupRootDir = ref('')
-
-    return { backupRootDir }
+    const confirmBeforeRestore = ref(true)
+    const autoBackupBeforeRestore = ref(true)
+    return { backupRootDir, confirmBeforeRestore, autoBackupBeforeRestore }
   },
   {
     persist: true,

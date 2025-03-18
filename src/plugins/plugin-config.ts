@@ -35,11 +35,10 @@ export interface BackupItemConfig {
  */
 export interface BackupResult {
   /** 备份的配置名 比如【备份设置】 */
-  name: string
   success: boolean
-  message?: string
+  message: string
   error?: CommonError
-  backedUpItems: BackupItem[]
+  backedUpItems?: BackupItem[]
 }
 
 /**
@@ -158,13 +157,6 @@ export function loadPluginConfig(config: Record<string, unknown>, cTime: string)
   } as PluginConfig
 }
 
-export const DEFAULT_ROOT_DIR = '.backup-data'
-/**
- * 获取备份目录
- */
-export const getBackupDir = (softName: string, rootDir: string = DEFAULT_ROOT_DIR) =>
-  `${rootDir}/${softName}/${dayjs().format('YYYY-MM-DD_HH-mm-ss')}/`
-
 /**
  * 已验证过的插件配置
  */
@@ -173,6 +165,8 @@ export interface ValidatedPluginConfig extends PluginConfig {
   softName?: string
   // type为'INSTALLER'需要关联软件的图标
   softBase64Icon?: string
+  softIconPath?: string
+  // 所有类型都需要绑定软件安装路径
   softInstallDir?: string
   // type为'INSTALLER'需要关联软件的注册表位置
   softRegeditDir?: string

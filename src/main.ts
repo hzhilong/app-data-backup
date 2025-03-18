@@ -12,6 +12,7 @@ import '@/assets/scss/element/light-var.css'
 import '@/assets/scss/element/dark-var.css'
 import AppUtil from '@/utils/app-util'
 import ThemeUtil from '@/utils/theme-util.ts'
+import { useBackupRecordsStore } from '@/stores/backup-record.ts'
 
 const app = createApp(App)
 // 挂载到全局属性
@@ -19,13 +20,13 @@ const app = createApp(App)
 
 app.use(ElementPlus, { size: 'small', zIndex: 3000 })
 
-
 async function bootstrapApp() {
   const pinia = createPinia()
   pinia.use(piniaPluginPersistedState)
   app.use(pinia)
 
   await ThemeUtil.initAppTheme()
+  await useBackupRecordsStore().initData()
 
   app.use(router)
   app.config.errorHandler = (err) => {
@@ -37,4 +38,4 @@ async function bootstrapApp() {
   app.mount('#app')
 }
 
-bootstrapApp().then(r => {})
+bootstrapApp().then((r) => {})

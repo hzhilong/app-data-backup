@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import { parseAllInstalledSoftware } from '@/models/Software'
 import SoftwareGraph from '@/components/graph/SoftwareGraph.vue'
 import { RouterUtil } from '@/router/router-util'
-import { parsePluginConfigGroup } from '@/plugins/plugins-util.ts'
+import PluginUtil from '@/plugins/plugin-util.ts'
 import { initTable } from '@/table/table.tsx'
 import { useInstalledSoftwareTable } from '@/table/useInstalledSoftwareTable.tsx'
 import { usePluginConfigTable } from '@/table/usePluginConfigTable.tsx'
@@ -19,7 +19,7 @@ const { refreshDB: refreshInstalledList, tableData: softwareList } = initTable(
 const { refreshDB: refreshPluginList, tableData: pluginList } = initTable(usePluginConfigTable(), loading2)
 
 const allInstalledSoftware = computed(() => parseAllInstalledSoftware(softwareList.value ?? []))
-const pluginConfigGroup = computed(() => parsePluginConfigGroup(pluginList.value ?? []))
+const pluginConfigGroup = computed(() => PluginUtil.parsePluginConfigGroup(pluginList.value ?? []))
 
 const refreshSoftList = async () => {
   await refreshInstalledList()

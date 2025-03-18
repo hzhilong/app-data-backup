@@ -7,7 +7,7 @@ import ThemeUtil from '@/utils/theme-util.ts'
 import { DEFAULT_PRIMARY_COLORS, useAppThemeStore } from '@/stores/app-theme.ts'
 
 const { primaryColor, themeMode } = storeToRefs(useAppThemeStore())
-const { backupRootDir } = storeToRefs(useAppSettingsStore())
+const { backupRootDir, confirmBeforeRestore, autoBackupBeforeRestore } = storeToRefs(useAppSettingsStore())
 
 const chooseBackupRootDir = () => {
   FileUtil.chooseDirectory({ defaultPath: backupRootDir.value, title: '选择备份目录' }).then((res) => {
@@ -17,7 +17,6 @@ const chooseBackupRootDir = () => {
     }
   })
 }
-const value1 = ref(false)
 const dialogSaveTheme = ref(false)
 const autoCancelCountdownDefault = 5
 const autoCancelCountdown = ref(autoCancelCountdownDefault)
@@ -44,7 +43,6 @@ const updatePrimaryColor = () => {
   }, 1000)
 }
 const resetTheme = () => {
-  console.log('resetTheme', oldPrimaryColor)
   selectedPrimaryColor.value = oldPrimaryColor
   ThemeUtil.updatePrimaryColor(oldPrimaryColor)
   dialogSaveTheme.value = false
@@ -69,7 +67,7 @@ const resetTheme = () => {
           <span class="item-label">还原之前确认操作</span>
           <div class="item-right">
             <span class="item-value">
-              <el-switch v-model="value1" />
+              <el-switch v-model="confirmBeforeRestore" />
             </span>
           </div>
         </div>
@@ -77,7 +75,7 @@ const resetTheme = () => {
           <span class="item-label">还原之前自动备份一次</span>
           <div class="item-right">
             <span class="item-value">
-              <el-switch v-model="value1" />
+              <el-switch v-model="autoBackupBeforeRestore" />
             </span>
           </div>
         </div>

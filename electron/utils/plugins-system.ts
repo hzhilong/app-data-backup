@@ -11,8 +11,8 @@ import { Plugin } from './plugins'
 import { Mutex } from 'async-mutex'
 import { InstalledSoftware } from '@/models/Software'
 import BaseUtil from '@/utils/base-util'
-import BrowserWindow = Electron.BrowserWindow
 import { logger } from '@/utils/logger'
+import BrowserWindow = Electron.BrowserWindow
 
 const initMutex = new Mutex()
 let initialized = false
@@ -59,6 +59,7 @@ function initPluginSystem(mainWindow: BrowserWindow) {
       clearOnPluginStop(id)
     }
   })
+  initPlugins().then(r => {})
 }
 
 function getPluginFiles(...paths: string[]): string[] {
@@ -78,7 +79,7 @@ function getPluginFiles(...paths: string[]): string[] {
   return pluginFiles
 }
 
-async function initPlugins(softList: InstalledSoftware[]): Promise<ValidatedPluginConfig[]> {
+async function initPlugins(softList?: InstalledSoftware[]): Promise<ValidatedPluginConfig[]> {
   loadedPluginConfigs.length = 0
   activePlugins.clear()
   abortSignals.clear()
@@ -100,7 +101,9 @@ async function initPlugins(softList: InstalledSoftware[]): Promise<ValidatedPlug
       Object.assign(plugin, config)
       const validatedPluginConfig: ValidatedPluginConfig = {
         ...pluginConfig,
-        ...getValidatedFields(plugin.detect(softList, env)),
+      }
+      if (softList) {
+        Object.assign(validatedPluginConfig, getValidatedFields(plugin.detect(softList, env)))
       }
       activePlugins.set(pluginConfig.id, plugin)
       loadedPluginConfigs.push(validatedPluginConfig)
@@ -110,6 +113,7 @@ async function initPlugins(softList: InstalledSoftware[]): Promise<ValidatedPlug
     }
   }
   initialized = true
+  logger.debug('插件系统加载成功', activePlugins)
   return loadedPluginConfigs
 }
 
@@ -125,6 +129,7 @@ function getValidatedFields(detectResult: InstalledSoftware | string | undefined
     return {
       softName: detectResult.name,
       softBase64Icon: detectResult.base64Icon,
+      softIconPath: detectResult.iconPath,
       softInstallDir: detectResult.installDir,
       softRegeditDir: detectResult.regeditDir,
     }
@@ -145,6 +150,7 @@ function clearOnPluginStop(pluginOrId: Plugin | string) {
 async function execPlugin(id: string, options: PluginOptions, mainWindow: Electron.BrowserWindow) {
   const plugin = activePlugins.get(id)
   if (!plugin) {
+    logger.debug('插件id错误', id, activePlugins)
     throw new CommonError('插件id错误')
   }
   const abortController = new AbortController()

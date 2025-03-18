@@ -148,7 +148,6 @@ export class Plugin implements PluginConfig {
       const backupConfig = this.backupConfigs[i]
       progress(`${i + 1}/${configLength} 开始备份软件配置[${backupConfig.name}]`, successCount)
       const result: BackupResult = {
-        name: backupConfig.name,
         success: true,
         message: '操作成功',
         backedUpItems: [],
@@ -157,7 +156,7 @@ export class Plugin implements PluginConfig {
         this.handleSignal(signal)
         try {
           const itemResult: BackupItem = await this.operateData(options, env, item, progress, successCount, signal)
-          result.backedUpItems.push(itemResult)
+          result.backedUpItems!.push(itemResult)
           successCount++
         } catch (e) {
           result.error = BaseUtil.convertToCommonError(e)

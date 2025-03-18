@@ -32,9 +32,9 @@ export function getMenus():MenuItem[] {
       viewPath: '/my-plugins',
     },
     {
-      text: '数据备份',
+      text: '备份记录',
       iconClass: 'icon-app',
-      viewPath: '/backup',
+      viewPath: '/backup-records',
     },
     {
       text: '数据还原',

@@ -96,7 +96,7 @@ export default {
 
     ipcMain.handle(IPC_CHANNELS.CREATE_BACKUP_DIR, () => {
       return execBusiness(async () => {
-        let dir = path.join(app.getAppPath(), '.backup-data')
+        let dir = path.join(app.getAppPath(), import.meta.env.APP_DEFAULT_ROOT_DIR)
         if (!fs.existsSync(dir)) {
           let ret = fs.mkdirSync(dir)
           console.log('Creating backup directory', dir, ret)

@@ -12,6 +12,7 @@ import { AppSessionStore } from '@/stores/app-session.ts'
 import { storeToRefs } from 'pinia'
 import { RouterUtil } from '@/router/router-util.ts'
 import type { IDType } from 'dexie'
+import BackupUtil from '@/utils/backup-util.ts'
 
 const queryParams = {
   id: {
@@ -140,6 +141,7 @@ export function useMyPluginConfigTable() {
             text: '备份',
             onClick: () => {
               console.log(`备份：${row.name}`)
+              BackupUtil.backupData('manual', [row]).then(r => {})
             },
           })
         }

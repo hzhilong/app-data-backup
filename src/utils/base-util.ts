@@ -47,3 +47,12 @@ export default class BaseUtil {
     return dayjs(date).format('HH:mm:ss')
   }
 }
+
+// 防抖函数
+export function debounce(fn: (...args: any[]) => void, delay: number) {
+  let timer: number
+  return (...args: any[]) => {
+    clearTimeout(timer)
+    timer = setTimeout(() => fn(...args), delay)
+  }
+}

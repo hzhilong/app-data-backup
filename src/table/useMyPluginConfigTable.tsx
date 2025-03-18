@@ -35,7 +35,7 @@ export function useMyPluginConfigTable() {
     return maxWindow.value ? 140 : 90
   })
   const tableColumns = [
-    { label: '配置', prop: 'id', minWidth: '80', showOverflowTooltip: true, sortable: true },
+    { label: '配置', fixed: true, prop: 'id', minWidth: '80', showOverflowTooltip: true, sortable: true },
     {
       label: '类型',
       prop: 'type',
@@ -104,13 +104,7 @@ export function useMyPluginConfigTable() {
           if (row.softInstallDir) {
             return (
               <div
-                style={{
-                  color: 'blue',
-                  display: 'flex',
-                  alignItems: 'center',
-                  whiteSpace: 'nowrap',
-                  cursor: 'pointer',
-                }}
+                class='bind-soft'
                 onClick={() => {
                   RouterUtil.gotoSoft({ name: row.softName })
                 }}

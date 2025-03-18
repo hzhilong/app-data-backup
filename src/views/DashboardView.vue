@@ -27,7 +27,7 @@ const refreshSoftList = async () => {
 </script>
 
 <template>
-  <div class="dashboard-container" v-loading.fullscreen.lock="loading1 || loading2" :element-loading-text="loadingText">
+  <div class="page-content dashboard-container" v-loading.fullscreen.lock="loading1 || loading2" :element-loading-text="loadingText">
     <div class="content-wrapper installed-cards">
       <div class="header">
         <div class="title" @click="RouterUtil.gotoSoft({})">已安装的软件({{ softwareList?.length ?? 0 }})</div>

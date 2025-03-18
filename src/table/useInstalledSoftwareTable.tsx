@@ -38,6 +38,7 @@ export function useInstalledSoftwareTable(isExtendData: boolean = true) {
       prop: 'iconPath',
       width: '50',
       align: 'center',
+      fixed: true,
       formatter: (row: DataType): VNode | string => {
         return <img src={row.base64Icon ? row.base64Icon : defaultIcon} class="soft-icon" alt="" />
       },

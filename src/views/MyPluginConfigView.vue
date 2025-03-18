@@ -6,7 +6,7 @@ import { RouterUtil } from '@/router/router-util.ts'
 const { tableData, tableColumns, queryParams, loading, searchData, refreshData } = initTable(useMyPluginConfigTable())
 </script>
 <template>
-  <div class="content-wrapper">
+  <div class="page-content">
     <div class="header">
       <div class="header-left">
         <div class="search-item">

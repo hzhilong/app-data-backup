@@ -1,5 +1,5 @@
-@use "../global" as *;
-@use "../table-page" as *;
+@use '@/assets/scss/global' as *;
+@use '@/assets/scss/table-page' as *;
 
 .table-wrapper{
   :deep(.soft-icon) {

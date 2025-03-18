@@ -98,6 +98,8 @@ export default ({ mode }: { mode: string }) => {
         scss: {
           // 全局引入,但webstorm好像不识别,算了,手动在home.scss引入
           // additionalData: '@import "@/assets/scss/global.scss";',
+          // 覆盖 element-plus的变量
+          // additionalData: `@use "@/assets/scss/element.scss" as *;`,
         },
       },
     },

@@ -2,7 +2,6 @@
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import { computed, ref } from 'vue'
 import { getMenus, type MenuItem } from '@/router/menus.ts'
-import { ThemeColorStore } from '@/stores/theme-color.ts'
 import AppUtil from '@/utils/app-util.ts'
 import { AppSessionStore } from '@/stores/app-session.ts'
 import { RouterUtil } from '@/router/router-util.ts'
@@ -35,12 +34,11 @@ const switchWindowMax = () => {
   AppUtil.maxApp()
 }
 
-ThemeColorStore().initThemeColor()
 </script>
 
 <template>
-  <el-container class="app-container">
-    <el-aside class="left-side">
+  <div class="home-container">
+    <div class="left-side">
       <div class="app-infos">
         <div class="app-title">
           <div class="app-logo"></div>
@@ -59,8 +57,8 @@ ThemeColorStore().initThemeColor()
           <span>{{ menu.text }}</span>
         </el-menu-item>
       </el-menu>
-    </el-aside>
-    <el-container class="right-side">
+    </div>
+    <div class="right-side">
       <div class="top-bar">
         <div class="top-bar-btns">
           <span class="btn iconfont icon-min" @click="AppUtil.minApp()"></span>
@@ -68,17 +66,17 @@ ThemeColorStore().initThemeColor()
           <span class="btn iconfont icon-close" @click="AppUtil.exitApp()"></span>
         </div>
       </div>
-      <el-main class="content-wrapper">
-        <div class="content">
+      <div class="page-wrapper">
+        <div class="page">
           <router-view v-slot="{ Component }">
             <keep-alive>
               <component :is="Component" />
             </keep-alive>
           </router-view>
         </div>
-      </el-main>
-    </el-container>
-  </el-container>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style scoped lang="scss">

@@ -1,0 +1,73 @@
+:root {
+  color-scheme: light;
+  --app-foreground-color: #000000;
+  --app-background-color: #FFFFFF;
+  --app-primary-color: #6284DF;
+
+  --el-color-primary: var(--app-primary-color);
+  --el-color-primary-light-1: color-mix(in srgb, #6284DF 90%, #FFFFFF);
+  --el-color-primary-light-2: color-mix(in srgb, #6284DF 80%, #FFFFFF);
+  --el-color-primary-light-3: color-mix(in srgb, #6284DF 70%, #FFFFFF);
+  --el-color-primary-light-4: color-mix(in srgb, #6284DF 60%, #FFFFFF);
+  --el-color-primary-light-5: color-mix(in srgb, #6284DF 50%, #FFFFFF);
+  --el-color-primary-light-6: color-mix(in srgb, #6284DF 40%, #FFFFFF);
+  --el-color-primary-light-7: color-mix(in srgb, #6284DF 30%, #FFFFFF);
+  --el-color-primary-light-8: color-mix(in srgb, #6284DF 20%, #FFFFFF);
+  --el-color-primary-light-9: color-mix(in srgb, #6284DF 10%, #FFFFFF);
+
+  --el-color-primary-dark-1: color-mix(in srgb, #6284DF 90%, #000000);
+  --el-color-primary-dark-2: color-mix(in srgb, #6284DF 80%, #000000);
+  --el-color-primary-dark-3: color-mix(in srgb, #6284DF 70%, #000000);
+  --el-color-primary-dark-4: color-mix(in srgb, #6284DF 60%, #000000);
+  --el-color-primary-dark-5: color-mix(in srgb, #6284DF 50%, #000000);
+  --el-color-primary-dark-6: color-mix(in srgb, #6284DF 40%, #000000);
+  --el-color-primary-dark-7: color-mix(in srgb, #6284DF 30%, #000000);
+  --el-color-primary-dark-8: color-mix(in srgb, #6284DF 20%, #000000);
+  --el-color-primary-dark-9: color-mix(in srgb, #6284DF 10%, #000000);
+
+  --el-bg-color: #FFFFFF;
+  --el-bg-color-page: color-mix(in srgb, #FFFFFF 95%, #000000);
+  --el-bg-color-overlay: #FFFFFF;
+
+  --el-text-color-primary: color-mix(in srgb, #FFFFFF 19%, #000000);
+  --el-text-color-regular: color-mix(in srgb, #FFFFFF 38%, #000000);
+  --el-text-color-secondary: color-mix(in srgb, #FFFFFF 56%, #000000);
+  --el-text-color-placeholder: color-mix(in srgb, #FFFFFF 75%, #000000);
+  --el-text-color-disabled: color-mix(in srgb, #000000 24%, #FFFFFF);
+
+  --el-border-color: color-mix(in srgb, #FFFFFF 87%, #000000);
+  --el-border-color-light: color-mix(in srgb, #FFFFFF 91%, #000000);
+  --el-border-color-lighter: color-mix(in srgb, #FFFFFF 93%, #000000);
+  --el-border-color-extra-light: color-mix(in srgb, #FFFFFF 95%, #000000);
+  --el-border-color-dark: color-mix(in srgb, #000000 83.1%, #FFFFFF);
+  --el-border-color-darker: color-mix(in srgb, #000000 80.4%, #FFFFFF);
+
+  --el-fill-color: color-mix(in srgb, #FFFFFF 95%, #000000);
+  --el-fill-color-light: color-mix(in srgb, #FFFFFF 97%, #000000);
+  --el-fill-color-lighter: color-mix(in srgb, #FFFFFF 98%, #000000);
+  --el-fill-color-extra-light: color-mix(in srgb, #FFFFFF 99%, #000000);
+  --el-fill-color-dark: color-mix(in srgb, #000000, #FFFFFF 93%);
+  --el-fill-color-darker: color-mix(in srgb, #000000, #FFFFFF 91%);
+  --el-fill-color-blank: color-mix(in srgb, #000000, #FFFFFF 100%);
+
+  --el-box-shadow: 0px 6px 16px 2px rgba(0, 0, 0, .04), 0px 4px 10px rgba(0, 0, 0, .08);
+  --el-box-shadow-light: 0px 0px 6px rgba(0, 0, 0, .12);
+  --el-box-shadow-lighter: 0px 0px 3px rgba(0, 0, 0, .12);
+  --el-box-shadow-dark: 0px 8px 24px 8px rgba(0, 0, 0, .08), 0px 6px 16px rgba(0, 0, 0, .12), 0px 4px 8px -4px rgba(0, 0, 0, .16);
+
+  --el-disabled-bg-color: var(--el-fill-color-light);
+  --el-disabled-text-color: var(--el-text-color-placeholder);
+  --el-disabled-border-color: var(--el-border-color-light);
+
+  --el-overlay-color: rgba(0, 0, 0, .8);
+  --el-overlay-color-light: rgba(0, 0, 0, .7);
+  --el-overlay-color-lighter: rgba(0, 0, 0, .5);
+  --el-mask-color: rgba(255, 255, 255, .9);
+  --el-mask-color-extra-light: rgba(255, 255, 255, .3);
+
+  --el-border-width: 1px;
+  --el-border-style: solid;
+  --el-border-color-hover: var(--el-text-color-disabled);
+  --el-border: var(--el-border-width) var(--el-border-style) var(--el-border-color);
+  --el-svg-monochrome-grey: var(--el-border-color);
+}

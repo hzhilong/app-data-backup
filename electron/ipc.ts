@@ -6,6 +6,7 @@ import { SoftwareRegeditGroupKey } from '@/models/Software'
 import BrowserWindow = Electron.BrowserWindow
 import WinUtil from './utils/win-util'
 import { getIconBase64, getInstalledSoftware } from './utils/software-util'
+import { nativeTheme } from 'electron'
 
 if (process.env.NODE_ENV === 'development') {
   setExternalVBSLocation(path.join(__dirname, '../node_modules/regedit/vbs'))
@@ -75,5 +76,8 @@ export default {
       return WinUtil.copyFile(src, des)
     })
 
+    ipcMain.handle(IPC_CHANNELS.SHOULD_USE_DARK_COLORS, () => {
+      return nativeTheme.shouldUseDarkColors
+    })
   },
 }

@@ -5,7 +5,7 @@ import { initTable } from '@/table/table.tsx'
 const { tableData, tableColumns, queryParams, loading, searchData, refreshDB } = initTable(usePluginConfigTable())
 </script>
 <template>
-  <div class="content-wrapper">
+  <div class="page-content">
     <div class="header">
       <div class="header-left">
         <div class="search-item">

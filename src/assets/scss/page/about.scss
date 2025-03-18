@@ -1,4 +1,4 @@
-@use "../global" as *;
+@use '@/assets/scss/global' as *;
 
 .about {
   width: 100%;
@@ -41,7 +41,8 @@
     cursor: pointer;
 
     &:hover {
-      background: $app-color-bg-hover;
+      color: $app-background-color;
+      background: $app-color-primary-light-5;
     }
   }
 
@@ -60,7 +61,7 @@
       border-radius: 4px;
 
       &:hover {
-        background: $app-color-bg-hover;
+        background: $app-color-primary-light-7;
       }
 
       .title {
@@ -71,6 +72,10 @@
       .desc {
         white-space: pre-wrap;
 
+        .url{
+          cursor: pointer;
+          color: $app-color-primary;
+        }
       }
 
     }

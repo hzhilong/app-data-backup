@@ -1,0 +1,47 @@
+html.dark {
+    color-scheme: dark;
+    --app-foreground-color: #FFFFFF;
+    --app-background-color: #000000;
+    --app-primary-color: #6284DF;
+
+    --el-color-primary: var(--app-primary-color);
+    --el-color-primary-light-1: color-mix(in srgb, #6284DF 90%, #000000);
+    --el-color-primary-light-2: color-mix(in srgb, #6284DF 80%, #000000);
+    --el-color-primary-light-3: color-mix(in srgb, #6284DF 70%, #000000);
+    --el-color-primary-light-4: color-mix(in srgb, #6284DF 60%, #000000);
+    --el-color-primary-light-5: color-mix(in srgb, #6284DF 50%, #000000);
+    --el-color-primary-light-6: color-mix(in srgb, #6284DF 40%, #000000);
+    --el-color-primary-light-7: color-mix(in srgb, #6284DF 30%, #000000);
+    --el-color-primary-light-8: color-mix(in srgb, #6284DF 20%, #000000);
+    --el-color-primary-light-9: color-mix(in srgb, #6284DF 10%, #000000);
+
+    --el-color-primary-dark-1: color-mix(in srgb, #6284DF 90%, #FFFFFF);
+    --el-color-primary-dark-2: color-mix(in srgb, #6284DF 80%, #FFFFFF);
+    --el-color-primary-dark-3: color-mix(in srgb, #6284DF 70%, #FFFFFF);
+    --el-color-primary-dark-4: color-mix(in srgb, #6284DF 60%, #FFFFFF);
+    --el-color-primary-dark-5: color-mix(in srgb, #6284DF 50%, #FFFFFF);
+    --el-color-primary-dark-6: color-mix(in srgb, #6284DF 40%, #FFFFFF);
+    --el-color-primary-dark-7: color-mix(in srgb, #6284DF 30%, #FFFFFF);
+    --el-color-primary-dark-8: color-mix(in srgb, #6284DF 20%, #FFFFFF);
+    --el-color-primary-dark-9: color-mix(in srgb, #6284DF 10%, #FFFFFF);
+
+    --el-bg-color: #2B2B2B;
+    --el-bg-color-page: #3C3F41;
+    --el-bg-color-overlay: #3C3F41;
+
+    --el-box-shadow: 0px 12px 32px 4px rgba(255, 255, 255, .02), 0px 8px 20px rgba(255, 255, 255, .04);
+    --el-box-shadow-light: 0px 0px 12px rgba(255, 255, 255, .06);
+    --el-box-shadow-lighter: 0px 0px 6px rgba(255, 255, 255, .06);
+    --el-box-shadow-dark: 0px 16px 48px 16px rgba(255, 255, 255, .04), 0px 12px 32px rgba(255, 255, 255, .06), 0px 8px 16px -8px rgba(255, 255, 255, .08);
+
+    --el-fill-color-darker: #424243;
+    --el-fill-color-dark: #39393A;
+    --el-fill-color: #303030;
+    --el-fill-color-light: #262727;
+    --el-fill-color-lighter: #212121;
+    --el-fill-color-extra-light: #191919;
+    --el-fill-color-blank: #323232;
+    --el-mask-color: rgba(0, 0, 0, 0.8);
+    --el-mask-color-extra-light: rgba(0, 0, 0, 0.3);
+
+}

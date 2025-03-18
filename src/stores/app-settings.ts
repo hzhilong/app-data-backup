@@ -1,13 +1,14 @@
 import { defineStore } from 'pinia'
+import { ref } from 'vue'
 
-export type AppSettingsState = {
-  backupRootDir?: string
-}
+export const useAppSettingsStore = defineStore(
+  'AppSettings',
+  () => {
+    const backupRootDir = ref('')
 
-export const AppSettingsStore = defineStore('AppSettingsStore', {
-  state: (): AppSettingsState => {
-    return {}
+    return { backupRootDir }
   },
-  actions: {},
-  persist: true,
-})
+  {
+    persist: true,
+  },
+)

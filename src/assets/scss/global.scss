@@ -1,50 +1,81 @@
-// 全局配置
-// 通过 SCSS 变量引用 CSS 变量，方便动态修改
-root {
-  --app-theme-color: 98, 132, 223;
-}
+// 主要颜色
+$app-color-primary: var(--el-color-primary);
+// 前景色
+$app-foreground-color: var(--app-foreground-color);
+// 背景色
+$app-background-color: var(--app-background-color);
 
-$app-theme-color: var(--app-theme-color);
+// 主色的浅色系列
+$app-color-primary-light-1: var(--el-color-primary-light-1);
+$app-color-primary-light-2: var(--el-color-primary-light-2);
+$app-color-primary-light-3: var(--el-color-primary-light-3);
+$app-color-primary-light-4: var(--el-color-primary-light-4);
+$app-color-primary-light-5: var(--el-color-primary-light-5);
+$app-color-primary-light-6: var(--el-color-primary-light-6);
+$app-color-primary-light-7: var(--el-color-primary-light-7);
+$app-color-primary-light-8: var(--el-color-primary-light-8);
+$app-color-primary-light-9: var(--el-color-primary-light-9);
 
-$app-color-primary: rgba($app-theme-color, 1);
-$app-color-bg-hover: rgba($app-theme-color, 0.15);
-$app-color-border: #ebeef5;
-$app-color-border-shadow: #dcdfe6;
-$app-color-border-shadow-hover: #e0dfdf;
-$app-color-background: #F5F7F9;
-$app-color-content-background: #ffffff;
-$app-color-content-color: #0a0a0a;
-$app-color-content-color2: #333333;
-$app-color-content-color3: #666666;
+// 主色的暗色系列
+$app-color-primary-dark-1: var(--el-color-primary-dark-1);
+$app-color-primary-dark-2: var(--el-color-primary-dark-2);
+$app-color-primary-dark-3: var(--el-color-primary-dark-3);
+$app-color-primary-dark-4: var(--el-color-primary-dark-4);
+$app-color-primary-dark-5: var(--el-color-primary-dark-5);
+$app-color-primary-dark-6: var(--el-color-primary-dark-6);
+$app-color-primary-dark-7: var(--el-color-primary-dark-7);
+$app-color-primary-dark-8: var(--el-color-primary-dark-8);
+$app-color-primary-dark-9: var(--el-color-primary-dark-9);
 
-$app-color-list-item-label: #888888;
-$app-color-list-item-content: #333333;
+// 背景色
+$app-bg-color: var(--el-bg-color);
+$app-bg-color-page: var(--el-bg-color-page);
+$app-bg-color-overlay: var(--el-bg-color-overlay);
 
-// 文本按钮
-$app-color-btn-text: #FFFFFF;
-$app-color-btn-text-hover: #FFFFFF;
-$app-color-btn-bg: rgba($app-theme-color, 1);
-$app-color-btn-bg-hover: rgba($app-theme-color, 0.7);
+// 文本颜色
+$app-text-color-primary: var(--el-text-color-primary);
+$app-text-color-regular: var(--el-text-color-regular);
+$app-text-color-secondary: var(--el-text-color-secondary);
+$app-text-color-placeholder: var(--el-text-color-placeholder);
+$app-text-color-disabled: var(--el-text-color-disabled);
 
-// 图标按钮
-$app-color-icon-btn: $app-color-primary;
-$app-color-icon-btn-bg: $app-color-bg-hover;
+// 边框颜色
+$app-border-color: var(--el-border-color);
+$app-border-color-light: var(--el-border-color-light);
+$app-border-color-lighter: var(--el-border-color-lighter);
+$app-border-color-extra-light: var(--el-border-color-extra-light);
+$app-border-color-dark: var(--el-border-color-dark);
+$app-border-color-darker: var(--el-border-color-darker);
 
-// 表格操作按钮
-$app-color-option-btn: $app-color-primary;
-$app-color-option-btn-hover-bg: $app-color-bg-hover;
+// 填充颜色
+$app-fill-color: var(--el-fill-color);
+$app-fill-color-light: var(--el-fill-color-light);
+$app-fill-color-lighter: var(--el-fill-color-lighter);
+$app-fill-color-extra-light: var(--el-fill-color-extra-light);
+$app-fill-color-dark: var(--el-fill-color-dark);
+$app-fill-color-darker: var(--el-fill-color-darker);
+$app-fill-color-blank: var(--el-fill-color-blank);
 
-// 表格标签
-$app-color-table-tag: $app-color-primary;
-$app-color-table-tag-bg: rgba($app-theme-color, 0.15);
-$app-color-table-tag-border: rgba($app-theme-color, 0.5);
-$app-color-table-tag-hover: $app-color-primary;
-$app-color-table-tag-bg-hover: rgba($app-theme-color, 0.3);
+// 阴影
+$app-box-shadow: var(--el-box-shadow);
+$app-box-shadow-light: var(--el-box-shadow-light);
+$app-box-shadow-lighter: var(--el-box-shadow-lighter);
+$app-box-shadow-dark: var(--el-box-shadow-dark);
+
+// 禁用颜色
+$app-disabled-bg-color: var(--el-disabled-bg-color);
+$app-disabled-text-color: var(--el-disabled-text-color);
+$app-disabled-border-color: var(--el-disabled-border-color);
 
 $app-top-bar-height: var(--app-top-bar-height, 30px);
 $app-left-side-width: var(--app-left-side-width, 170px);
 $app-main-content-margin: var(--app-main-content-margin, 0px 6px 6px 0px);
 $app-main-content-padding: var(--app-main-content-padding, 10px);
+
+// 主色文本
+:deep(.primary-color-text) {
+  color: $app-color-primary;
+}
 
 @keyframes rotate {
   0% {
@@ -55,9 +86,8 @@ $app-main-content-padding: var(--app-main-content-padding, 10px);
   }
 }
 
-
 .icon-btn {
-  color: $app-color-icon-btn;
+  color: $app-color-primary;
   cursor: pointer;
   width: 18px;
   height: 18px;
@@ -67,7 +97,7 @@ $app-main-content-padding: var(--app-main-content-padding, 10px);
   border-radius: 50%;
 
   &:hover {
-    background: $app-color-icon-btn-bg;
+    background: $app-color-primary-light-8;
 
     &.t-rotate {
       animation: rotate 3s linear infinite;
@@ -75,15 +105,7 @@ $app-main-content-padding: var(--app-main-content-padding, 10px);
   }
 }
 
-.app-btn-primary, :deep(.el-button--primary) {
-  background-color: $app-color-btn-bg;
-  border-color: $app-color-btn-bg;
-  color: $app-color-btn-text;
-
-  &:hover {
-    background-color: $app-color-btn-bg-hover;
-    border-color: $app-color-btn-bg-hover;
-    color: $app-color-btn-text-hover;
-    outline: none;
-  }
+:deep(.el-button) {
+  // 解决文本没有垂直居中的问题
+  line-height: normal;
 }

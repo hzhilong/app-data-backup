@@ -1,4 +1,4 @@
-@use "../global" as *;
+@use '@/assets/scss/global' as *;
 
 .dashboard-container {
   width: 100%;
@@ -8,9 +8,11 @@
   z-index: 0;
 
   .content-wrapper {
+    width: 100%;
     font-size: 14px;
     padding: 10px;
     margin-bottom: 10px;
+    box-sizing: border-box;
 
     .header {
       display: flex;
@@ -18,7 +20,7 @@
       margin-bottom: 20px;
 
       .title {
-        color: $app-color-content-color;
+        color: $app-text-color-regular;
         display: inline-block;
         font-size: 16px;
         padding: 2px 4px;
@@ -42,7 +44,7 @@
         }
 
         &:hover {
-          color: $app-color-content-background;
+          color: #FFFFFF;
 
           &:before {
             height: 100%;
@@ -60,7 +62,6 @@
 
   $content-x-gap: 20px;
   $content-y-gap: 20px;
-  //$card-width: calc((100% - $content-x-gap) / 3);
   $card-width: calc((100% - $content-x-gap) / 3);
   $card-min-width: 180px;
   $card-max-width: 300px;
@@ -81,7 +82,7 @@
     gap: $content-y-gap 0;
   }
 
-  .card-container{
+  .card-container {
     width: $card-width;
     min-width: $card-min-width;
     max-width: $card-max-width;
@@ -95,22 +96,21 @@
     padding: $card-padding;
     cursor: pointer;
     box-sizing: border-box;
-
-    background-color: $app-color-content-background;
-    border: 1px solid $app-color-border-shadow;
+    color: $app-text-color-regular;
+    background-color: $app-fill-color-blank;
+    border: 1px solid $app-border-color;
     border-radius: 8px;
-    box-shadow: 0 4px 6px $app-color-border-shadow;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 
     &.has-transition:hover {
       transform: translateY(-5px);
-      box-shadow: 0 6px 12px $app-color-border-shadow-hover;
+      box-shadow: $app-box-shadow;
     }
 
     .card-name {
       margin: 0;
       font-size: 1em;
-      color: $app-color-content-color2;
+      color: $app-text-color-primary;
     }
 
     .card-info {
@@ -119,10 +119,9 @@
 
       .info-item {
         margin: 5px 0;
-        color: $app-color-content-color3;
 
         &.has-transition:hover {
-          background: $app-color-bg-hover;
+          background: $app-color-primary-light-5;
         }
 
         .proportion-chart {
@@ -163,13 +162,13 @@
     display: flex;
     align-items: center;
     padding: 0;
-    background: $app-color-bg-hover;
+    background: $app-border-color-light;
     margin: 6px 0;
 
     .value {
       height: 100%;
       display: inline-block;
-      color: $app-color-content-background;
+      color: $app-bg-color-page;
       min-width: 1em;
       background: $app-color-primary;
       text-align: center;
@@ -177,4 +176,10 @@
   }
 
 
+}
+
+html.dark .dashboard-container {
+  .card {
+    //box-shadow: unset;
+  }
 }

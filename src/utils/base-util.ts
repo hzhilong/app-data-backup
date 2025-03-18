@@ -50,7 +50,7 @@ export default class BaseUtil {
 
 // 防抖函数
 export function debounce(fn: (...args: any[]) => void, delay: number) {
-  let timer: number
+  let timer: undefined | ReturnType<typeof setTimeout>
   return (...args: any[]) => {
     clearTimeout(timer)
     timer = setTimeout(() => fn(...args), delay)

@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import { RouterView, useRoute, useRouter } from 'vue-router'
-import { computed, ref } from 'vue'
+import { RouterView, useRoute } from 'vue-router'
+import { computed, onMounted, ref } from 'vue'
 import { getMenus, type MenuItem } from '@/router/menus.ts'
 import AppUtil from '@/utils/app-util.ts'
 import { AppSessionStore } from '@/stores/app-session.ts'
 import { RouterUtil } from '@/router/router-util.ts'
+import { useAppSettingsStore } from '@/stores/app-settings.ts'
+import { IPC_CHANNELS } from '@/models/IpcChannels.ts'
+import { storeToRefs } from 'pinia'
+import { BuResult } from '@/models/BuResult.ts'
+import { logger } from '@/utils/logger.ts'
 
 const route = useRoute()
 
@@ -34,6 +39,15 @@ const switchWindowMax = () => {
   AppUtil.maxApp()
 }
 
+const { backupRootDir } = storeToRefs(useAppSettingsStore())
+onMounted(async () => {
+  if (!backupRootDir.value) {
+    BuResult.getPromise(await window.electronAPI?.ipcInvoke(IPC_CHANNELS.CREATE_BACKUP_DIR) as BuResult<string>).then((r) => {
+      logger.debug('创建默认备份目录', r)
+      backupRootDir.value = r
+    })
+  }
+})
 </script>
 
 <template>
@@ -69,7 +83,7 @@ const switchWindowMax = () => {
       <div class="page-wrapper">
         <div class="page">
           <router-view v-slot="{ Component }">
-            <keep-alive>
+            <keep-alive exclude="SettingView">
               <component :is="Component" />
             </keep-alive>
           </router-view>

@@ -220,7 +220,7 @@ export function createOptionList<T>(row: T, list: TableOptionBtn<T>[]) {
               confirmButtonText="Yes"
               cancelButtonText="No"
               hideIcon
-              onConfirm={(e) => {
+              onConfirm={() => {
                 item.onClick(row)
               }}
               v-slots={{

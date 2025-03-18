@@ -3,8 +3,11 @@ import { exec } from 'child_process'
 import fs from 'fs'
 import { promisified as regedit, type RegistryItem } from 'regedit'
 import path from 'node:path'
-import { shell } from 'electron'
+import { dialog, shell } from 'electron'
 import { logger } from '@/utils/logger'
+import BrowserWindow = Electron.BrowserWindow
+import OpenDialogOptions = Electron.OpenDialogOptions
+import { BuResult } from '@/models/BuResult'
 
 interface ExecCmdOptions {
   codeIsSuccess: (number: number) => boolean
@@ -175,4 +178,5 @@ export default class WinUtil {
     }
     return env
   }
+
 }

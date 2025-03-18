@@ -1,3 +1,7 @@
+html{
+  transition: background-color unset;
+}
+
 // 主要颜色
 $app-color-primary: var(--el-color-primary);
 // 前景色

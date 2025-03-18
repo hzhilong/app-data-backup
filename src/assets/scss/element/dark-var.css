@@ -34,14 +34,14 @@ html.dark {
     --el-box-shadow-lighter: 0px 0px 6px rgba(255, 255, 255, .06);
     --el-box-shadow-dark: 0px 16px 48px 16px rgba(255, 255, 255, .04), 0px 12px 32px rgba(255, 255, 255, .06), 0px 8px 16px -8px rgba(255, 255, 255, .08);
 
-    --el-fill-color-darker: #424243;
-    --el-fill-color-dark: #39393A;
-    --el-fill-color: #303030;
-    --el-fill-color-light: #262727;
-    --el-fill-color-lighter: #212121;
-    --el-fill-color-extra-light: #191919;
-    --el-fill-color-blank: #323232;
-    --el-mask-color: rgba(0, 0, 0, 0.8);
-    --el-mask-color-extra-light: rgba(0, 0, 0, 0.3);
+    /*--el-fill-color-darker: #424243;*/
+    /*--el-fill-color-dark: #39393A;*/
+    /*--el-fill-color: #303030;*/
+    /*--el-fill-color-light: #262727;*/
+    /*--el-fill-color-lighter: #212121;*/
+    /*--el-fill-color-extra-light: #191919;*/
+    /*--el-fill-color-blank: #323232;*/
+    /*--el-mask-color: rgba(0, 0, 0, 0.8);*/
+    /*--el-mask-color-extra-light: rgba(0, 0, 0, 0.3);*/
 
 }

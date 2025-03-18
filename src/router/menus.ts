@@ -44,7 +44,7 @@ export function getMenus():MenuItem[] {
     {
       text: '任务进度',
       iconClass: 'icon-setting',
-      viewPath: '/settings',
+      viewPath: '/settings2',
     },
     {
       text: '设置',

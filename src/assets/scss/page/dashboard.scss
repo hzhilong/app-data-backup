@@ -5,6 +5,9 @@
   height: 100%;
   user-select: none;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
   z-index: 0;
 
   .content-wrapper {

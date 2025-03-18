@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { type Ref, ref } from 'vue'
 
 export const useAppSettingsStore = defineStore(
   'AppSettings',

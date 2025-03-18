@@ -2,7 +2,16 @@ import { defineStore } from 'pinia'
 import type { AppThemeMode } from '@/utils/theme-util.ts'
 import { logger } from '@/utils/logger.ts'
 
-const defaultPrimaryColors = ['#6284DF', '#EE5253', '#FF9F43', '#FECA57', '#20A820', '#1DD1A1', '#00AEEC', '#FB7299']
+export const DEFAULT_PRIMARY_COLORS = [
+  '#6284DF',
+  '#EE5253',
+  '#FF9F43',
+  '#FECA57',
+  '#079307',
+  '#21AB86',
+  '#00AEEC',
+  '#FB7299',
+]
 
 export type AppThemeState = {
   // 当前使用的默认主题下标
@@ -19,7 +28,7 @@ export const useAppThemeStore = defineStore('AppThemeStore', {
   state: () => {
     return {
       currPrimaryColorIndex: 0,
-      primaryColor: defaultPrimaryColors[0],
+      primaryColor: DEFAULT_PRIMARY_COLORS[0],
       themeMode: 'light',
       dark: false,
     } as AppThemeState
@@ -27,8 +36,8 @@ export const useAppThemeStore = defineStore('AppThemeStore', {
   getters: {},
   actions: {
     switchThemeColor() {
-      this.currPrimaryColorIndex = (this.currPrimaryColorIndex+1) % defaultPrimaryColors.length
-      const newColor = defaultPrimaryColors[this.currPrimaryColorIndex]
+      this.currPrimaryColorIndex = (this.currPrimaryColorIndex + 1) % DEFAULT_PRIMARY_COLORS.length
+      const newColor = DEFAULT_PRIMARY_COLORS[this.currPrimaryColorIndex]
       logger.debug(`SwitchThemeColor`, this.currPrimaryColorIndex, newColor)
       return this.setPrimaryColor(newColor)
     },

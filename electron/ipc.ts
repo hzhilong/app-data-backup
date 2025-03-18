@@ -1,12 +1,14 @@
-import { ipcMain, shell } from 'electron'
+import { app, dialog, ipcMain, nativeTheme, shell } from 'electron'
 import { setExternalVBSLocation } from 'regedit'
 import path from 'node:path'
 import { IPC_CHANNELS } from '@/models/IpcChannels'
 import { SoftwareRegeditGroupKey } from '@/models/Software'
-import BrowserWindow = Electron.BrowserWindow
 import WinUtil from './utils/win-util'
 import { getIconBase64, getInstalledSoftware } from './utils/software-util'
-import { nativeTheme } from 'electron'
+import { execBusiness } from '@/models/BuResult'
+import BrowserWindow = Electron.BrowserWindow
+import OpenDialogOptions = Electron.OpenDialogOptions
+import fs from 'fs'
 
 if (process.env.NODE_ENV === 'development') {
   setExternalVBSLocation(path.join(__dirname, '../node_modules/regedit/vbs'))
@@ -78,6 +80,29 @@ export default {
 
     ipcMain.handle(IPC_CHANNELS.SHOULD_USE_DARK_COLORS, () => {
       return nativeTheme.shouldUseDarkColors
+    })
+
+    ipcMain.handle(
+      IPC_CHANNELS.SHOW_OPEN_DIALOG,
+      (_event, options: OpenDialogOptions, defaultCurrDir: boolean = true) => {
+        return execBusiness(async () => {
+          if (!options.defaultPath && defaultCurrDir) {
+            options.defaultPath = app.getAppPath()
+          }
+          return dialog.showOpenDialog(options)
+        })
+      },
+    )
+
+    ipcMain.handle(IPC_CHANNELS.CREATE_BACKUP_DIR, () => {
+      return execBusiness(async () => {
+        let dir = path.join(app.getAppPath(), '.backup-data')
+        if (!fs.existsSync(dir)) {
+          let ret = fs.mkdirSync(dir)
+          console.log('Creating backup directory', dir, ret)
+        }
+        return dir
+      })
     })
   },
 }

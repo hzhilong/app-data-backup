@@ -5,3 +5,11 @@ export class CommonError {
     this.message = message
   }
 }
+
+export class AbortedError extends CommonError {
+
+  constructor() {
+    super('操作已取消')
+  }
+
+}

@@ -12,6 +12,7 @@ import { CommonError } from '@/models/CommonError'
 import { BuResult } from '@/models/BuResult'
 
 export default class PluginUtil {
+  // 执行插件
   static async execPlugin(
     validatedPluginConfig: ValidatedPluginConfig,
     execType: 'backup' | 'restore',

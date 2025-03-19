@@ -1,5 +1,5 @@
 // 插件接口定义
-import { CommonError } from '@/models/CommonError'
+import { AbortedError } from '@/models/CommonError'
 import { formatSize, type InstalledSoftware } from '@/models/Software'
 import BaseUtil from '@/utils/base-util'
 import {
@@ -8,13 +8,12 @@ import {
   type BackupItemConfig,
   BackupPluginTypeKey,
   type BackupResult,
-  loadPluginConfig,
   PluginConfig,
   type PluginOptions,
   type TaskMonitor
 } from '@/plugins/plugin-config'
 import WinUtil from './win-util'
-import { logger } from '@/utils/logger'
+import path from 'path'
 
 /** 插件 */
 export class Plugin implements PluginConfig {
@@ -96,7 +95,7 @@ export class Plugin implements PluginConfig {
    * @param env
    */
   public detectByInstallLocationDir(list: InstalledSoftware[]) {
-    for (let soft of list) {
+    for (const soft of list) {
       if (new RegExp(`[/\\\\]${this.name}\$`).test(soft.installLocation)) {
         return soft
       }
@@ -107,15 +106,6 @@ export class Plugin implements PluginConfig {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public supportableVersion(version: string): boolean {
     return true
-  }
-
-  /**
-   * 处理中止信号
-   */
-  protected handleSignal(signal?: AbortSignal): void {
-    if (signal?.aborted) {
-      throw new CommonError('备份操作已被取消')
-    }
   }
 
   /**
@@ -140,34 +130,45 @@ export class Plugin implements PluginConfig {
   ): Promise<BackupResult[]> {
     const progress: (log: string, curr: number) => void = this.buildMonitorProgressFn(monitor)
 
-    let successCount = 0
-    progress(`开始备份软件【${this.name}】`, successCount)
+    let processedCount = 0
+    progress(`开始备份软件【${this.name}】`, processedCount)
     const configLength = this.backupConfigs.length
     const results: BackupResult[] = []
     for (let i = 0; i < configLength; i++) {
       const backupConfig = this.backupConfigs[i]
-      progress(`${i + 1}/${configLength} 开始备份软件配置[${backupConfig.name}]`, successCount)
+      progress(`${i + 1}/${configLength} 开始备份软件配置[${backupConfig.name}]`, processedCount)
       const result: BackupResult = {
         success: true,
         message: '操作成功',
         backedUpItems: [],
       }
       for (const item of backupConfig.items) {
-        this.handleSignal(signal)
         try {
-          const itemResult: BackupItem = await this.operateData(options, env, item, progress, successCount, signal)
+          const itemResult: BackupItem = await this.operateData(options, env, item, progress, processedCount, signal)
           result.backedUpItems!.push(itemResult)
-          successCount++
         } catch (e) {
-          result.error = BaseUtil.convertToCommonError(e)
-          result.message = `备份失败：${result.error.message}`
-          result.success = false
-          break
+          if (e instanceof AbortedError) {
+            progress(e.message, processedCount)
+            results.push({
+              success: false,
+              message: e.message,
+            })
+            return results
+          }
+          if (item.skipIfMissing) {
+            result.message = `已跳过缺失项`
+          } else {
+            result.error = BaseUtil.convertToCommonError(e)
+            result.message = `备份失败：${result.error.message}`
+            result.success = false
+          }
+        } finally {
+          processedCount++
         }
       }
       results.push(result)
     }
-    progress(`软件【${this.name}】备份完成`, successCount)
+    progress(`软件【${this.name}】备份完成`, processedCount)
     return results
   }
 
@@ -179,45 +180,58 @@ export class Plugin implements PluginConfig {
     env: { [key: string]: string | undefined },
     item: BackupItemConfig,
     progress: (log: string, curr: number) => void,
-    curr: number,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    processedCount: number,
     signal?: AbortSignal,
   ): Promise<BackupItem> {
-    const execType = options.execType
-    const [src, des] = [item.sourcePath, item.targetRelativePath]
-
-    progress(`开始处理配置项[${des}]`, curr)
-    let size = -1
-    try {
-      if (item.type === 'registry') {
-        if (execType === 'backup') {
-          size = await WinUtil.exportRegedit(src, options.dataDir + this.resolvePath(des, env, options.installDir))
-        } else {
-          size = await WinUtil.importRegedit(this.resolvePath(src, env, options.installDir), options.dataDir + des)
+    return new Promise(async (resolve, reject) => {
+      // 前置检查：如果 signal 已终止，直接拒绝
+      if (signal?.aborted) {
+        reject(new AbortedError())
+        return
+      }
+      // 监听 signal.abort
+      const abortHandler = () => {
+        reject(new AbortedError())
+      }
+      try {
+        progress(`开始处理配置项[${item.targetRelativePath}]`, processedCount)
+        signal?.addEventListener('abort', abortHandler)
+        const execType = options.execType
+        const [src, des] = [
+          this.resolvePath(item.sourcePath, env, options.installDir),
+          this.resolvePath(item.targetRelativePath, env),
+        ]
+        const filePath = path.join(options.dataDir, des)
+        const operations = {
+          registry: {
+            backup: () => WinUtil.exportRegedit(src, filePath),
+            restore: () => WinUtil.importRegedit(src, filePath),
+          },
+          file: {
+            backup: () => WinUtil.copyFile(src, filePath, signal),
+            restore: () => WinUtil.copyFile(filePath, src, signal),
+          },
         }
-      } else {
-        size = await WinUtil.copyFile(
-          execType === 'backup' ? this.resolvePath(src, env, options.installDir) : options.dataDir + des,
-          execType === 'backup' ? options.dataDir + des : this.resolvePath(src, env, options.installDir),
-        )
-      }
-    } catch (e) {
-      if (!item.skipIfMissing) {
+        const size = await operations[item.type][execType]()
+        resolve({
+          ...item,
+          size,
+          sizeStr: formatSize(size),
+        })
+      } catch (e) {
         throw e
+      } finally {
+        signal?.removeEventListener('abort', abortHandler)
       }
-    }
-    if (size < 0) {
-      throw new CommonError('暂未支持该配置项')
-    }
-    return {
-      size: size,
-      sizeStr: formatSize(size),
-      ...item,
-    }
+    })
   }
 
-  protected resolvePath(path: string, env: { [key: string]: string | undefined }, installDir: string) {
-    return path.replace(/%installDir%/gi, installDir).replace(/%(\w+)%/gi, (_: string, key: string): string => {
+  protected resolvePath(path: string, env: { [key: string]: string | undefined }, installDir?: string) {
+    let newList = path
+    if (installDir) {
+      newList = path.replace(/%installDir%/gi, installDir)
+    }
+    return newList.replace(/%(\w+)%/gi, (_: string, key: string): string => {
       const value = env[key]
       return value !== undefined ? value : `%${key}%`
     })

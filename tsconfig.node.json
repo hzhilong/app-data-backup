@@ -10,21 +10,17 @@
     "nightwatch.conf.*",
     "playwright.config.*",
     "eslint.config.*",
-    "electron/**.ts"
+    "electron/**/*.ts"
   ],
   "compilerOptions": {
+    // 禁止生成编译输出文件（如 .js 或 .d.ts），适用于仅类型检查的场景（如配合 Vite 开发服务器）
     "noEmit": true,
-    // 不生成编译输出文件（仅类型检查）
+    // 指定增量编译信息的存储路径，提升后续编译速度（集中在 node_modules/.tmp 避免污染项目目录）
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
-    // 增量编译信息存储位置
     "module": "ESNext",
-    // 使用 ESM 模块语法
     "moduleResolution": "Bundler",
-    // 模块解析策略（兼容 Vite/Rollup 等打包工具）
-    "types": [
-      "node"
-    ],
-    // 包含 Node.js 类型定义
+    // 显式声明全局类型依赖（仅包含 Node.js 类型定义，避免加载无关的浏览器环境类型）
+    "types": ["node"],
     "paths": {
       "@/*": [
         "./src/*"

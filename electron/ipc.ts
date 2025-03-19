@@ -6,9 +6,10 @@ import { SoftwareRegeditGroupKey } from '@/models/Software'
 import WinUtil from './utils/win-util'
 import { getIconBase64, getInstalledSoftware } from './utils/software-util'
 import { execBusiness } from '@/models/BuResult'
+import fs from 'fs'
+import nLogger from './utils/log4js'
 import BrowserWindow = Electron.BrowserWindow
 import OpenDialogOptions = Electron.OpenDialogOptions
-import fs from 'fs'
 
 if (process.env.NODE_ENV === 'development') {
   setExternalVBSLocation(path.join(__dirname, '../node_modules/regedit/vbs'))
@@ -43,7 +44,9 @@ export default {
     })
 
     ipcMain.handle(IPC_CHANNELS.GET_ICON, (event, iconPath: string) => {
-      return getIconBase64(iconPath)
+      return execBusiness(async () => {
+        await getIconBase64(iconPath)
+      })
     })
 
     ipcMain.handle(IPC_CHANNELS.OPEN_REGEDIT, (event, path: string) => {
@@ -87,7 +90,7 @@ export default {
       (_event, options: OpenDialogOptions, defaultCurrDir: boolean = true) => {
         return execBusiness(async () => {
           if (!options.defaultPath && defaultCurrDir) {
-            options.defaultPath = app.getAppPath()
+            options.defaultPath = path.dirname(app.getPath('exe'))
           }
           return dialog.showOpenDialog(options)
         })
@@ -96,10 +99,11 @@ export default {
 
     ipcMain.handle(IPC_CHANNELS.CREATE_BACKUP_DIR, () => {
       return execBusiness(async () => {
-        let dir = path.join(app.getAppPath(), import.meta.env.APP_DEFAULT_ROOT_DIR)
+        const dir = path.join(path.dirname(app.getPath('exe')), import.meta.env.APP_DEFAULT_ROOT_DIR)
         if (!fs.existsSync(dir)) {
-          let ret = fs.mkdirSync(dir)
-          console.log('Creating backup directory', dir, ret)
+          nLogger.debug('Creating backup directory', dir)
+          const ret = fs.mkdirSync(dir)
+          nLogger.debug('Creating backup directory', ret)
         }
         return dir
       })

@@ -24,6 +24,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@types/log4js": "^0.0.33",
     "@vueuse/rxjs": "^13.0.0",
     "async-mutex": "^0.5.0",
     "consola": "^3.4.0",
@@ -31,6 +32,7 @@
     "dexie": "^4.0.11",
     "element-plus": "^2.9.4",
     "lodash": "^4.17.21",
+    "log4js": "^6.9.1",
     "pinia": "^2.3.1",
     "pinia-plugin-persistedstate": "^4.2.0",
     "regedit": "^5.1.3",
@@ -106,10 +108,23 @@
       "uninstallerIcon": "public/favicon.ico"
     },
     "extends": null,
+    "extraFiles": [
+      {
+        "from": "LICENSE",
+        "to": "."
+      }
+    ],
     "extraResources": [
       {
         "from": "node_modules/regedit/vbs",
         "to": "regedit/vbs",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "public/plugins",
+        "to": "plugins",
         "filter": [
           "**/*"
         ]

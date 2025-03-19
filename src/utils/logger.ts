@@ -1,8 +1,5 @@
 import { consola } from 'consola'
 
-// 根据环境控制日志级别
-const isProd = import.meta.env.PROD
-
 // 配置 consola
 // 可选，让 console.xxx 也受控
 // consola.wrapAll();
@@ -14,7 +11,8 @@ const isProd = import.meta.env.PROD
 // level 3: info、success、ready、start
 // level 4: debug
 // level 5: trace、verbose
-if (isProd) {
+// 根据环境控制日志级别
+if (import.meta.env.APP_LOG_LEVEL === 'info') {
   consola.level = 3
 } else {
   consola.level = 4

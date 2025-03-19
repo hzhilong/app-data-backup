@@ -11,6 +11,7 @@ import path from 'path'
 import { app } from 'electron'
 import os from 'os'
 import { exec } from 'child_process'
+import nLogger from './log4js'
 
 function stripQuotesAndTrim(str: string) {
   return str
@@ -277,15 +278,16 @@ async function getDllIconBase64(dllPath: string): Promise<string> {
   return new Promise((resolve, reject) => {
     try {
       // 生成临时 .ico 文件路径
-      const tempIcoPath = path.join(os.tmpdir(), 'extracted_icon.ico')
+      const tempIcoPath = path.join(app.getPath('temp'), 'extracted_icon.ico')
 
       // PowerShell 脚本
       const script = `
         Add-Type -AssemblyName System.Drawing
-        $icon = [System.Drawing.Icon]::ExtractAssociatedIcon("${dllPath.replace(/\\/g, '\\')}")
-        $icon.ToBitmap().Save("${tempIcoPath.replace(/\\/g, '\\')}")
-        Write-Output "${tempIcoPath.replace(/\\/g, '\\')}"
+        $icon = [System.Drawing.Icon]::ExtractAssociatedIcon("${path.resolve(dllPath)}")
+        $icon.ToBitmap().Save("${path.resolve(tempIcoPath)}")
+        Write-Output "${path.resolve(tempIcoPath)}"
       `
+      nLogger.debug(`正在调用ps脚本创建图标`, script)
       // 调用 PowerShell
       exec(`powershell -Command "${script}"`, (error, stdout, stderr) => {
         if (error) {

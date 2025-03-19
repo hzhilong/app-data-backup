@@ -8,6 +8,7 @@ import {
   parseInstalledSoftwareGroup,
 } from '@/models/Software'
 import { db } from '@/db/db'
+import { BuResult } from '@/models/BuResult.ts'
 
 export default class RegeditUtil {
   static openRegedit(path?: string) {
@@ -33,7 +34,7 @@ export default class RegeditUtil {
         if (first) {
           soft.base64Icon = first.base64
         } else {
-          const base64 = (await window.electronAPI?.ipcInvoke(IPC_CHANNELS.GET_ICON, iconPath)) as string
+          const base64 = ((await window.electronAPI?.ipcInvoke(IPC_CHANNELS.GET_ICON, iconPath)) as BuResult<string>).data
           if (base64) {
             soft.base64Icon = base64
             db.iconCache.put({

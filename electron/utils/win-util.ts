@@ -1,28 +1,41 @@
-// src/utils/dllIconExtractor.ts
 import { exec } from 'child_process'
 import fs from 'fs'
 import { promisified as regedit, type RegistryItem } from 'regedit'
 import path from 'node:path'
-import { dialog, shell } from 'electron'
-import { logger } from '@/utils/logger'
-import BrowserWindow = Electron.BrowserWindow
-import OpenDialogOptions = Electron.OpenDialogOptions
-import { BuResult } from '@/models/BuResult'
+import { shell } from 'electron'
+import nLogger from './log4js'
+import { AbortedError } from '@/models/CommonError'
 
 interface ExecCmdOptions {
   codeIsSuccess: (number: number) => boolean
+  signal?: AbortSignal
 }
 
 export default class WinUtil {
+  /**
+   * 执行命令
+   * @param command
+   * @param options
+   */
   static execCmd(command: string, options?: ExecCmdOptions): Promise<string>
   static execCmd(command: string, options?: ExecCmdOptions, filePath?: string): Promise<number>
   static execCmd(command: string, options?: ExecCmdOptions, filePath?: string): Promise<string | number> {
+    nLogger.debug(`ExecCmd ${command}`, `with ${filePath}`)
     return new Promise((resolve, reject) => {
-      exec(`chcp 65001 && ${command}`, { encoding: 'utf-8' }, (error, stdout, stderr) => {
+      // 前置检查：如果 signal 已终止，直接拒绝
+      if (options?.signal?.aborted) {
+        reject(new AbortedError())
+        return
+      }
+
+      const child = exec(`chcp 65001 && ${command}`, { encoding: 'utf-8' }, (error, stdout, stderr) => {
+        // 清理 abort 监听（如果存在）
+        options?.signal?.removeEventListener('abort', abortHandler)
+
         const exitCode = error ? Number((error as NodeJS.ErrnoException).code ?? 0) : 0
-        logger.debug(`cmd: [${command}](code: ${exitCode}):${stderr}`)
+        nLogger.debug(`cmd: [${command}](code: ${exitCode}):${stderr}`)
         if (options?.codeIsSuccess ? !options.codeIsSuccess(exitCode) : exitCode !== 0) {
-          reject(new Error(`exec cmd failed (code: ${exitCode}): ${stderr || stdout}`))
+          reject(new Error(`Command exec failed (code: ${exitCode}): ${stderr || stdout}`))
         } else {
           if (filePath) {
             resolve(WinUtil.getFileSizeKB(filePath))
@@ -31,9 +44,27 @@ export default class WinUtil {
           }
         }
       })
+      // 定义 abort 处理函数
+      const abortHandler = () => {
+        child.kill('SIGTERM') // 终止进程
+        reject(new AbortedError())
+      }
+      // 注册 abort 监听
+      if (options?.signal) {
+        options.signal.addEventListener('abort', abortHandler)
+      }
+
+      // 可选：进程意外终止处理
+      child.on('close', (code) => {
+        options?.signal?.removeEventListener('abort', abortHandler)
+      })
     })
   }
 
+  /**
+   * 打开资源管理器
+   * @param fileOrDir 定义的目录或文件
+   */
   static openPath(fileOrDir: string): void {
     fileOrDir = path.resolve(fileOrDir)
     if (fs.existsSync(fileOrDir)) {
@@ -45,6 +76,10 @@ export default class WinUtil {
     }
   }
 
+  /**
+   * 打开注册表
+   * @param path 显示的路径
+   */
   static openRegedit(path: string) {
     exec(
       `taskkill /f /im regedit.exe & REG ADD "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Applets\\Regedit" /v "LastKey" /d "${path}" /f & regedit`,
@@ -78,23 +113,42 @@ export default class WinUtil {
     }
   }
 
+  /**
+   * 导出注册表
+   * @param regPath 注册表路径
+   * @param filePath 导出的文件路径
+   */
   static exportRegedit(regPath: string, filePath: string): Promise<number> {
     filePath = path.resolve(filePath)
     this.ensureDirectoryExistence(filePath)
     return this.execCmd(`reg export "${regPath}" "${filePath}"`, undefined, filePath)
   }
 
+  /**
+   * 导入注册表
+   * @param regPath 注册表路径
+   * @param filePath 导入的文件路径
+   */
   static importRegedit(regPath: string, filePath: string): Promise<number> {
     filePath = path.resolve(filePath)
     return this.execCmd(`reg import "${filePath}"`, undefined, filePath)
   }
 
+  /**
+   * 读取json文件
+   * @param filePath 文件路径
+   */
   static readJsonFile<T>(filePath: string): T {
     filePath = path.resolve(filePath)
     const data = fs.readFileSync(filePath, { encoding: 'utf-8' })
     return JSON.parse(data) as T
   }
 
+  /**
+   * 写入json文件
+   * @param filePath 文件路径
+   * @param data 写入的数据
+   */
   static writeJsonFile<T>(filePath: string, data: T): number {
     filePath = path.resolve(filePath)
     this.ensureDirectoryExistence(filePath)
@@ -103,6 +157,10 @@ export default class WinUtil {
     return this.getFileSizeKB(filePath)
   }
 
+  /**
+   * 获取文件/文件夹大小
+   * @param filePath 文件/文件夹路径
+   */
   static getFileSizeKB(filePath: string) {
     if (!fs.existsSync(filePath)) {
       return 0
@@ -114,6 +172,10 @@ export default class WinUtil {
     }
   }
 
+  /**
+   * 同步获取文件夹大小
+   * @param dirPath 文件夹路径
+   */
   static getFolderSizeSync(dirPath: string): number {
     let totalSize = 0
     const stack: string[] = [dirPath]
@@ -147,7 +209,7 @@ export default class WinUtil {
   /**
    * 通用拷贝工具：支持文件或文件夹
    */
-  static copyFile(source: string, destination: string): Promise<number> {
+  static copyFile(source: string, destination: string, signal?: AbortSignal): Promise<number> {
     const src = path.resolve(source)
     const dest = path.resolve(destination)
 
@@ -165,6 +227,7 @@ export default class WinUtil {
         command,
         {
           codeIsSuccess: (number) => number < 8,
+          signal: signal,
         },
         dest,
       )
@@ -178,5 +241,4 @@ export default class WinUtil {
     }
     return env
   }
-
 }

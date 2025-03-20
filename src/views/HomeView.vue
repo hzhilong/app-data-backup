@@ -1,18 +1,11 @@
 <script setup lang="tsx">
 import { RouterView } from 'vue-router'
-import { onMounted, ref } from 'vue'
-import { useAppMenus } from '@/router/menus.ts'
+import { ref } from 'vue'
 import AppUtil from '@/utils/app-util.ts'
 import { AppSessionStore } from '@/stores/app-session.ts'
-import { useAppSettingsStore } from '@/stores/app-settings.ts'
-import { IPC_CHANNELS } from '@/models/IpcChannels.ts'
-import { storeToRefs } from 'pinia'
-import { BuResult } from '@/models/BuResult.ts'
-import { logger } from '@/utils/logger.ts'
-import { ElMenuItem } from 'element-plus'
+import AppMenus from '@/components/AppMenus.vue'
 
 const appTitle = ref(import.meta.env.APP_PRODUCT_NAME as string)
-const { menus, onClickMenu, defaultMenuIndex, setMenuItemRef } = useAppMenus()
 
 const windowMax = ref(false)
 const appSessionStore = AppSessionStore()
@@ -32,23 +25,11 @@ const switchWindowMax = () => {
           {{ appTitle }}
         </div>
       </div>
-      <el-menu class="menus" mode="vertical" :default-active="defaultMenuIndex">
-        <el-menu-item
-          class="menu"
-          :index="menu.viewPath"
-          v-for="menu in menus"
-          :key="menu.text"
-          @click="onClickMenu(menu)"
-          :ref="(el) => setMenuItemRef(el, menu)"
-        >
-          <span class="iconfont" :class="menu.iconClass"></span>
-          <span>{{ menu.text }}</span>
-        </el-menu-item>
-      </el-menu>
+      <AppMenus></AppMenus>
     </div>
     <div class="right-side">
       <div class="top-bar">
-        <div class="top-bar-btns">
+        <div class="top-bar-btn-list">
           <span class="btn iconfont icon-min" @click="AppUtil.minApp()"></span>
           <span class="btn iconfont" :class="windowMax ? 'icon-max2' : 'icon-max'" @click="switchWindowMax"></span>
           <span class="btn iconfont icon-close" @click="AppUtil.exitApp()"></span>

@@ -1,8 +1,8 @@
 // 添加备份任务的动画，类似购物车
 import { emitter } from '@/utils/emitter.ts'
 
-let cartEL = undefined
-let style = undefined
+let cartEL: HTMLElement | undefined = undefined
+let style: HTMLElement | undefined = undefined
 
 export function useAddCartAnimation(cart: HTMLElement) {
   if (cartEL) {
@@ -55,7 +55,7 @@ export function useAddCartAnimation(cart: HTMLElement) {
 }
 
 export function removeAddCartAnimation() {
-  if (cartEL) {
+  if (cartEL && style) {
     document.head.removeChild(style)
     cartEL = undefined
   }

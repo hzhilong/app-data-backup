@@ -1,6 +1,5 @@
 import log4js from 'log4js'
 import path from 'path'
-import { app } from 'electron'
 import { getAppBasePath } from './app-path'
 
 // 定义日志目录路径

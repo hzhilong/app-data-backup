@@ -18,16 +18,14 @@ const appVersion = computed(() => {
 
 const { themeMode } = storeToRefs(useAppThemeStore())
 
+const themeToggleMap: Record<AppThemeMode, AppThemeMode> = {
+  dark: 'light',
+  light: 'dark',
+  system: 'system',
+}
+
 const newThemeMode: Ref<AppThemeMode> = computed(() => {
-  if (themeMode.value === 'dark') {
-    return 'light'
-  } else if (themeMode.value === 'light') {
-    return 'dark'
-  } else if (themeMode.value === 'system') {
-    return 'system'
-  }else {
-    return 'light'
-  }
+  return themeToggleMap[themeMode.value] || 'light'
 })
 </script>
 

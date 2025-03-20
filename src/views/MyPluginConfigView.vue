@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { initTable } from '@/table/table.tsx'
-import { useMyPluginConfigTable } from '@/table/useMyPluginConfigTable.tsx'
+import { useMyPluginConfigTable } from '@/table/MyPluginConfigTable.tsx'
 import { RouterUtil } from '@/router/router-util.ts'
 
 const { tableData, tableColumns, queryParams, loading, searchData, refreshData } = initTable(useMyPluginConfigTable())

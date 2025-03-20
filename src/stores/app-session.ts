@@ -6,6 +6,7 @@ export const AppSessionStore = defineStore('AppSessionStore', {
       initializing: false,
       initialized: false,
       maxWindow: false,
+      runTasking: false
     }
   },
   getters: {
@@ -22,6 +23,9 @@ export const AppSessionStore = defineStore('AppSessionStore', {
     },
     setInitialized(flag: boolean) {
       this.initialized = flag
+    },
+    setRunTasking(flag: boolean) {
+      this.runTasking = flag
     },
   },
   persist: false,

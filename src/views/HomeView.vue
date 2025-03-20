@@ -29,6 +29,7 @@ const switchWindowMax = () => {
     </div>
     <div class="right-side">
       <div class="top-bar">
+
         <div class="top-bar-btn-list">
           <span class="btn iconfont icon-min" @click="AppUtil.minApp()"></span>
           <span class="btn iconfont" :class="windowMax ? 'icon-max2' : 'icon-max'" @click="switchWindowMax"></span>

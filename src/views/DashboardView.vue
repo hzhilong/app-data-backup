@@ -5,8 +5,8 @@ import SoftwareGraph from '@/components/graph/SoftwareGraph.vue'
 import { RouterUtil } from '@/router/router-util'
 import PluginUtil from '@/plugins/plugin-util.ts'
 import { initTable } from '@/table/table.tsx'
-import { useInstalledSoftwareTable } from '@/table/useInstalledSoftwareTable.tsx'
-import { usePluginConfigTable } from '@/table/usePluginConfigTable.tsx'
+import { useInstalledSoftwareTable } from '@/table/InstalledSoftwareTable.tsx'
+import { usePluginConfigTable } from '@/table/PluginConfigTable.tsx'
 
 const loading1 = ref(true)
 const loading2 = ref(true)

@@ -12,9 +12,9 @@ import { AppSessionStore } from '@/stores/app-session.ts'
 import { storeToRefs } from 'pinia'
 import { RouterUtil } from '@/router/router-util.ts'
 import type { IDType } from 'dexie'
-import BackupUtil from '@/utils/backup-util.ts'
 import { logger } from '@/utils/logger.ts'
 import { emitter } from '@/utils/emitter.ts'
+import AppUtil from '@/utils/app-util.ts'
 
 const queryParams = {
   id: {
@@ -112,7 +112,7 @@ export function useMyPluginConfigTable() {
                   RouterUtil.gotoSoft({ name: row.softName })
                 }}
               >
-                <img src={row.softBase64Icon ?? defaultIcon} class="soft-icon" alt="" />
+                <img src={row.softBase64Icon || defaultIcon} class="soft-icon" alt="" />
                 {row.softName}
               </div>
             )
@@ -143,6 +143,7 @@ export function useMyPluginConfigTable() {
             text: '备份',
             onClick: (data: MyPluginConfig, e?: MouseEvent) => {
               logger.debug(`备份：${data.name}`, data, e)
+              AppUtil.message('已添加备份任务')
               emitter.emit('exec-backup', {
                 clientX: e!.clientX,
                 clientY: e!.clientY,

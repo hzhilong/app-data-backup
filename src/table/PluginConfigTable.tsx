@@ -114,7 +114,7 @@ export function usePluginConfigTable() {
                   RouterUtil.gotoSoft({ name: row.softName })
                 }}
               >
-                <img src={row.softBase64Icon ?? defaultIcon} class="soft-icon" alt="" />
+                <img src={row.softBase64Icon || defaultIcon} class="soft-icon" alt="" />
                 {row.softName}
               </div>
             )

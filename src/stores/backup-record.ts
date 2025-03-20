@@ -6,6 +6,16 @@ import type { BackupRecord } from '@/models/BackupRecord.ts'
 import { logger } from '@/utils/logger.ts'
 import { cloneDeep } from 'lodash'
 
+/**
+ * 处理初始化的数据
+ * @param list
+ */
+const handleInitData = (list:BackupRecord[])=>{
+  if(!list) return;
+  // 将正在运行的任务设置为已暂停
+
+}
+
 export const useBackupRecordsStore = defineStore(
   'BackupRecordsStore',
   () => {

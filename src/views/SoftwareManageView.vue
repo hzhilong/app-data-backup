@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useInstalledSoftwareTable } from '@/table/useInstalledSoftwareTable.tsx'
+import { useInstalledSoftwareTable } from '@/table/InstalledSoftwareTable.tsx'
 import { initTable } from '@/table/table.tsx'
 import { type InstalledSoftware } from '@/models/Software.ts'
 import { type Ref, ref } from 'vue'

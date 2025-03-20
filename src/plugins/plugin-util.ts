@@ -39,6 +39,7 @@ export default class PluginUtil {
       installDir: validatedPluginConfig.softInstallDir,
       dataDir: backupPath,
     })) as BuResult<BackupResult[]>
+
     // 移除进度监听
     if (progressListener) {
       window.electronAPI?.ipcOff(IPC_CHANNELS.GET_PLUGIN_PROGRESS, progressListener)
@@ -47,17 +48,13 @@ export default class PluginUtil {
   }
 
   static parsePluginConfigGroup(list: PluginConfig[]): BackupPluginGroup {
-    const groupData: BackupPluginGroup = {
-      ...BACKUP_PLUGIN_TYPE,
-    }
+    const groupData: BackupPluginGroup = { ...BACKUP_PLUGIN_TYPE }
     for (const key in groupData) {
-      const type = key as BackupPluginTypeKey
-      groupData[type].list = []
+      groupData[key as BackupPluginTypeKey].list = []
     }
-    list.reduce((group, curr) => {
-      groupData[curr.type].list?.push(curr)
-      return groupData
-    }, groupData)
+
+    list.forEach(curr => groupData[curr.type].list?.push(curr));
+
     return groupData
   }
 }

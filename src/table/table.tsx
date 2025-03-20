@@ -113,6 +113,7 @@ export function initTable<T, Q extends Record<string, QueryParam>>(
     try {
       logger.debug(`[${table.name}] refreshDB s`, queryParams.value)
       loading && (loading.value = true)
+      table.clear()
       setDefaultQueryParams()
       table.bulkPut((await config.initData()) as InsertType<T, never>[])
     } finally {
@@ -122,7 +123,7 @@ export function initTable<T, Q extends Record<string, QueryParam>>(
   }
   const refreshData = async () => {
     setDefaultQueryParams()
-    searchData().then(data => {})
+    searchData().then((data) => {})
   }
   const initRouteQuery = (
     route: RouteLocationNormalizedLoaded<string | symbol> | RouteLocationNormalized,
@@ -205,7 +206,7 @@ export function initTable<T, Q extends Record<string, QueryParam>>(
  */
 export interface TableOptionBtn<T> {
   text: string
-  onClick: (row: T) => void
+  onClick: (row: T, e?: MouseEvent) => void
   confirmContent?: (row: T) => string
 }
 
@@ -220,8 +221,8 @@ export function createOptionList<T>(row: T, list: TableOptionBtn<T>[]) {
               confirmButtonText="Yes"
               cancelButtonText="No"
               hideIcon
-              onConfirm={() => {
-                item.onClick(row)
+              onConfirm={(e: MouseEvent) => {
+                item.onClick(row, e)
               }}
               v-slots={{
                 reference: () => <span class="table-option-btn">{item.text}</span>,
@@ -233,7 +234,7 @@ export function createOptionList<T>(row: T, list: TableOptionBtn<T>[]) {
             <span
               class="table-option-btn"
               onClick={(e) => {
-                item.onClick(row)
+                item.onClick(row, e)
               }}
             >
               {item.text}
@@ -247,7 +248,7 @@ export function createOptionList<T>(row: T, list: TableOptionBtn<T>[]) {
 
 export interface TableTag<T> {
   text: string
-  onClick?: (row: T) => void
+  onClick?: (row: T, e?: MouseEvent) => void
 }
 
 export function createTags<T>(row: T, tags: TableTag<T>[] | string[] | undefined, color?: string) {
@@ -271,9 +272,9 @@ export function createTags<T>(row: T, tags: TableTag<T>[] | string[] | undefined
               type="primary"
               disable-transitions
               style={{ cursor: tag.onClick ? 'pointer' : 'unset' }}
-              onClick={() => {
+              onClick={(e: MouseEvent) => {
                 if (tag.onClick) {
-                  tag.onClick(row)
+                  tag.onClick(row, e)
                 }
               }}
             >

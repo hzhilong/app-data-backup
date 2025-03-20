@@ -207,39 +207,24 @@ export function parseInstalledSoftwareGroup(
   groupKey: SoftwareRegeditGroupKey,
   list?: InstalledSoftware[],
 ): InstalledSoftwareGroup {
-  const totalSize = list
-    ? list.reduce((sum, item) => {
-        if (item.size) {
-          return sum + item.size
-        } else {
-          return sum
-        }
-      }, 0)
-    : 0
+  const totalSize = list ? list.reduce((sum, item) => sum + (item.size ?? 0), 0) : 0;
   return {
     title: SOFTWARE_REGEDIT_GROUP[groupKey].title,
-    list: list ? list : [],
-    totalNumber: list ? list.length : 0,
+    list: list ?? [],
+    totalNumber: list?.length ?? 0,
     totalSize: formatSize(totalSize),
-  }
+  };
 }
 
 export function parseAllInstalledSoftware(list: InstalledSoftware[]): AllInstalledSoftware {
-  type GroupType = {
-    [groupKey in SoftwareRegeditGroupKey]?: InstalledSoftware[]
-  }
-  const groupList: GroupType = {}
-  for (const soft of list) {
-    if (soft.regeditGroupKey in groupList) {
-      groupList[soft.regeditGroupKey]?.push(soft)
-    } else {
-      groupList[soft.regeditGroupKey] = [soft]
-    }
-  }
-  const allInstalledSoftware: AllInstalledSoftware = {} as AllInstalledSoftware
-  for (const key in SOFTWARE_REGEDIT_GROUP) {
-    const groupKey = key as SoftwareRegeditGroupKey
-    allInstalledSoftware[groupKey] = parseInstalledSoftwareGroup(groupKey, groupList[groupKey])
-  }
-  return allInstalledSoftware
+  const groupList = list.reduce((acc, soft) => {
+    (acc[soft.regeditGroupKey] ||= []).push(soft);
+    return acc;
+  }, {} as Record<SoftwareRegeditGroupKey, InstalledSoftware[]>);
+
+  return Object.keys(SOFTWARE_REGEDIT_GROUP).reduce((result, key) => {
+    const groupKey = key as SoftwareRegeditGroupKey;
+    result[groupKey] = parseInstalledSoftwareGroup(groupKey, groupList[groupKey]);
+    return result;
+  }, {} as AllInstalledSoftware);
 }

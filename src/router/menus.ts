@@ -1,5 +1,9 @@
 import AppUtil from '@/utils/app-util.ts'
-import type { Ref } from 'vue'
+import { computed, ref } from 'vue'
+import { RouterUtil } from '@/router/router-util.ts'
+import { useRoute } from 'vue-router'
+import { ElMenuItem } from 'element-plus'
+import { useAddCartAnimation } from '@/components/animation/AddCartAnimation.ts'
 
 export interface MenuItem {
   text: string
@@ -9,8 +13,7 @@ export interface MenuItem {
   onclick?: () => void
 }
 
-export function getMenus():MenuItem[] {
-  return [
+const APP_MENUS:MenuItem[] =[
     {
       text: '首页',
       iconClass: 'icon-dashboard',
@@ -65,4 +68,35 @@ export function getMenus():MenuItem[] {
       },
     },
   ]
+
+
+export function useAppMenus(){
+  const route = useRoute()
+  const menus = ref(APP_MENUS)
+  // 根据路由判断默认显示的菜单下标
+  const defaultMenuIndex = computed(() => {
+    // 当前页面所属菜单
+    const matchedItem = menus.value.find((item: MenuItem) => item.viewPath === route.path)
+    return matchedItem ? matchedItem.viewPath : menus.value[0].viewPath
+  })
+  // 菜单点击事件
+  const onClickMenu = (menu: MenuItem): void => {
+    if (menu.onclick) {
+      menu.onclick()
+    } else {
+      RouterUtil.gotoPage(menu.viewPath)
+    }
+  }
+  const setMenuItemRef = (el: InstanceType<typeof ElMenuItem> | null, menu: MenuItem) => {
+    if (menu.text === '备份记录' && el) {
+      // 使用添加备份任务时的动画
+      useAddCartAnimation(el.$el)
+    }
+  }
+  return {
+    menus,
+    defaultMenuIndex,
+    onClickMenu,
+    setMenuItemRef
+  }
 }

@@ -11,7 +11,6 @@ const { backupRootDir, confirmBeforeRestore, autoBackupBeforeRestore } = storeTo
 
 const chooseBackupRootDir = () => {
   FileUtil.chooseDirectory({ defaultPath: backupRootDir.value, title: '选择备份目录' }).then((res) => {
-    console.log(res)
     if (res.filePaths?.length > 0) {
       backupRootDir.value = res.filePaths[0]
     }

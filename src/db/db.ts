@@ -81,52 +81,45 @@ export class DBUtil {
     if (!queryParams) {
       return table.toArray()
     }
-    return new Promise<Array<T>>((resolve, reject) => {
-      let query: DexieQuery<T> = table
-      const eqObj: Record<string, unknown> = {}
-      const likeObj: Record<string, unknown> = {}
-      if (queryParams) {
-        for (const key in queryParams) {
-          const queryParam = queryParams[key]
-          if (queryParam.value) {
-            if (queryParam.connector === 'eq') {
-              eqObj[key] = queryParam.value
-            } else if (queryParam.connector === 'like') {
-              likeObj[key] = queryParam.value
-            }
+    let query: DexieQuery<T> = table
+    const eqObj: Record<string, unknown> = {}
+    const likeObj: Record<string, unknown> = {}
+    if (queryParams) {
+      for (const key in queryParams) {
+        const queryParam = queryParams[key]
+        if (queryParam.value) {
+          if (queryParam.connector === 'eq') {
+            eqObj[key] = queryParam.value
+          } else if (queryParam.connector === 'like') {
+            likeObj[key] = queryParam.value
           }
         }
       }
-      if (Object.keys(eqObj).length > 0) {
-        query = query.where(eqObj)
-      }
-      if (Object.keys(likeObj).length > 0) {
-        query = query.filter((item) => {
-          for (const key in likeObj) {
-            const obj = item as Record<string, unknown>
-            if (!obj[key] || !(obj[key] as string).toLowerCase().includes((<string>likeObj[key]).toLowerCase())) {
-              return false
-            }
+    }
+    if (Object.keys(eqObj).length > 0) {
+      query = query.where(eqObj)
+    }
+    if (Object.keys(likeObj).length > 0) {
+      query = query.filter((item) => {
+        for (const key in likeObj) {
+          const obj = item as Record<string, unknown>
+          if (!obj[key] || !(obj[key] as string).toLowerCase().includes((<string>likeObj[key]).toLowerCase())) {
+            return false
           }
-          return true
-        })
-      }
-      query
-        .toArray()
-        .then((results) => {
-          resolve(results)
-        })
-        .catch((reason) => {
-          reject(reason)
-        })
-    })
+        }
+        return true
+      })
+    }
+    return query.toArray()
   }
 
   static reset<T, Key extends keyof T>(table: EntityTable<T, Key>, list: readonly T[]) {
-    table.clear()
-    if (!list) return
-    table.bulkAdd(list).catch((e) => {
-      throw BaseUtil.convertToCommonError(e, '写入数据库失败：')
+    return db.transaction('rw', table, () => {
+      table.clear()
+      if (!list) return
+      table.bulkAdd(list).catch((e) => {
+        throw BaseUtil.convertToCommonError(e, '写入数据库失败：')
+      })
     })
   }
 }

@@ -16,6 +16,7 @@ import { logger } from '@/utils/logger.ts'
 import { cloneDeep } from 'lodash'
 import { BuResult } from '@/models/BuResult.ts'
 import { IPC_CHANNELS } from '@/models/IpcChannels.ts'
+import BaseUtil from '@/utils/base-util.ts'
 
 const queryParams = {
   id: {
@@ -108,7 +109,7 @@ export function usePluginConfigTable() {
           if (row.softInstallDir) {
             return (
               <div
-                class='bind-soft'
+                class="bind-soft"
                 onClick={() => {
                   RouterUtil.gotoSoft({ name: row.softName })
                 }}
@@ -134,13 +135,14 @@ export function usePluginConfigTable() {
           list.push({
             text: '备份',
             onClick: () => {
-              console.log(`备份：${row.name}`)
+              logger.debug(`备份：${row.name}`)
             },
           })
           list.push({
             text: '添加到我的配置',
             onClick: () => {
               const data = cloneDeep(row as MyPluginConfig)
+              data.cTime = BaseUtil.getFormatedDateTime()
               logger.debug('添加到我的配置', data)
               db.myConfig
                 .bulkPut([data])

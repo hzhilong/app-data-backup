@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import type { ComputedRef } from 'vue'
 
 type DataType = any
 

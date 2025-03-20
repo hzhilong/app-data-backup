@@ -13,6 +13,8 @@ import { storeToRefs } from 'pinia'
 import { RouterUtil } from '@/router/router-util.ts'
 import type { IDType } from 'dexie'
 import BackupUtil from '@/utils/backup-util.ts'
+import { logger } from '@/utils/logger.ts'
+import { emitter } from '@/utils/emitter.ts'
 
 const queryParams = {
   id: {
@@ -105,7 +107,7 @@ export function useMyPluginConfigTable() {
           if (row.softInstallDir) {
             return (
               <div
-                class='bind-soft'
+                class="bind-soft"
                 onClick={() => {
                   RouterUtil.gotoSoft({ name: row.softName })
                 }}
@@ -139,9 +141,13 @@ export function useMyPluginConfigTable() {
         if (row.type === 'INSTALLER') {
           list.push({
             text: '备份',
-            onClick: () => {
-              console.log(`备份：${row.name}`)
-              BackupUtil.backupData('manual', [row]).then(r => {})
+            onClick: (data: MyPluginConfig, e?: MouseEvent) => {
+              logger.debug(`备份：${data.name}`, data, e)
+              emitter.emit('exec-backup', {
+                clientX: e!.clientX,
+                clientY: e!.clientY,
+              })
+              // BackupUtil.backupData('manual', [data]).then((r) => {})
             },
           })
         }

@@ -10,6 +10,7 @@ import fs from 'fs'
 import nLogger from './utils/log4js'
 import BrowserWindow = Electron.BrowserWindow
 import OpenDialogOptions = Electron.OpenDialogOptions
+import { getAppBasePath } from './utils/app-path'
 
 if (process.env.NODE_ENV === 'development') {
   setExternalVBSLocation(path.join(__dirname, '../node_modules/regedit/vbs'))
@@ -90,7 +91,7 @@ export default {
       (_event, options: OpenDialogOptions, defaultCurrDir: boolean = true) => {
         return execBusiness(async () => {
           if (!options.defaultPath && defaultCurrDir) {
-            options.defaultPath = path.dirname(app.getPath('exe'))
+            options.defaultPath = getAppBasePath()
           }
           return dialog.showOpenDialog(options)
         })
@@ -99,11 +100,10 @@ export default {
 
     ipcMain.handle(IPC_CHANNELS.CREATE_BACKUP_DIR, () => {
       return execBusiness(async () => {
-        const dir = path.join(path.dirname(app.getPath('exe')), import.meta.env.APP_DEFAULT_ROOT_DIR)
+        const dir = path.join(getAppBasePath(), import.meta.env.APP_DEFAULT_BACKUP_DIR)
         if (!fs.existsSync(dir)) {
-          nLogger.debug('Creating backup directory', dir)
           const ret = fs.mkdirSync(dir)
-          nLogger.debug('Creating backup directory', ret)
+          nLogger.debug('Create backup directory', dir, ret)
         }
         return dir
       })

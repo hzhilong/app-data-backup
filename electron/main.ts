@@ -8,6 +8,7 @@ import path from 'node:path'
 // import os from 'node:os'
 import IPC from './ipc'
 import { initPluginSystem } from './utils/plugins-system'
+import * as os from 'node:os'
 
 // APP目录
 const rootPath = path.join(__dirname, '../')
@@ -21,9 +22,9 @@ const devServerUrl = process.env.VITE_DEV_SERVER_URL
 const publicPath = devServerUrl ? path.join(rootPath, 'public') : rendererDist
 
 // 禁用 Windows 7 的 GPU 加速
-// if (os.release().startsWith('6.1')){
+if (os.release().startsWith('6.1')){
 app.disableHardwareAcceleration()
-// }
+}
 
 // 设置 Windows 10+ 通知的应用程序名称
 if (process.platform === 'win32') app.setAppUserModelId(app.getName())

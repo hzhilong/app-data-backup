@@ -13,6 +13,7 @@ import { InstalledSoftware } from '@/models/Software'
 import BaseUtil from '@/utils/base-util'
 import nLogger from './log4js'
 import BrowserWindow = Electron.BrowserWindow
+import { getAppBasePath } from './app-path'
 
 // 初始化互斥锁
 const initMutex = new Mutex()
@@ -76,10 +77,12 @@ function initPluginSystem(mainWindow: BrowserWindow) {
 
 // 获取插件文件
 function getPluginFiles(...paths: string[]): string[] {
+  nLogger.info(`准备加载插件目录`, paths)
   const pluginFiles = []
   const rootDir = process.env.VITE_DEV_SERVER_URL ? 'dist/' : 'resources/'
+  const rootPath = path.join(getAppBasePath(), rootDir)
   for (const item of paths) {
-    const pluginsDir = path.join(path.dirname(app.getPath('exe')), rootDir, item)
+    const pluginsDir = path.join(rootPath, item)
     nLogger.info(`正在加载插件目录 ${pluginsDir}`)
     if (fs.existsSync(pluginsDir)) {
       pluginFiles.push(
@@ -127,9 +130,9 @@ async function initPlugins(softList?: InstalledSoftware[]): Promise<ValidatedPlu
       }
       activePlugins.set(pluginConfig.id, plugin)
       loadedPluginConfigs.push(validatedPluginConfig)
-      console.log(`插件加载成功: ${config.id}`)
+      nLogger.info(`插件加载成功: ${config.id}`)
     } catch (error) {
-      console.error(`加载插件 ${path.basename(filePath, '.js')} 失败:`, error)
+      nLogger.error(`加载插件 ${path.basename(filePath, '.js')} 失败:`, error)
     }
   }
   initialized = true
@@ -178,7 +181,7 @@ async function execPlugin(id: string, options: PluginOptions, mainWindow: Electr
   const abortController = new AbortController()
   abortSignals.set(id, abortController)
 
-  nLogger.info(`开始执行插件[${id}]：${options}`)
+  nLogger.info(`开始执行插件[${id}]`, options)
   const backupResults = await plugin.execPlugin(
     options,
     WinUtil.getEnv(),
@@ -191,7 +194,7 @@ async function execPlugin(id: string, options: PluginOptions, mainWindow: Electr
     },
     abortController.signal,
   )
-  nLogger.info(`插件[${id}]执行完成：${backupResults}`)
+  nLogger.info(`插件[${id}]执行完成`, backupResults)
   clearOnPluginStop(id)
   return backupResults
 }

@@ -61,7 +61,14 @@
       }
 
       .item-label {
+        padding: 0 4px;
+        border-radius: 4px;
+      }
 
+      &:hover{
+        .item-label{
+          background: $app-color-primary-light-7;
+        }
       }
 
       .item-right {

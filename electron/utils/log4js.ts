@@ -1,20 +1,28 @@
 import log4js from 'log4js'
 import path from 'path'
 import { app } from 'electron'
+import { getAppBasePath } from './app-path'
 
 // 定义日志目录路径
-const LOG_DIR = path.join(path.dirname(app.getPath('exe')), '/logs')
+const LOG_DIR = path.join(getAppBasePath(), '/logs')
 
 log4js.configure({
   appenders: {
-    everything: {
+    console: { type: 'stdout' },
+    all: {
       type: 'dateFile',
-      filename: path.join(LOG_DIR, 'app-logs.log'),
+      filename: path.join(LOG_DIR, 'all-logs.log'),
+      compress: true,
+    },
+    error: {
+      type: 'dateFile',
+      filename: path.join(LOG_DIR, 'error-logs.log'),
       compress: true,
     },
   },
   categories: {
-    default: { appenders: ['everything'], level: import.meta.env.APP_LOG_LEVEL },
+    default: { appenders: ['all', 'console'], level: import.meta.env.APP_LOG_LEVEL },
+    error: { appenders: ['error'], level: 'error' },
   },
 })
 

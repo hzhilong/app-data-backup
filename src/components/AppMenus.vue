@@ -5,7 +5,6 @@ import { computed, onMounted, ref } from 'vue'
 import { RouterUtil } from '@/router/router-util'
 import { ElMenuItem } from 'element-plus'
 import { useStartTaskAnimation } from '@/components/animation/task-animation'
-import { logger } from '@/utils/logger'
 
 export interface AppMenuItem {
   text: string
@@ -39,12 +38,12 @@ const APP_MENUS: AppMenuItem[] = [
   {
     text: '备份任务',
     iconClass: 'icon-app',
-    viewPath: '/backup-records',
+    viewPath: '/backup-tasks',
   },
   {
     text: '还原任务',
     iconClass: 'icon-app',
-    viewPath: '/backup-records2',
+    viewPath: '/restore-tasks',
   },
   {
     text: '任务进度',

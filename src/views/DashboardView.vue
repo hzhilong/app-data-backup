@@ -7,6 +7,8 @@ import PluginUtil from '@/plugins/plugin-util'
 import { initTable } from '@/table/table'
 import { useInstalledSoftwareTable } from '@/table/installed-software-table'
 import { usePluginConfigTable } from '@/table/plugin-config-table'
+import { useBackupTasksStore } from '@/stores/backup-task'
+import { storeToRefs } from 'pinia'
 
 const loading1 = ref(true)
 const loading2 = ref(true)
@@ -20,6 +22,14 @@ const { refreshDB: refreshPluginList, tableData: pluginList } = initTable(usePlu
 
 const allInstalledSoftware = computed(() => parseAllInstalledSoftware(softwareList.value ?? []))
 const pluginConfigGroup = computed(() => PluginUtil.parsePluginConfigGroup(pluginList.value ?? []))
+const { backupTasks } = storeToRefs(useBackupTasksStore())
+const backupTaskInfo = computed(() => {
+  return {
+    totalCount: backupTasks.value.length,
+    successCount: backupTasks.value.filter((task) => task.success).length,
+    recentCTime: backupTasks.value.length > 0 ? backupTasks.value[0].cTime : 0,
+  }
+})
 
 const refreshSoftList = async () => {
   await refreshInstalledList()
@@ -27,7 +37,11 @@ const refreshSoftList = async () => {
 </script>
 
 <template>
-  <div class="page-content dashboard-container" v-loading.fullscreen.lock="loading1 || loading2" :element-loading-text="loadingText">
+  <div
+    class="page-content dashboard-container"
+    v-loading.fullscreen.lock="loading1 || loading2"
+    :element-loading-text="loadingText"
+  >
     <div class="content-wrapper installed-cards">
       <div class="header">
         <div class="title" @click="RouterUtil.gotoSoft({})">已安装的软件({{ softwareList?.length ?? 0 }})</div>
@@ -84,7 +98,19 @@ const refreshSoftList = async () => {
           <div class="header">
             <div class="title">已备份的数据</div>
           </div>
-          <div class="card"></div>
+          <div class="card">
+            <div class="card-info">
+              <div class="info-item">
+                已备份次数：<span class="value">{{ backupTaskInfo.totalCount }}</span>
+              </div>
+              <div class="info-item">
+                成功备份次数：<span class="value">{{ backupTaskInfo.successCount }}</span>
+              </div>
+              <div class="info-item">
+                最近备份日期：<span class="value">{{ backupTaskInfo.recentCTime }}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

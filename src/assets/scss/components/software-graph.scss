@@ -15,6 +15,7 @@
     background-size: 68%;
     background-color: $app-fill-color-blank;
     transition: transform 0.3s ease-in 0s;
+    cursor: pointer;
 
     &:hover {
       z-index: 1;

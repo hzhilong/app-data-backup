@@ -31,9 +31,9 @@ const router = createRouter({
           component: () => import('../views/MyPluginConfigView.vue'),
         },
         {
-          path: '/backup-records',
-          name: 'backup-records',
-          component: () => import('../views/BackupRecordView.vue'),
+          path: '/backup-tasks',
+          name: 'backup-tasks',
+          component: () => import('../views/BackupTaskView.vue'),
         },
         {
           path: '/settings',

@@ -12,18 +12,18 @@ import PluginUtil from '@/plugins/plugin-util'
 import { cloneDeep } from 'lodash'
 import { useRestoreTasksStore } from '@/stores/restore-task'
 
-function getCurrDateTime() {
-  return dayjs().format('YYYY-MM-DD_HH-mm-ss')
+function getFileDateName(data?: Date) {
+  return dayjs(data).format('YYYY-MM-DD_HH-mm-ss')
 }
 
 /**
  * 获取备份目录
  */
-const getBackupDir = (rootPath: string, softName: string, cTime?: string) => {
-  if (cTime) {
-    return `${rootPath}/${softName}/${cTime}/`
+const getBackupDir = (rootPath: string, softName: string, configId: string, fileDateName?: string) => {
+  if (fileDateName) {
+    return `${rootPath}/${softName}/${configId}_${fileDateName}/`
   } else {
-    return `${rootPath}/${softName}/${getCurrDateTime()}/`
+    return `${rootPath}/${softName}/${configId}_${getFileDateName()}/`
   }
 }
 
@@ -33,11 +33,12 @@ const getBackupDir = (rootPath: string, softName: string, cTime?: string) => {
 interface BuildTaskDataOptions {
   runType: TaskRunType
   execType: PluginExecType
-  configWithoutIcon: Omit<ValidatedPluginConfig, 'softBase64Icon'>
+  configWithoutIcon?: Omit<ValidatedPluginConfig, 'softBase64Icon'>
   backupPath: string
   success?: boolean
   cTime: string
   message: string
+  backupTask?: PluginExecTask
 }
 
 /**
@@ -45,30 +46,63 @@ interface BuildTaskDataOptions {
  * @param options 选项
  */
 const buildTask = (options: BuildTaskDataOptions): PluginExecTask => {
-  const taskResults = options.configWithoutIcon.backupConfigs.map((config) => {
+  if (!options.backupTask) {
+    if (!options.configWithoutIcon) {
+      throw new CommonError('内部错误，缺少 configWithoutIcon')
+    }
+    // 备份
+    const taskResults = options.configWithoutIcon.backupConfigs.map((config) => {
+      return {
+        configName: config.name,
+        configItems: config.items.map((item) => ({ ...item, finished: false }) as TaskItemResult),
+      } satisfies TaskResult
+    })
     return {
-      configName: config.name,
-      configItems: config.items.map((item) => ({ ...item, finished: false }) as TaskItemResult),
-    } satisfies TaskResult
-  })
-  return {
-    id: BaseUtil.generateId(),
-    runType: options.runType,
-    state: options.success === false ? 'finished' : 'pending',
-    pluginExecType: options.execType,
-    success: options.success,
-    message: options.message,
-    taskResults: taskResults,
-    backupPath: options.backupPath,
-    currProgress: 0,
-    totalProgress: options.configWithoutIcon.totalItemNum,
-    progressText: '',
-    cTime: options.cTime,
-    pluginType: options.configWithoutIcon.type,
-    pluginId: options.configWithoutIcon.id,
-    pluginName: options.configWithoutIcon.name,
-    softInstallDir: options.configWithoutIcon.softInstallDir,
-  } satisfies PluginExecTask
+      id: BaseUtil.generateId(),
+      runType: options.runType,
+      state: options.success === false ? 'finished' : 'pending',
+      pluginExecType: options.execType,
+      success: options.success,
+      message: options.message,
+      taskResults: taskResults,
+      backupPath: options.backupPath,
+      currProgress: 0,
+      totalProgress: options.configWithoutIcon.totalItemNum,
+      progressText: '',
+      cTime: options.cTime,
+      pluginType: options.configWithoutIcon.type,
+      pluginId: options.configWithoutIcon.id,
+      pluginName: options.configWithoutIcon.name,
+      softInstallDir: options.configWithoutIcon.softInstallDir,
+    } satisfies PluginExecTask
+  } else {
+    // 还原
+    const taskResults = cloneDeep(options.backupTask.taskResults)
+    taskResults.forEach((result) => {
+      result.configItems.map((item) => {
+        const { success, message, error, size, sizeStr, skipped, meta, ...restFields } = item
+        return restFields
+      })
+    })
+    return {
+      id: BaseUtil.generateId(),
+      runType: options.runType,
+      state: options.success === false ? 'finished' : 'pending',
+      pluginExecType: options.execType,
+      success: options.success,
+      message: options.message,
+      taskResults: taskResults,
+      backupPath: options.backupPath,
+      currProgress: 0,
+      totalProgress: options.backupTask.totalProgress,
+      progressText: '',
+      cTime: options.cTime,
+      pluginType: options.backupTask.pluginType,
+      pluginId: options.backupTask.pluginId,
+      pluginName: options.backupTask.pluginName,
+      softInstallDir: options.backupTask.softInstallDir,
+    } satisfies PluginExecTask
+  }
 }
 
 /**
@@ -152,7 +186,9 @@ export default class BackupUtil {
     const rootPath = useAppSettingsStore().backupRootDir
     // 已有的插件任务
     const { backupTasks } = storeToRefs(useBackupTasksStore())
-    const cTime = getCurrDateTime()
+    const date = new Date()
+    const cTime = BaseUtil.getFormatedDateTime(date)
+    const fileDateName = getFileDateName(date)
     const currTasks: Reactive<PluginExecTask[]> = reactive([])
 
     // 任务执行完成的监听
@@ -164,12 +200,12 @@ export default class BackupUtil {
     for (const pluginConfig of pluginConfigs) {
       const { softBase64Icon, ...configWithoutIcon } = pluginConfig
       const task: Reactive<PluginExecTask> = reactive(
-        buildFailedTask({
+        buildTask({
           runType,
           execType,
           configWithoutIcon,
           cTime,
-          backupPath: getBackupDir(rootPath, pluginConfig.name, cTime),
+          backupPath: getBackupDir(rootPath, pluginConfig.name, pluginConfig.id, fileDateName),
           message: '任务创建成功，等待执行',
         }),
       )
@@ -179,9 +215,9 @@ export default class BackupUtil {
           onTaskFinishedListener(r)
         }
       })
-      currTasks.push(task)
+      currTasks.unshift(task)
     }
-    backupTasks.value.push(...currTasks)
+    backupTasks.value.unshift(...currTasks)
     return {
       currTasks,
       backupTasks,
@@ -221,9 +257,10 @@ export default class BackupUtil {
 
   /**
    * 开始还原数据
-   * @param backupTask 备份记录
+   * @param runType 任务运行类型 手动/自动
+   * @param backupTasks 备份记录
    */
-  static async restoreBackupData(backupTasks: PluginExecTask[]) {
+  static async restoreBackupData(runType: TaskRunType, backupTasks: PluginExecTask[]) {
     if (!backupTasks || backupTasks.length === 0) {
       throw new CommonError('备份记录为空')
     }
@@ -236,7 +273,8 @@ export default class BackupUtil {
     const execType: PluginExecType = 'restore'
     // 数据保存的路径
     const { restoreTasks } = storeToRefs(useRestoreTasksStore())
-    const cTime = getCurrDateTime()
+    const date = new Date()
+    const cTime = BaseUtil.getFormatedDateTime(date)
     const currTasks: Reactive<PluginExecTask[]> = reactive([])
 
     // 任务执行完成的监听
@@ -246,16 +284,25 @@ export default class BackupUtil {
     }
 
     for (const task of backupTasks) {
-      const refTask: Reactive<PluginExecTask> = reactive(cloneDeep(task))
+      const refTask: Reactive<PluginExecTask> = reactive(
+        buildTask({
+          runType,
+          execType,
+          backupTask: task,
+          cTime,
+          backupPath: task.backupPath,
+          message: '任务创建成功，等待执行',
+        }),
+      )
       // 异步执行任务
       runTask(refTask).then((r) => {
         if (onTaskFinishedListener) {
           onTaskFinishedListener(r)
         }
       })
-      currTasks.push(refTask)
+      currTasks.unshift(refTask)
     }
-    restoreTasks.value.push(...currTasks)
+    restoreTasks.value.unshift(...currTasks)
     return {
       currTasks,
       restoreTasks,

@@ -76,6 +76,8 @@ $app-left-side-width: var(--app-left-side-width, 170px);
 $app-main-content-margin: var(--app-main-content-margin, 0px 6px 6px 0px);
 $app-main-content-padding: var(--app-main-content-padding, 10px);
 
+$app-scrollbar-width: 10px;
+
 // 主色文本
 :deep(.primary-color-text) {
   color: $app-color-primary;

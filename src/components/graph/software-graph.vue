@@ -1,7 +1,7 @@
 <script setup lang="tsx">
 import { type CSSProperties, onMounted, ref, watch } from 'vue'
-import { type InstalledSoftware, SOFTWARE_REGEDIT_GROUP } from '@/models/Software.ts'
-import { RouterUtil } from '@/router/router-util.ts'
+import { type InstalledSoftware, SOFTWARE_REGEDIT_GROUP } from '@/models/software'
+import { RouterUtil } from '@/router/router-util'
 
 const props = defineProps<{
   softwareList?: InstalledSoftware[]

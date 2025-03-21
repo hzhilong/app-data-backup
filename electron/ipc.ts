@@ -1,16 +1,17 @@
-import { app, dialog, ipcMain, nativeTheme, shell } from 'electron'
+import { dialog, ipcMain, nativeTheme, shell } from 'electron'
 import { setExternalVBSLocation } from 'regedit'
 import path from 'node:path'
-import { IPC_CHANNELS } from '@/models/IpcChannels'
-import { SoftwareRegeditGroupKey } from '@/models/Software'
+import { IPC_CHANNELS } from '@/models/ipc-channels'
+import { SoftwareRegeditGroupKey } from '@/models/software'
 import WinUtil from './utils/win-util'
 import { getIconBase64, getInstalledSoftware } from './utils/software-util'
-import { execBusiness } from '@/models/BuResult'
+import { execBusiness } from '@/models/bu-result'
 import fs from 'fs'
 import nLogger from './utils/log4js'
+import { getAppBasePath } from './utils/app-path'
+import { AppLog } from '@/utils/app-log-util'
 import BrowserWindow = Electron.BrowserWindow
 import OpenDialogOptions = Electron.OpenDialogOptions
-import { getAppBasePath } from './utils/app-path'
 
 if (process.env.NODE_ENV === 'development') {
   setExternalVBSLocation(path.join(__dirname, '../node_modules/regedit/vbs'))
@@ -107,6 +108,17 @@ export default {
         }
         return dir
       })
+    })
+
+    ipcMain.handle(IPC_CHANNELS.SAVE_LOG, (event, appLog: AppLog) => {
+      let level = appLog.level
+      if (level === 'error') {
+        nLogger.error(appLog.contents)
+      } else if (level === 'debug') {
+        nLogger.debug(appLog.contents)
+      } else {
+        nLogger.info(appLog.contents)
+      }
     })
   },
 }

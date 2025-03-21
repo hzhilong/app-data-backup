@@ -1,13 +1,13 @@
-import { DBUtil, type DexieTable, type QueryParam, type QueryParams } from '@/db/db.ts'
+import { DBUtil, type DexieTable, type QueryParam, type QueryParams } from '@/db/db'
 import TableColumn from 'element-plus/es/components/table/src/tableColumn'
 import { h, ref, type Ref, watch } from 'vue'
 import { cloneDeep } from 'lodash'
 import { type RouteLocationNormalized, type RouteLocationNormalizedLoaded, useRoute, useRouter } from 'vue-router'
-import { logger } from '@/utils/logger.ts'
+import { logger } from '@/utils/logger'
 import { from, useObservable } from '@vueuse/rxjs'
 import { type InsertType, liveQuery } from 'dexie'
-import BaseUtil from '@/utils/base-util.ts'
-import { CommonError } from '@/models/CommonError.ts'
+import BaseUtil from '@/utils/base-util'
+import { CommonError } from '@/models/common-error'
 
 export interface TableConfig<T, Q extends Record<string, QueryParam> = Record<string, QueryParam>> {
   initData?: () => Promise<T[]>

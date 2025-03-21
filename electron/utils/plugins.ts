@@ -1,19 +1,11 @@
 // 插件接口定义
-import { AbortedError } from '@/models/CommonError'
-import { formatSize, type InstalledSoftware } from '@/models/Software'
+import { AbortedError } from '@/models/common-error'
+import { formatSize, type InstalledSoftware } from '@/models/software'
 import BaseUtil from '@/utils/base-util'
-import {
-  BackupConfig,
-  type BackupItem,
-  type BackupItemConfig,
-  BackupPluginTypeKey,
-  type BackupResult,
-  PluginConfig,
-  type PluginOptions,
-  type TaskMonitor
-} from '@/plugins/plugin-config'
 import WinUtil from './win-util'
 import path from 'path'
+import { BackupConfig, BackupPluginTypeKey, PluginConfig } from '@/plugins/plugin-config'
+import { PluginExecTask, TaskItemResult, TaskMonitor } from '@/plugins/plugin-task'
 
 /** 插件 */
 export class Plugin implements PluginConfig {
@@ -24,14 +16,16 @@ export class Plugin implements PluginConfig {
   totalItemNum: number
   cTime: string
 
-  constructor(config: PluginConfig, cTime: string) {
-    const { id, name, type, backupConfigs, totalItemNum } = config
+  constructor(config: PluginConfig, module: Record<string, unknown>) {
+    const { id, name, type, backupConfigs, totalItemNum, cTime } = config
     this.id = id
     this.name = name
     this.type = type
     this.backupConfigs = backupConfigs
     this.totalItemNum = totalItemNum
-    this.cTime = cTime
+    this.cTime = cTime!
+    // 覆盖插件方法
+    Object.assign(this, module)
   }
 
   /**
@@ -111,7 +105,7 @@ export class Plugin implements PluginConfig {
   /**
    * 构建进度监听函数
    */
-  protected buildMonitorProgressFn(monitor?: TaskMonitor) {
+  protected buildProgressFn(monitor?: TaskMonitor) {
     return (log: string, curr: number) => {
       if (monitor && monitor.progress) {
         monitor.progress(log, curr, this.totalItemNum)
@@ -120,106 +114,154 @@ export class Plugin implements PluginConfig {
   }
 
   /**
+   * 构建子项执行结束监听函数
+   */
+  protected buildOnItemFinishedFn(monitor?: TaskMonitor) {
+    return (configName: string, configItemResult: TaskItemResult) => {
+      if (monitor && monitor.onItemFinished) {
+        monitor.onItemFinished(configName, configItemResult)
+      }
+    }
+  }
+
+  /**
    * 执行插件
    */
   public async execPlugin(
-    options: PluginOptions,
+    task: PluginExecTask,
     env: { [key: string]: string | undefined },
     monitor?: TaskMonitor,
     signal?: AbortSignal,
-  ): Promise<BackupResult[]> {
-    const progress: (log: string, curr: number) => void = this.buildMonitorProgressFn(monitor)
+  ): Promise<PluginExecTask> {
+    const execTypeName = task.pluginExecType === 'backup' ? '备份' : '还原'
+    // 监听函数
+    const progress: (log: string, curr: number) => void = this.buildProgressFn(monitor)
+    const onItemFinished: (configName: string, configItemResult: TaskItemResult) => void =
+      this.buildOnItemFinishedFn(monitor)
 
-    let processedCount = 0
-    progress(`开始备份软件【${this.name}】`, processedCount)
-    const configLength = this.backupConfigs.length
-    const results: BackupResult[] = []
+    // 已完成的进度
+    let processedCount = task.taskResults.reduce(
+      (count, result) => count + result.configItems.filter((item: TaskItemResult) => item.finished).length,
+      0,
+    )
+    // 已成功的个数
+    let successCount = task.taskResults.reduce(
+      (count, result) => count + result.configItems.filter((item: TaskItemResult) => item.success).length,
+      0,
+    )
+    if (processedCount > 0) {
+      progress(`继续${execTypeName}`, processedCount)
+    } else {
+      progress(`开始${execTypeName}`, processedCount)
+    }
+
+    // 未完成的配置
+
+    // 遍历未完成的配置
+    const configLength = task.taskResults.length
     for (let i = 0; i < configLength; i++) {
-      const backupConfig = this.backupConfigs[i]
-      progress(`${i + 1}/${configLength} 开始备份软件配置[${backupConfig.name}]`, processedCount)
-      const result: BackupResult = {
-        success: true,
-        message: '操作成功',
-        backedUpItems: [],
-      }
-      for (const item of backupConfig.items) {
+      const taskResult = task.taskResults[i]
+      progress(`${i + 1}/${configLength} 开始${execTypeName}软件配置[${taskResult.configName}]`, processedCount)
+      for (const taskItemResult of taskResult.configItems) {
         try {
-          const itemResult: BackupItem = await this.operateData(options, env, item, progress, processedCount, signal)
-          result.backedUpItems!.push(itemResult)
+          const size = await this.operateData(task, env, taskItemResult, progress, processedCount, signal)
+          taskItemResult.finished = true
+          taskItemResult.success = true
+          successCount++
+          taskItemResult.size = size
+          taskItemResult.sizeStr = formatSize(size)
+          taskItemResult.message = `${execTypeName}成功`
+          onItemFinished(taskResult.configName, taskItemResult)
         } catch (e) {
           if (e instanceof AbortedError) {
+            // 中断任务
             progress(e.message, processedCount)
-            results.push({
-              success: false,
-              message: e.message,
-            })
-            return results
+            task.state = 'stopped'
+            task.message = e.message
+            return task
           }
-          if (item.skipIfMissing) {
-            result.message = `已跳过缺失项`
+          if (taskItemResult.skipIfMissing) {
+            taskItemResult.finished = true
+            taskItemResult.success = true
+            successCount++
+            taskItemResult.skipIfMissing = true
+            taskItemResult.message = `已跳过缺失项`
           } else {
-            result.error = BaseUtil.convertToCommonError(e)
-            result.message = `备份失败：${result.error.message}`
-            result.success = false
+            taskItemResult.finished = true
+            taskItemResult.success = false
+            taskItemResult.error = BaseUtil.convertToCommonError(e)
+            taskItemResult.message = `${taskItemResult.error.message}`
           }
         } finally {
           processedCount++
         }
       }
-      results.push(result)
     }
-    progress(`软件【${this.name}】备份完成`, processedCount)
-    return results
+
+    task.state = 'finished'
+    if (successCount === this.totalItemNum) {
+      task.success = true
+      task.message = `${execTypeName}成功`
+    } else if (successCount > 0) {
+      task.message = `操作完成，但部分配置${execTypeName}失败`
+      task.success = false
+    } else {
+      task.message = `${execTypeName}失败`
+      task.success = false
+    }
+    progress(`${execTypeName}完成`, processedCount)
+    return task
   }
 
   /**
    * 操作数据
+   * @param task
+   * @param env
+   * @param item
+   * @param progress
+   * @param processedCount
+   * @param signal
+   * @protected 操作的文件大小
    */
   protected async operateData(
-    options: PluginOptions,
+    task: PluginExecTask,
     env: { [key: string]: string | undefined },
-    item: BackupItemConfig,
+    item: TaskItemResult,
     progress: (log: string, curr: number) => void,
     processedCount: number,
     signal?: AbortSignal,
-  ): Promise<BackupItem> {
+  ): Promise<number> {
     return new Promise(async (resolve, reject) => {
       // 前置检查：如果 signal 已终止，直接拒绝
       if (signal?.aborted) {
         reject(new AbortedError())
-        return
       }
       // 监听 signal.abort
       const abortHandler = () => {
         reject(new AbortedError())
       }
       try {
-        progress(`开始处理配置项[${item.targetRelativePath}]`, processedCount)
+        progress(`处理配置项[${item.targetRelativePath}]`, processedCount)
         signal?.addEventListener('abort', abortHandler)
-        const execType = options.execType
+        const execType = task.pluginExecType
         const [src, des] = [
-          this.resolvePath(item.sourcePath, env, options.installDir),
+          this.resolvePath(item.sourcePath, env, task.softInstallDir),
           this.resolvePath(item.targetRelativePath, env),
         ]
-        const filePath = path.join(options.dataDir, des)
+        const filePath = path.join(task.backupPath, des)
         const operations = {
           registry: {
-            backup: () => WinUtil.exportRegedit(src, filePath),
-            restore: () => WinUtil.importRegedit(src, filePath),
+            backup: (): Promise<number> => WinUtil.exportRegedit(src, filePath),
+            restore: (): Promise<number> => WinUtil.importRegedit(src, filePath),
           },
           file: {
-            backup: () => WinUtil.copyFile(src, filePath, signal),
-            restore: () => WinUtil.copyFile(filePath, src, signal),
+            backup: (): Promise<number> => WinUtil.copyFile(src, filePath, signal),
+            restore: (): Promise<number> => WinUtil.copyFile(filePath, src, signal),
           },
         }
-        const size = await operations[item.type][execType]()
-        resolve({
-          ...item,
-          size,
-          sizeStr: formatSize(size),
-        })
+        resolve(await operations[item.type][execType]())
       } catch (e) {
-        throw e
+        reject(e)
       } finally {
         signal?.removeEventListener('abort', abortHandler)
       }

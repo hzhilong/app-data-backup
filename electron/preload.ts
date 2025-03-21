@@ -2,7 +2,7 @@
 // 它拥有与Chrome扩展一样的沙盒。
 
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron'
-import { IpcChannels } from '@/models/IpcChannels'
+import { IpcChannels } from '@/models/ipc-channels'
 
 // 该项目需要动态执行js
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = String(true)

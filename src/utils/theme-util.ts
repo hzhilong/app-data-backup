@@ -1,5 +1,5 @@
-import { IPC_CHANNELS } from '@/models/IpcChannels.ts'
-import { useAppThemeStore } from '@/stores/app-theme.ts'
+import { IPC_CHANNELS } from '@/models/ipc-channels'
+import { useAppThemeStore } from '@/stores/app-theme'
 
 const whiteColor = '#ffffff'
 const blackColor = '#000000'

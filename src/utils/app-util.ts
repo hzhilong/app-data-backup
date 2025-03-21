@@ -1,6 +1,6 @@
 import type { ElMessageBoxOptions, MessageParams } from 'element-plus'
-import { IPC_CHANNELS } from '@/models/IpcChannels'
-import { CommonError } from '@/models/CommonError'
+import { IPC_CHANNELS } from '@/models/ipc-channels'
+import { CommonError } from '@/models/common-error'
 
 export default class AppUtil {
   static exitApp() {

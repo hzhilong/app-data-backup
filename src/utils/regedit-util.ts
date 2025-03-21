@@ -1,14 +1,8 @@
 import BaseUtil from '@/utils/base-util'
-import { IPC_CHANNELS } from '@/models/IpcChannels'
-import {
-  type AllInstalledSoftware,
-  type InstalledSoftware,
-  type SoftwareRegeditGroupKey,
-  SOFTWARE_REGEDIT_GROUP,
-  parseInstalledSoftwareGroup,
-} from '@/models/Software'
+import { IPC_CHANNELS } from '@/models/ipc-channels'
+import { type InstalledSoftware, SOFTWARE_REGEDIT_GROUP, type SoftwareRegeditGroupKey } from '@/models/software'
 import { db } from '@/db/db'
-import { BuResult } from '@/models/BuResult.ts'
+import { BuResult } from '@/models/bu-result'
 
 export default class RegeditUtil {
   static openRegedit(path?: string) {
@@ -34,7 +28,8 @@ export default class RegeditUtil {
         if (first) {
           soft.base64Icon = first.base64
         } else {
-          const base64 = ((await window.electronAPI?.ipcInvoke(IPC_CHANNELS.GET_ICON, iconPath)) as BuResult<string>).data
+          const base64 = ((await window.electronAPI?.ipcInvoke(IPC_CHANNELS.GET_ICON, iconPath)) as BuResult<string>)
+            .data
           if (base64) {
             soft.base64Icon = base64
             db.iconCache.put({

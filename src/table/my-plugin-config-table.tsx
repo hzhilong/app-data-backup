@@ -1,22 +1,21 @@
 import { computed, h } from 'vue'
-import { createParamOptions, db } from '@/db/db.ts'
+import { createParamOptions, db } from '@/db/db'
 import {
   BACKUP_PLUGIN_TYPE,
   type BackupPluginTypeKey,
   type MyPluginConfig,
-  type ValidatedPluginConfig as DataType,
-} from '@/plugins/plugin-config.ts'
-import { createOptionList, type TableConfig, type TableOptionBtn } from '@/table/table.tsx'
+  type MyPluginConfig as DataType,
+} from '@/plugins/plugin-config'
+import { createOptionList, type TableConfig, type TableOptionBtn } from '@/table/table'
 import defaultIcon from '@/assets/image/software-icon-default.png'
-import { AppSessionStore } from '@/stores/app-session.ts'
+import { AppSessionStore } from '@/stores/app-session'
 import { storeToRefs } from 'pinia'
-import { RouterUtil } from '@/router/router-util.ts'
-import AppUtil from '@/utils/app-util.ts'
-import { logger } from '@/utils/logger.ts'
-import { cloneDeep } from 'lodash'
-import { BuResult } from '@/models/BuResult.ts'
-import { IPC_CHANNELS } from '@/models/IpcChannels.ts'
-import BaseUtil from '@/utils/base-util.ts'
+import { RouterUtil } from '@/router/router-util'
+import type { IDType } from 'dexie'
+import { logger } from '@/utils/logger'
+import { emitter } from '@/utils/emitter'
+import AppUtil from '@/utils/app-util'
+import BackupUtil from '@/utils/backup-util'
 
 const queryParams = {
   id: {
@@ -30,11 +29,11 @@ const queryParams = {
   },
 }
 
-export type PluginConfigQueryParams = {
+export type MyPluginConfigQueryParams = {
   [P in keyof typeof queryParams]?: (typeof queryParams)[P]['value']
 }
 
-export function usePluginConfigTable() {
+export function useMyPluginConfigTable() {
   const { maxWindow } = storeToRefs(AppSessionStore())
   const cTimeWidth = computed(() => {
     return maxWindow.value ? 140 : 90
@@ -131,27 +130,26 @@ export function usePluginConfigTable() {
       minWidth: '100',
       formatter: (row: DataType) => {
         const list: TableOptionBtn<DataType>[] = []
-        if (row.softInstallDir) {
+        list.push({
+          text: '移除',
+          confirmContent: (row: DataType) => {
+            return `是否从我的配置中移除[${row.id}]？`
+          },
+          onClick: () => {
+            db.myConfig.delete(row.id as IDType<MyPluginConfig, never>)
+          },
+        })
+        if (row.type === 'INSTALLER') {
           list.push({
             text: '备份',
-            onClick: () => {
-              logger.debug(`备份：${row.name}`)
-            },
-          })
-          list.push({
-            text: '添加到我的配置',
-            onClick: () => {
-              const data = cloneDeep(row as MyPluginConfig)
-              data.cTime = BaseUtil.getFormatedDateTime()
-              logger.debug('添加到我的配置', data)
-              db.myConfig
-                .bulkPut([data])
-                .then(() => {
-                  AppUtil.message('添加成功')
-                })
-                .catch((e) => {
-                  logger.debug(e)
-                })
+            onClick: (data: MyPluginConfig, e?: MouseEvent) => {
+              logger.debug(`备份：${data.name}`, data, e)
+              AppUtil.message('已添加备份任务')
+              emitter.emit('exec-backup', {
+                clientX: e!.clientX,
+                clientY: e!.clientY,
+              })
+              BackupUtil.startBackupData('manual', [data]).then((r) => {})
             },
           })
         }
@@ -160,19 +158,9 @@ export function usePluginConfigTable() {
     },
   ]
 
-  const initData = async (): Promise<DataType[]> => {
-    return BuResult.getPromise(
-      (await window.electronAPI?.ipcInvoke(
-        IPC_CHANNELS.REFRESH_PLUGINS,
-        await db.installedSoftware.toArray(),
-      )) as BuResult<DataType[]>,
-    )
-  }
-
   return {
     tableColumns: tableColumns,
     queryParams: queryParams,
-    initData: initData,
-    table: db.pluginConfig,
+    table: db.myConfig,
   } as TableConfig<DataType, typeof queryParams>
 }

@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { useAppSettingsStore } from '@/stores/app-settings.ts'
-import FileUtil from '@/utils/file-util.ts'
+import { useAppSettingsStore } from '@/stores/app-settings'
+import FileUtil from '@/utils/file-util'
 import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
-import ThemeUtil from '@/utils/theme-util.ts'
-import { DEFAULT_PRIMARY_COLORS, useAppThemeStore } from '@/stores/app-theme.ts'
+import ThemeUtil from '@/utils/theme-util'
+import { DEFAULT_PRIMARY_COLORS, useAppThemeStore } from '@/stores/app-theme'
 
 const { primaryColor, themeMode } = storeToRefs(useAppThemeStore())
 const { backupRootDir, confirmBeforeRestore, autoBackupBeforeRestore } = storeToRefs(useAppSettingsStore())

@@ -23,7 +23,7 @@ declare module 'vue' {
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    SoftwareGraph: typeof import('./src/components/graph/SoftwareGraph.vue')['default']
+    SoftwareGraph: typeof import('./src/components/graph/software-graph.vue')['default']
   }
   export interface ComponentCustomProperties {
     vLoading: typeof import('element-plus/es')['ElLoadingDirective']

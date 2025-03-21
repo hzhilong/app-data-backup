@@ -1,5 +1,5 @@
-import { IPC_CHANNELS } from '@/models/IpcChannels.ts'
-import { BuResult } from '@/models/BuResult.ts'
+import { IPC_CHANNELS } from '@/models/ipc-channels'
+import { BuResult } from '@/models/bu-result'
 
 interface OpenDialogOptions {
   title?: string

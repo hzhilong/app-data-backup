@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { BuResult } from '@/models/BuResult.ts'
-import { IPC_CHANNELS } from '@/models/IpcChannels.ts'
-import { logger } from '@/utils/logger.ts'
+import { BuResult } from '@/models/bu-result'
+import { IPC_CHANNELS } from '@/models/ipc-channels'
+import { logger } from '@/utils/logger'
 
 export const useAppSettingsStore = defineStore(
   'AppSettings',

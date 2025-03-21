@@ -1,7 +1,7 @@
 {
   "extends": "@vue/tsconfig/tsconfig.dom.json",
   "include": [
-    "vite-env.d.ts",
+    "src/vite-env.d.ts",
     "auto-imports.d.ts",
     "components.d.ts",
     "src/**/*.ts",
@@ -13,6 +13,7 @@
     "src/**/__tests__/*"
   ],
   "compilerOptions": {
+    "allowImportingTsExtensions": false,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "paths": {
       "@/*": [

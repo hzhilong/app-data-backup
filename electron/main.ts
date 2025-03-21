@@ -5,7 +5,6 @@
 // BrowserWindow 创建并控制浏览器窗口（相当于打开桌面弹框）
 import { app, BrowserWindow, globalShortcut } from 'electron'
 import path from 'node:path'
-// import os from 'node:os'
 import IPC from './ipc'
 import { initPluginSystem } from './utils/plugins-system'
 import * as os from 'node:os'

@@ -36,6 +36,15 @@ export default defineConfigWithVueTs(
           },
         },
       ],
+      // 强制在导入时不使用扩展名
+      "import/extensions": [
+        "error",
+        "never",
+        {
+          "ts": "never",
+          "tsx": "never"
+        }
+      ],
     },
   },
 )

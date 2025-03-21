@@ -23,6 +23,7 @@ export const logger = {
   trace: consola.trace,
   debug: consola.debug,
   info: consola.info,
+  log: consola.info,
   warn: consola.warn,
   error: consola.error,
   success: consola.success,

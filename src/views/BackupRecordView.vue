@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { useBackupRecordsStore } from '@/stores/backup-record.ts'
 
-const {backupRecords} = useBackupRecordsStore()
+import { useBackupTasksStore } from '@/stores/backup-task'
+
+const {backupTasks} = useBackupTasksStore()
 </script>
 
 <template>
   <div>
-    <div v-for="(item,index) in backupRecords" :key="index" class="backup-record">
+    <div v-for="(item,index) in backupTasks" :key="index" class="backup-record">
       {{`${item.pluginName} ${item.currProgress} `}}
     </div>
   </div>

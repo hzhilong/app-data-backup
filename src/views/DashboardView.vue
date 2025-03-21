@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { parseAllInstalledSoftware } from '@/models/Software'
-import SoftwareGraph from '@/components/graph/SoftwareGraph.vue'
+import { parseAllInstalledSoftware } from '@/models/software'
+import SoftwareGraph from '@/components/graph/software-graph.vue'
 import { RouterUtil } from '@/router/router-util'
-import PluginUtil from '@/plugins/plugin-util.ts'
-import { initTable } from '@/table/table.tsx'
-import { useInstalledSoftwareTable } from '@/table/InstalledSoftwareTable.tsx'
-import { usePluginConfigTable } from '@/table/PluginConfigTable.tsx'
+import PluginUtil from '@/plugins/plugin-util'
+import { initTable } from '@/table/table'
+import { useInstalledSoftwareTable } from '@/table/installed-software-table'
+import { usePluginConfigTable } from '@/table/plugin-config-table'
 
 const loading1 = ref(true)
 const loading2 = ref(true)

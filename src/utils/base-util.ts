@@ -1,5 +1,6 @@
-import { CommonError } from '@/models/CommonError'
+import { CommonError } from '@/models/common-error'
 import dayjs from 'dayjs'
+import { nanoid } from 'nanoid'
 
 export default class BaseUtil {
   static isCommonError(error: unknown): error is CommonError {
@@ -45,6 +46,10 @@ export default class BaseUtil {
 
   static getFormatedTime(date?: Date): string {
     return dayjs(date).format('HH:mm:ss')
+  }
+
+  static generateId(): string {
+    return nanoid()
   }
 }
 

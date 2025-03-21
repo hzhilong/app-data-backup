@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { usePluginConfigTable } from '@/table/PluginConfigTable.tsx'
-import { initTable } from '@/table/table.tsx'
+import { usePluginConfigTable } from '@/table/plugin-config-table'
+import { initTable } from '@/table/table'
 
 const { tableData, tableColumns, queryParams, loading, searchData, refreshDB } = initTable(usePluginConfigTable())
 </script>

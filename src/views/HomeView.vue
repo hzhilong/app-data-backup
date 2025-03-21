@@ -1,8 +1,8 @@
 <script setup lang="tsx">
 import { RouterView } from 'vue-router'
 import { ref } from 'vue'
-import AppUtil from '@/utils/app-util.ts'
-import { AppSessionStore } from '@/stores/app-session.ts'
+import AppUtil from '@/utils/app-util'
+import { AppSessionStore } from '@/stores/app-session'
 import AppMenus from '@/components/AppMenus.vue'
 
 const appTitle = ref(import.meta.env.APP_PRODUCT_NAME as string)

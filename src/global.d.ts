@@ -1,6 +1,6 @@
 import { Route, Router } from 'vue-router'
 import AppUtil from '@/utils/app-util'
-import type { IpcChannels } from '@/models/IpcChannels'
+import type { IpcChannels } from '@/models/ipc-channels'
 
 // 对vue进行类型补充说明
 declare module 'vue' {

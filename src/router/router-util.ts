@@ -1,8 +1,8 @@
-import router from '@/router/index.ts'
-import { logger } from '@/utils/logger.ts'
-import { type SoftwareQueryParams } from '@/table/InstalledSoftwareTable.tsx'
-import { type PluginConfigQueryParams } from '@/table/PluginConfigTable.tsx'
-import type { MyPluginConfigQueryParams } from '@/table/MyPluginConfigTable.tsx'
+import router from '@/router/index'
+import { logger } from '@/utils/logger'
+import { type SoftwareQueryParams } from '@/table/installed-software-table'
+import { type PluginConfigQueryParams } from '@/table/plugin-config-table'
+import type { MyPluginConfigQueryParams } from '@/table/my-plugin-config-table'
 
 export class RouterUtil {
   // 跳转页面。如果需要自动根据参数判断是否刷新表格数据请传query，传{}也行

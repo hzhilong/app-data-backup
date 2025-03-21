@@ -1,10 +1,10 @@
-// 添加备份任务的动画，类似购物车
-import { emitter } from '@/utils/emitter.ts'
+import { emitter } from '@/utils/emitter'
 
 let cartEL: HTMLElement | undefined = undefined
 let style: HTMLElement | undefined = undefined
 
-export function useAddCartAnimation(cart: HTMLElement) {
+// 添加开始任务的动画，类似购物车
+export function useStartTaskAnimation(cart: HTMLElement) {
   if (cartEL) {
     return
   }

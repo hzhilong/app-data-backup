@@ -1,59 +1,78 @@
-import { IPC_CHANNELS } from '@/models/IpcChannels'
+import { IPC_CHANNELS } from '@/models/ipc-channels'
 import {
   BACKUP_PLUGIN_TYPE,
-  type BackupPluginGroup,
   type BackupPluginTypeKey,
-  type BackupResult,
   type PluginConfig,
-  type TaskMonitor,
-  type ValidatedPluginConfig,
+  type PluginConfigGroup
 } from '@/plugins/plugin-config'
-import { CommonError } from '@/models/CommonError'
-import { BuResult } from '@/models/BuResult'
+import { CommonError } from '@/models/common-error'
+import { BuResult } from '@/models/bu-result'
+import type { PluginExecTask, TaskItemResult, TaskMonitor } from '@/plugins/plugin-task'
 
+/**
+ * 插件工具
+ */
 export default class PluginUtil {
-  // 执行插件
-  static async execPlugin(
-    validatedPluginConfig: ValidatedPluginConfig,
-    execType: 'backup' | 'restore',
-    monitor: TaskMonitor,
-    backupPath: string,
-  ) {
-    if (!validatedPluginConfig.softInstallDir) {
+  static async execPlugin(task: PluginExecTask, monitor: TaskMonitor): Promise<PluginExecTask> {
+    if (!task.softInstallDir) {
       throw new CommonError('执行失败，缺少参数[安装目录]')
     }
-    if (!backupPath) {
+    if (!task.backupPath) {
       throw new CommonError('执行失败，缺少参数[备份目录]')
     }
+    // 进度监听
     let progressListener
-    if (monitor) {
+    if (task) {
       progressListener = (event: unknown, id: string, log: string, curr: number, total: number) => {
-        if (id === validatedPluginConfig.id) {
+        if (id === task.id) {
           monitor.progress(log, curr, total)
         }
       }
       window.electronAPI?.ipcOn(IPC_CHANNELS.GET_PLUGIN_PROGRESS, progressListener)
     }
-    const buResult = (await window.electronAPI?.ipcInvoke(IPC_CHANNELS.EXEC_PLUGIN, validatedPluginConfig.id, {
-      execType: execType,
-      installDir: validatedPluginConfig.softInstallDir,
-      dataDir: backupPath,
-    })) as BuResult<BackupResult[]>
+    // 子项结束监听
+    let onItemFinishedListener
+    if (task) {
+      onItemFinishedListener = (event: unknown, id: string, configName: string, configItemResult: TaskItemResult) => {
+        if (id === task.id) {
+          monitor.onItemFinished(configName, configItemResult)
+        }
+      }
+      window.electronAPI?.ipcOn(IPC_CHANNELS.ON_PLUGIN_ITEM_FINISHED, onItemFinishedListener)
+    }
 
-    // 移除进度监听
+    // 通知主进程执行任务
+    const ranTaskResult = (await window.electronAPI?.ipcInvoke(
+      IPC_CHANNELS.EXEC_PLUGIN,
+      task,
+    )) as BuResult<PluginExecTask>
+
+    // 移除监听
     if (progressListener) {
       window.electronAPI?.ipcOff(IPC_CHANNELS.GET_PLUGIN_PROGRESS, progressListener)
     }
-    return BuResult.getPromise(buResult)
+    if (onItemFinishedListener) {
+      window.electronAPI?.ipcOff(IPC_CHANNELS.ON_PLUGIN_ITEM_FINISHED, onItemFinishedListener)
+    }
+
+    return BuResult.getPromise(ranTaskResult)
   }
 
-  static parsePluginConfigGroup(list: PluginConfig[]): BackupPluginGroup {
-    const groupData: BackupPluginGroup = { ...BACKUP_PLUGIN_TYPE }
+  static async stopExecPlugin(task: PluginExecTask): Promise<void> {
+    await window.electronAPI?.ipcInvoke(IPC_CHANNELS.STOP_EXEC_PLUGIN, task)
+  }
+
+  /**
+   * 插件配置分组
+   * @param list 插件配置
+   */
+  static parsePluginConfigGroup(list: PluginConfig[]): PluginConfigGroup {
+    const groupData: PluginConfigGroup = { ...BACKUP_PLUGIN_TYPE }
     for (const key in groupData) {
       groupData[key as BackupPluginTypeKey].list = []
     }
 
-    list.forEach(curr => groupData[curr.type].list?.push(curr));
+    list.forEach((curr) => groupData[curr.type].list?.push(curr))
 
     return groupData
   }

@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import AppUtil from '@/utils/app-util.ts'
+import AppUtil from '@/utils/app-util'
 import { useRoute } from 'vue-router'
 import { computed, onMounted, ref } from 'vue'
-import { RouterUtil } from '@/router/router-util.ts'
-import { useAddCartAnimation } from '@/components/animation/AddCartAnimation.ts'
+import { RouterUtil } from '@/router/router-util'
 import { ElMenuItem } from 'element-plus'
+import { useStartTaskAnimation } from '@/components/animation/task-animation'
+import { logger } from '@/utils/logger'
 
 export interface AppMenuItem {
   text: string
@@ -36,14 +37,14 @@ const APP_MENUS: AppMenuItem[] = [
     viewPath: '/my-plugins',
   },
   {
-    text: '备份记录',
+    text: '备份任务',
     iconClass: 'icon-app',
     viewPath: '/backup-records',
   },
   {
-    text: '数据还原',
+    text: '还原任务',
     iconClass: 'icon-app',
-    viewPath: '/res',
+    viewPath: '/backup-records2',
   },
   {
     text: '任务进度',
@@ -85,9 +86,9 @@ const onClickMenu = (menu: AppMenuItem): void => {
     RouterUtil.gotoPage(menu.viewPath)
   }
 }
-const backupRecordIndex = APP_MENUS.findIndex((m) => m.text === '备份记录')
+const backupRecordIndex = APP_MENUS.findIndex((m) => m.text === '备份任务')
 onMounted(() => {
-  useAddCartAnimation(refMenus.value[backupRecordIndex].$el)
+  useStartTaskAnimation(refMenus.value[backupRecordIndex].$el)
 })
 </script>
 

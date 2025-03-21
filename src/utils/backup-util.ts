@@ -1,14 +1,16 @@
-import type { ValidatedPluginConfig } from '@/plugins/plugin-config.ts'
-import { useAppSettingsStore } from '@/stores/app-settings.ts'
+import { useAppSettingsStore } from '@/stores/app-settings'
 import dayjs from 'dayjs'
-import type { BackupRecord, BackupRecordRunType, BackupRecordState } from '@/models/BackupRecord.ts'
-import { reactive, ref } from 'vue'
-import { CommonError } from '@/models/CommonError.ts'
-import PluginUtil from '@/plugins/plugin-util.ts'
-import BaseUtil from '@/utils/base-util.ts'
+import { type Reactive, reactive } from 'vue'
+import { CommonError } from '@/models/common-error'
+import BaseUtil from '@/utils/base-util'
 import { storeToRefs } from 'pinia'
-import { useBackupRecordsStore } from '@/stores/backup-record.ts'
-import { logger } from '@/utils/logger.ts'
+import { useBackupTasksStore } from '@/stores/backup-task'
+import { logger } from '@/utils/logger'
+import type { PluginExecTask, PluginExecType, TaskItemResult, TaskResult, TaskRunType } from '@/plugins/plugin-task'
+import type { ValidatedPluginConfig } from '@/plugins/plugin-config'
+import PluginUtil from '@/plugins/plugin-util'
+import { cloneDeep } from 'lodash'
+import { useRestoreTasksStore } from '@/stores/restore-task'
 
 function getCurrDateTime() {
   return dayjs().format('YYYY-MM-DD_HH-mm-ss')
@@ -17,117 +19,247 @@ function getCurrDateTime() {
 /**
  * 获取备份目录
  */
-const getBackupDir = (rootDir: string, softName: string, cTime?: string) => {
+const getBackupDir = (rootPath: string, softName: string, cTime?: string) => {
   if (cTime) {
-    return `${rootDir}/${softName}/${cTime}/`
+    return `${rootPath}/${softName}/${cTime}/`
   } else {
-    return `${rootDir}/${softName}/${getCurrDateTime()}/`
+    return `${rootPath}/${softName}/${getCurrDateTime()}/`
   }
 }
 
-const createBackupRecord = (
-  runType: BackupRecordRunType,
-  state: BackupRecordState,
-  config: Omit<ValidatedPluginConfig, 'softBase64Icon'>,
-  cTime: string,
-  success?: boolean,
-  msg?: string,
-  backupPath?: string,
-): BackupRecord => {
-  return reactive({
-    runType: runType,
-    state: state,
-    success: success,
-    message: msg,
-    config: reactive({ ...config }),
+/**
+ * 构建任务的选项
+ */
+interface BuildTaskDataOptions {
+  runType: TaskRunType
+  execType: PluginExecType
+  configWithoutIcon: Omit<ValidatedPluginConfig, 'softBase64Icon'>
+  backupPath: string
+  success?: boolean
+  cTime: string
+  message: string
+}
+
+/**
+ * 构建任务
+ * @param options 选项
+ */
+const buildTask = (options: BuildTaskDataOptions): PluginExecTask => {
+  const taskResults = options.configWithoutIcon.backupConfigs.map((config) => {
+    return {
+      configName: config.name,
+      configItems: config.items.map((item) => ({ ...item, finished: false }) as TaskItemResult),
+    } satisfies TaskResult
+  })
+  return {
+    id: BaseUtil.generateId(),
+    runType: options.runType,
+    state: options.success === false ? 'finished' : 'pending',
+    pluginExecType: options.execType,
+    success: options.success,
+    message: options.message,
+    taskResults: taskResults,
+    backupPath: options.backupPath,
     currProgress: 0,
-    totalProgress: config.totalItemNum,
+    totalProgress: options.configWithoutIcon.totalItemNum,
     progressText: '',
-    cTime: cTime,
-    backupPath: backupPath,
-    pluginId: config.id,
-    pluginName: config.name,
-    softInstallDir: config.softInstallDir!,
-  } satisfies BackupRecord)
-}
-const createFailedRecord = (
-  runType: BackupRecordRunType,
-  pluginConfigWithoutIcon: Omit<ValidatedPluginConfig, 'softBase64Icon'>,
-  cTime: string,
-  msg?: string,
-): BackupRecord => {
-  return createBackupRecord(runType, 'finished', pluginConfigWithoutIcon, cTime, false, msg)
+    cTime: options.cTime,
+    pluginType: options.configWithoutIcon.type,
+    pluginId: options.configWithoutIcon.id,
+    pluginName: options.configWithoutIcon.name,
+    softInstallDir: options.configWithoutIcon.softInstallDir,
+  } satisfies PluginExecTask
 }
 
-const createRunningRecord = (
-  runType: BackupRecordRunType,
-  pluginConfigWithoutIcon: Omit<ValidatedPluginConfig, 'softBase64Icon'>,
-  cTime: string,
-  backupPath?: string,
-): BackupRecord => {
-  return createBackupRecord(runType, 'running', pluginConfigWithoutIcon, cTime, undefined, undefined, backupPath)
+/**
+ * 构建失败的任务
+ * @param options
+ */
+const buildFailedTask = (options: BuildTaskDataOptions): PluginExecTask => {
+  return buildTask({ ...options, success: false })
 }
 
-async function execConfig(
-  runType: BackupRecordRunType,
-  execType: 'backup' | 'restore',
-  rootDir: string,
-  pluginConfig: ValidatedPluginConfig,
-  cTime: string,
-  configWithoutIcon: Omit<ValidatedPluginConfig, 'softBase64Icon'>,
-) {
-  const backupPath = getBackupDir(rootDir, pluginConfig.softName!, cTime)
-  const backupRecord = createRunningRecord(runType, configWithoutIcon, cTime, backupPath)
+/**
+ * 异步执行任务 出现异常会直接结束任务，不会抛出错误
+ * @param task 任务
+ */
+async function runTask(task: Reactive<PluginExecTask>): Promise<Reactive<PluginExecTask>> {
   try {
-    const backupResults = await PluginUtil.execPlugin(
-      pluginConfig,
-      execType,
-      {
-        progress: (log: string, curr: number, total: number) => {
-          logger.debug(`${pluginConfig.name} 备份进度 ${curr}/${total} ${log}`)
-          if (curr >= total) {
-            backupRecord.state = 'finished'
-          }
-          backupRecord.currProgress = curr
-          backupRecord.progressText = log
-        },
-      },
-      backupPath,
-    )
-    backupRecord.backupResults = reactive(backupResults)
-    backupRecord.state = 'finished'
-
-    if (backupResults.some((result) => !result.success)) {
-      backupRecord.message = '操作失败'
-      backupRecord.success = false
-    } else {
-      backupRecord.success = true
-      backupRecord.message = '操作成功'
+    // 获取缓存key
+    const getCacheKey = (configName: string, configItemResult: TaskItemResult) => {
+      return `${configName}-${configItemResult.sourcePath}`
     }
-    return backupRecord
+    // 结果项缓存
+    const resultItemCache = new Map<string, TaskItemResult>()
+    // 构建缓存
+    task.taskResults.forEach((taskResult) => {
+      const configName = taskResult.configName
+      taskResult.configItems.forEach((item) => {
+        resultItemCache.set(getCacheKey(configName, item), item)
+      })
+    })
+    // 执行插件任务
+    task.state = 'running'
+    const ranTask = await PluginUtil.execPlugin(cloneDeep(task), {
+      progress: (log: string, curr: number, total: number) => {
+        logger.debug(`任务[${task.id}]备份进度 ${curr}/${total} ${log}`)
+        if (curr >= total) {
+          task.state = 'finished'
+        }
+        task.currProgress = curr
+        task.progressText = log
+      },
+      onItemFinished: (configName: string, result: TaskItemResult) => {
+        const cache = resultItemCache.get(getCacheKey(configName, result))
+        if (!cache) return
+        cache.success = result.success
+        cache.message = result.message
+        cache.error = result.error
+        cache.size = result.size
+        cache.sizeStr = result.sizeStr
+        cache.skipped = result.skipped
+        cache.meta = result.meta
+        cache.finished = true
+      },
+    })
+    // 赋值新的状态，可能为暂停
+    task.state = ranTask.state
+    task.success = ranTask.success
+    task.message = ranTask.message
   } catch (e) {
-    return createFailedRecord(runType, pluginConfig, cTime, BaseUtil.getErrorMessage(e))
+    task.state = 'finished'
+    task.success = false
+    task.message = BaseUtil.getErrorMessage(e)
   }
+  return task
 }
 
+/**
+ * 备份工具
+ */
 export default class BackupUtil {
-  static async backupData(runType: BackupRecordRunType, pluginConfigs: ValidatedPluginConfig[]) {
+  /**
+   * 开始备份数据
+   * @param runType 任务运行类型 手动/自动
+   * @param pluginConfigs 插件配置，可一次执行多个
+   */
+  static async startBackupData(runType: TaskRunType, pluginConfigs: ValidatedPluginConfig[]) {
     if (!pluginConfigs || pluginConfigs.length === 0) {
       throw new CommonError('备份配置为空')
     }
-    const rootDir = useAppSettingsStore().backupRootDir
-    const { backupRecords } = storeToRefs(useBackupRecordsStore())
+    const execType: PluginExecType = 'backup'
+    // 数据保存的路径
+    const rootPath = useAppSettingsStore().backupRootDir
+    // 已有的插件任务
+    const { backupTasks } = storeToRefs(useBackupTasksStore())
     const cTime = getCurrDateTime()
+    const currTasks: Reactive<PluginExecTask[]> = reactive([])
+
+    // 任务执行完成的监听
+    let onTaskFinishedListener: (task: PluginExecTask) => void
+    const onTaskFinished = (listener: (task: PluginExecTask) => void) => {
+      onTaskFinishedListener = listener
+    }
+
     for (const pluginConfig of pluginConfigs) {
       const { softBase64Icon, ...configWithoutIcon } = pluginConfig
-      if (!pluginConfig.softName) {
-        backupRecords.value.push(createFailedRecord(runType, configWithoutIcon, cTime, `配置缺少参数 softName`))
-      } else {
-        backupRecords.value.push(await execConfig(runType, 'backup', rootDir, pluginConfig, cTime, configWithoutIcon))
-      }
+      const task: Reactive<PluginExecTask> = reactive(
+        buildFailedTask({
+          runType,
+          execType,
+          configWithoutIcon,
+          cTime,
+          backupPath: getBackupDir(rootPath, pluginConfig.name, cTime),
+          message: '任务创建成功，等待执行',
+        }),
+      )
+      // 异步执行任务
+      runTask(task).then((r) => {
+        if (onTaskFinishedListener) {
+          onTaskFinishedListener(r)
+        }
+      })
+      currTasks.push(task)
     }
+    backupTasks.value.push(...currTasks)
     return {
-      backupRecords,
+      currTasks,
+      backupTasks,
+      onTaskFinished,
+    }
+  }
+
+  /**
+   * 继续任务
+   * @param task
+   */
+  static async resumedTask(task: Reactive<PluginExecTask>) {
+    // 任务执行完成的监听
+    let onTaskFinishedListener: (task: PluginExecTask) => void
+    const onTaskFinished = (listener: (task: PluginExecTask) => void) => {
+      onTaskFinishedListener = listener
+    }
+    // 异步执行任务
+    runTask(task).then((r) => {
+      if (onTaskFinishedListener) {
+        onTaskFinishedListener(r)
+      }
+    })
+    return {
+      currTask: task,
+      onTaskFinished,
+    }
+  }
+
+  /**
+   * 停止任务
+   * @param task
+   */
+  static async stopTask(task: Reactive<PluginExecTask>) {
+    return PluginUtil.stopExecPlugin(task)
+  }
+
+  /**
+   * 开始还原数据
+   * @param backupTask 备份记录
+   */
+  static async restoreBackupData(backupTasks: PluginExecTask[]) {
+    if (!backupTasks || backupTasks.length === 0) {
+      throw new CommonError('备份记录为空')
+    }
+    if (backupTasks.some((task) => task.state !== 'finished')) {
+      throw new CommonError('存在未备份结束的任务')
+    }
+    if (backupTasks.some((task) => task.success === false)) {
+      throw new CommonError('存在未备份成功的任务')
+    }
+    const execType: PluginExecType = 'restore'
+    // 数据保存的路径
+    const { restoreTasks } = storeToRefs(useRestoreTasksStore())
+    const cTime = getCurrDateTime()
+    const currTasks: Reactive<PluginExecTask[]> = reactive([])
+
+    // 任务执行完成的监听
+    let onTaskFinishedListener: (task: PluginExecTask) => void
+    const onTaskFinished = (listener: (task: PluginExecTask) => void) => {
+      onTaskFinishedListener = listener
+    }
+
+    for (const task of backupTasks) {
+      const refTask: Reactive<PluginExecTask> = reactive(cloneDeep(task))
+      // 异步执行任务
+      runTask(refTask).then((r) => {
+        if (onTaskFinishedListener) {
+          onTaskFinishedListener(r)
+        }
+      })
+      currTasks.push(refTask)
+    }
+    restoreTasks.value.push(...currTasks)
+    return {
+      currTasks,
+      restoreTasks,
+      onTaskFinished,
     }
   }
 }

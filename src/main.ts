@@ -1,5 +1,5 @@
-import { createApp, onMounted } from 'vue'
-import { createPinia, storeToRefs } from 'pinia'
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
 import piniaPluginPersistedState from 'pinia-plugin-persistedstate'
 
 import App from './App.vue'
@@ -11,12 +11,9 @@ import '@/assets/scss/main.scss'
 import '@/assets/scss/element/light-var.css'
 import '@/assets/scss/element/dark-var.css'
 import AppUtil from '@/utils/app-util'
-import ThemeUtil from '@/utils/theme-util.ts'
-import { useBackupRecordsStore } from '@/stores/backup-record.ts'
-import { useAppSettingsStore } from '@/stores/app-settings.ts'
-import { BuResult } from '@/models/BuResult.ts'
-import { IPC_CHANNELS } from '@/models/IpcChannels.ts'
-import { logger } from '@/utils/logger.ts'
+import ThemeUtil from '@/utils/theme-util'
+import { useAppSettingsStore } from '@/stores/app-settings'
+import { useBackupTasksStore } from '@/stores/backup-task'
 
 const app = createApp(App)
 // 挂载到全局属性
@@ -30,7 +27,7 @@ async function bootstrapApp() {
   app.use(pinia)
 
   await ThemeUtil.initAppTheme()
-  await useBackupRecordsStore().initData()
+  await useBackupTasksStore().initData()
   await useAppSettingsStore().initData()
 
   app.use(router)

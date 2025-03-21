@@ -1,13 +1,13 @@
 import { h, type VNode } from 'vue'
-import type { InstalledSoftware, SoftwareRegeditGroupKey } from '@/models/Software.ts'
-import { SOFTWARE_REGEDIT_GROUP } from '@/models/Software.ts'
+import type { InstalledSoftware, SoftwareRegeditGroupKey } from '@/models/software'
+import { SOFTWARE_REGEDIT_GROUP } from '@/models/software'
 import defaultIcon from '@/assets/image/software-icon-default.png'
-import { createParamOptions, db } from '@/db/db.ts'
-import { createTags, type TableConfig, type TableTag } from '@/table/table.tsx'
-import { RouterUtil } from '@/router/router-util.ts'
-import RegeditUtil from '@/utils/regedit-util.ts'
-import type { ValidatedPluginConfig } from '@/plugins/plugin-config.ts'
-import { logger } from '@/utils/logger.ts'
+import { createParamOptions, db } from '@/db/db'
+import { createTags, type TableConfig, type TableTag } from '@/table/table'
+import { RouterUtil } from '@/router/router-util'
+import RegeditUtil from '@/utils/regedit-util'
+import type { ValidatedPluginConfig } from '@/plugins/plugin-config'
+import { logger } from '@/utils/logger'
 
 export type ExtendedInstalledSoftware = InstalledSoftware & {
   supportPlugins?: ValidatedPluginConfig[]

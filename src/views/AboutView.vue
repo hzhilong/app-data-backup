@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, type Ref, ref } from 'vue'
-import AppUtil from '@/utils/app-util.ts'
-import ThemeUtil, { type AppThemeMode } from '@/utils/theme-util.ts'
-import { useAppThemeStore } from '@/stores/app-theme.ts'
+import AppUtil from '@/utils/app-util'
+import ThemeUtil, { type AppThemeMode } from '@/utils/theme-util'
+import { useAppThemeStore } from '@/stores/app-theme'
 import { storeToRefs } from 'pinia'
 
 const appTitle = ref(import.meta.env.APP_PRODUCT_NAME)

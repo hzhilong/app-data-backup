@@ -4,7 +4,7 @@ import { promisified as regedit, type RegistryItem } from 'regedit'
 import path from 'node:path'
 import { shell } from 'electron'
 import nLogger from './log4js'
-import { AbortedError } from '@/models/CommonError'
+import { AbortedError } from '@/models/common-error'
 
 interface ExecCmdOptions {
   codeIsSuccess: (number: number) => boolean

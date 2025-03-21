@@ -1,19 +1,20 @@
 import fs from 'fs'
-import { app, ipcMain } from 'electron'
+import { ipcMain } from 'electron'
 import path from 'path'
 import { pathToFileURL } from 'url'
-import { IPC_CHANNELS } from '@/models/IpcChannels'
+import { IPC_CHANNELS } from '@/models/ipc-channels'
 import WinUtil from './win-util'
-import { CommonError } from '@/models/CommonError'
-import { BuResult, execBusiness } from '@/models/BuResult'
-import { loadPluginConfig, PluginOptions, ValidatedPluginConfig } from '@/plugins/plugin-config'
+import { CommonError } from '@/models/common-error'
+import { BuResult, execBusiness } from '@/models/bu-result'
 import { Plugin } from './plugins'
 import { Mutex } from 'async-mutex'
-import { InstalledSoftware } from '@/models/Software'
+import { InstalledSoftware } from '@/models/software'
 import BaseUtil from '@/utils/base-util'
 import nLogger from './log4js'
-import BrowserWindow = Electron.BrowserWindow
 import { getAppBasePath } from './app-path'
+import type { PluginExecTask, TaskItemResult } from '@/plugins/plugin-task'
+import { loadPluginConfig, ValidatedPluginConfig } from '@/plugins/plugin-config'
+import BrowserWindow = Electron.BrowserWindow
 
 // 初始化互斥锁
 const initMutex = new Mutex()
@@ -21,9 +22,9 @@ const initMutex = new Mutex()
 let initialized = false
 // 初始化加载的插件配置
 const loadedPluginConfigs: ValidatedPluginConfig[] = []
-// 启用的插件
+// 启用的插件 插件id->
 const activePlugins = new Map<string, Plugin>()
-// 终止信号
+// 终止信号 任务id->
 const abortSignals = new Map<string, AbortController>()
 
 // 初始化插件系统
@@ -57,19 +58,20 @@ function initPluginSystem(mainWindow: BrowserWindow) {
     }
   })
   // IPC 事件监听【执行插件】
-  ipcMain.handle(IPC_CHANNELS.EXEC_PLUGIN, async (event, id: string, options: PluginOptions) => {
+  ipcMain.handle(IPC_CHANNELS.EXEC_PLUGIN, async (event, task: PluginExecTask) => {
     return execBusiness(async () => {
-      return await execPlugin(id, options, mainWindow)
+      return await execPlugin(task, mainWindow)
     })
   })
   // IPC 事件监听【停止执行插件】
-  ipcMain.handle(IPC_CHANNELS.STOP_EXEC_PLUGIN, async (event, id: string) => {
-    const abortController = abortSignals.get(id)
+  ipcMain.handle(IPC_CHANNELS.STOP_EXEC_PLUGIN, async (event, task: PluginExecTask) => {
+    const abortController = abortSignals.get(task.id)
     if (abortController) {
       abortController.abort('取消任务')
       // 清空临时资源
-      clearOnPluginStop(id)
+      clearOnPluginStop(task.id)
     }
+    return
   })
   // 先在主进程初始化一次
   initPlugins().then((r) => {})
@@ -111,26 +113,31 @@ async function initPlugins(softList?: InstalledSoftware[]): Promise<ValidatedPlu
 
   for (const filePath of pluginFiles) {
     try {
-      nLogger.info('加载插件', filePath)
+      const fileName = path.parse(filePath).name
+      nLogger.info('开始加载插件', fileName)
       // 动态导入插件模块
       const module = await import(pathToFileURL(filePath).href)
-      const config = module.default as Record<string, unknown>
+      // 模块配置
+      const moduleConfig = module.default as Record<string, unknown>
+      // 插件创建时间
       const cTime = BaseUtil.getFormatedDateTime(fs.statSync(filePath).birthtime)
       // 实例化插件配置
-      const pluginConfig = loadPluginConfig(config, cTime)
+      const pluginConfig = loadPluginConfig(moduleConfig, cTime, fileName)
       // 实例化插件
-      const plugin = new Plugin(pluginConfig, cTime)
-      // 覆盖插件方法
-      Object.assign(plugin, config)
+      const plugin = new Plugin(pluginConfig, moduleConfig)
+      // 已验证的插件
       const validatedPluginConfig: ValidatedPluginConfig = {
         ...pluginConfig,
+        softInstallDir: '', // 初始化时的配置不进行验证
       }
+      // 如果传递已安装的软件信息，则进行插件验证
       if (softList) {
         Object.assign(validatedPluginConfig, getValidatedFields(plugin.detect(softList, env)))
       }
+      // 初始化换成
       activePlugins.set(pluginConfig.id, plugin)
       loadedPluginConfigs.push(validatedPluginConfig)
-      nLogger.info(`插件加载成功: ${config.id}`)
+      nLogger.info(`插件加载成功: ${fileName}`)
     } catch (error) {
       nLogger.error(`加载插件 ${path.basename(filePath, '.js')} 失败:`, error)
     }
@@ -160,43 +167,53 @@ function getValidatedFields(detectResult: InstalledSoftware | string | undefined
 }
 
 // 停止执行插件后清空临时的资源
-function clearOnPluginStop(pluginOrId: Plugin | string) {
-  if (!pluginOrId) return
-  if (typeof pluginOrId === 'string') {
-    if (abortSignals.has(pluginOrId)) {
-      abortSignals.delete(pluginOrId)
+function clearOnPluginStop(taskOrId: PluginExecTask | string) {
+  if (!taskOrId) return
+  if (typeof taskOrId === 'string') {
+    if (abortSignals.has(taskOrId)) {
+      abortSignals.delete(taskOrId)
     }
-  } else if (abortSignals.has(pluginOrId.id)) {
-    abortSignals.delete(pluginOrId.id)
+  } else if (abortSignals.has(taskOrId.id)) {
+    abortSignals.delete(taskOrId.id)
   }
 }
 
 // 执行插件
-async function execPlugin(id: string, options: PluginOptions, mainWindow: Electron.BrowserWindow) {
-  const plugin = activePlugins.get(id)
+async function execPlugin(task: PluginExecTask, mainWindow: Electron.BrowserWindow) {
+  const pluginId = task.pluginId
+  nLogger.info(`准备执行插件[${pluginId}] 任务：`, task)
+  const taskId = task.id
+  const plugin = activePlugins.get(pluginId)
   if (!plugin) {
-    nLogger.info('插件id错误', id)
-    throw new CommonError('插件id错误')
+    nLogger.info(`未找到插件[${pluginId}]，可能已被删除`)
+    throw new CommonError(`未找到插件[${pluginId}]，可能已被删除`)
   }
   const abortController = new AbortController()
-  abortSignals.set(id, abortController)
+  abortSignals.set(taskId, abortController)
 
-  nLogger.info(`开始执行插件[${id}]`, options)
-  const backupResults = await plugin.execPlugin(
-    options,
+  nLogger.info(`开始执行插件[${pluginId}] 任务 ${taskId}`)
+  const ranTask = await plugin.execPlugin(
+    task,
     WinUtil.getEnv(),
     {
       progress(log: string, curr: number, total: number): void {
-        nLogger.info(`插件[${id}]执行进度：${curr}/${total} ${log}`)
+        nLogger.info(`插件[${pluginId}] 任务 ${taskId} 执行进度：${curr}/${total} ${log}`)
         // 通知渲染进程该插件的执行进度
-        mainWindow?.webContents.send(IPC_CHANNELS.GET_PLUGIN_PROGRESS, id, log, curr, total)
+        mainWindow?.webContents.send(IPC_CHANNELS.GET_PLUGIN_PROGRESS, taskId, log, curr, total)
+      },
+      onItemFinished(configName: string, configItemResult: TaskItemResult): void {
+        nLogger.info(
+          `插件[${pluginId}] 任务 ${taskId} 配置[${configName}]子项[${configItemResult.sourcePath}]执行结束：`,
+          configItemResult,
+        )
+        mainWindow?.webContents.send(IPC_CHANNELS.ON_PLUGIN_ITEM_FINISHED, taskId, configName, configItemResult)
       },
     },
     abortController.signal,
   )
-  nLogger.info(`插件[${id}]执行完成`, backupResults)
-  clearOnPluginStop(id)
-  return backupResults
+  nLogger.info(`插件[${pluginId}] 任务 ${taskId} 执行完成：`, ranTask)
+  clearOnPluginStop(task)
+  return ranTask
 }
 
 export { initPluginSystem }

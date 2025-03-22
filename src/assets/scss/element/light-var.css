@@ -71,4 +71,50 @@
   --el-border-color-hover: var(--el-text-color-disabled);
   --el-border: var(--el-border-width) var(--el-border-style) var(--el-border-color);
   --el-svg-monochrome-grey: var(--el-border-color);
+
+  --app-success-color: #67c23a;
+  --el-color-success: var(--app-success-color);
+  --el-color-success-light-3: color-mix(in srgb, #67c23a 70%, #FFFFFF);
+  --el-color-success-light-5: color-mix(in srgb, #67c23a 50%, #FFFFFF);
+  --el-color-success-light-7: color-mix(in srgb, #67c23a 30%, #FFFFFF);
+  --el-color-success-light-8: color-mix(in srgb, #67c23a 20%, #FFFFFF);
+  --el-color-success-light-9: color-mix(in srgb, #67c23a 10%, #FFFFFF);
+  --el-color-success-dark-2: color-mix(in srgb, #67c23a 80%, #000000);
+
+  --app-warning-color: #e6a23c;
+  --el-color-warning: var(--app-warning-color);
+  --el-color-warning-light-3: color-mix(in srgb, #e6a23c 70%, #FFFFFF);
+  --el-color-warning-light-5: color-mix(in srgb, #e6a23c 50%, #FFFFFF);
+  --el-color-warning-light-7: color-mix(in srgb, #e6a23c 30%, #FFFFFF);
+  --el-color-warning-light-8: color-mix(in srgb, #e6a23c 20%, #FFFFFF);
+  --el-color-warning-light-9: color-mix(in srgb, #e6a23c 10%, #FFFFFF);
+  --el-color-warning-dark-2: color-mix(in srgb, #e6a23c 80%, #000000);
+
+
+  --app-danger-color: #f56c6c;
+  --el-color-danger: var(--app-danger-color);
+  --el-color-danger-light-3: color-mix(in srgb, #f56c6c 70%, #FFFFFF);
+  --el-color-danger-light-5: color-mix(in srgb, #f56c6c 50%, #FFFFFF);
+  --el-color-danger-light-7: color-mix(in srgb, #f56c6c 30%, #FFFFFF);
+  --el-color-danger-light-8: color-mix(in srgb, #f56c6c 20%, #FFFFFF);
+  --el-color-danger-light-9: color-mix(in srgb, #f56c6c 10%, #FFFFFF);
+  --el-color-danger-dark-2: color-mix(in srgb, #f56c6c 80%, #000000);
+
+  --app-error-color: #f56c6c;
+  --el-color-error: var(--app-error-color);
+  --el-color-error-light-3: color-mix(in srgb, #f56c6c 70%, #FFFFFF);
+  --el-color-error-light-5: color-mix(in srgb, #f56c6c 50%, #FFFFFF);
+  --el-color-error-light-7: color-mix(in srgb, #f56c6c 30%, #FFFFFF);
+  --el-color-error-light-8: color-mix(in srgb, #f56c6c 20%, #FFFFFF);
+  --el-color-error-light-9: color-mix(in srgb, #f56c6c 10%, #FFFFFF);
+  --el-color-error-dark-2: color-mix(in srgb, #f56c6c 80%, #000000);
+
+  --app-info-color: #909399;
+  --el-color-info: var(--app-info-color);
+  --el-color-info-light-3: color-mix(in srgb, #909399 70%, #FFFFFF);
+  --el-color-info-light-5: color-mix(in srgb, #909399 50%, #FFFFFF);
+  --el-color-info-light-7: color-mix(in srgb, #909399 30%, #FFFFFF);
+  --el-color-info-light-8: color-mix(in srgb, #909399 20%, #FFFFFF);
+  --el-color-info-light-9: color-mix(in srgb, #909399 10%, #FFFFFF);
+  --el-color-info-dark-2: color-mix(in srgb, #909399 80%, #000000);
 }

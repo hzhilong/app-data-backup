@@ -1,0 +1,170 @@
+@use '@/assets/scss/global' as *;
+
+.task-list {
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  overflow-y: hidden;
+
+  .scroll-container {
+    height: 100%;
+    overflow-y: auto;
+    padding: 6px;
+    box-sizing: border-box;
+  }
+
+  .task-item {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 4px 10px;
+    font-size: 12px;
+    box-sizing: border-box;
+    color: $app-text-color-secondary;
+    border-radius: 10px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: $app-box-shadow;
+    }
+
+    :deep(.el-card__body) {
+      width: 100%;
+      padding: 4px 4px;
+      box-sizing: border-box;
+    }
+
+    div {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 10px;
+
+      > div {
+        flex-shrink: 0;
+      }
+
+      .title {
+        color: $app-text-color-primary;
+      }
+
+      .state {
+        padding: 0 5px;
+        border-radius: 10px;
+        font-size: 10px;
+
+        &.state-pending {
+          background: $app-color-info-light-3;
+          border: 1px solid $app-color-info-light-3;
+          color: $app-color-info;
+        }
+
+        &.state-running {
+          background: $app-color-primary-light-9;
+          border: 1px solid $app-color-primary-light-8;
+          color: $app-color-primary;
+        }
+
+        &.state-stopped {
+          background: $app-color-warning-light-9;
+          border: 1px solid $app-color-warning-light-8;
+          color: $app-color-warning;
+        }
+
+        &.state-finished {
+          background: $app-color-success-light-9;
+          border: 1px solid $app-color-success-light-8;
+          color: $app-color-success;
+        }
+      }
+
+      .message {
+        flex-shrink: 1;
+        padding: 0 5px;
+        border-radius: 10px;
+        font-size: 10px;
+
+        &.success-undefined {
+          background: $app-color-info-light-9;
+          border: 1px solid $app-color-info-light-8;
+          color: $app-color-info;
+        }
+
+        &.success-true {
+          background: $app-color-success-light-9;
+          border: 1px solid $app-color-success-light-8;
+          color: $app-color-success;
+        }
+
+        &.success-false {
+          background: $app-color-error-light-9;
+          border: 1px solid $app-color-error-light-8;
+          color: $app-color-error;
+        }
+      }
+
+      .options {
+        margin-left: auto;
+      }
+    }
+
+    .content {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+
+      .content-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+
+        .date {
+        }
+
+        .progress {
+          width: 100%;
+
+          :deep(.el-progress__text) {
+            font-size: 1em;
+          }
+        }
+
+        .path-item {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          color: $app-text-color-secondary;
+
+          .path-wrapper {
+            flex: 1;
+
+            .path {
+              direction: rtl;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+              overflow: hidden;
+              cursor: pointer;
+              text-align: left;
+
+              &:hover {
+                background: $app-color-primary-light-9;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+}

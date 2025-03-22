@@ -6,6 +6,7 @@ import App from './App.vue'
 import router from './router'
 
 import ElementPlus from 'element-plus'
+import 'remixicon/fonts/remixicon.css'
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import '@/assets/scss/main.scss'
 import '@/assets/scss/element/light-var.css'

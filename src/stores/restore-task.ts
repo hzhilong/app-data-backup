@@ -25,7 +25,7 @@ const handleInitData = (list: PluginExecTask[]) => {
 export const useRestoreTasksStore = defineStore(
   'RestoreTasksStore',
   () => {
-    const restoreTasks = reactive<PluginExecTask[]>([])
+    const tasks = reactive<PluginExecTask[]>([])
 
     // 从数据库加载数据
     const initData = async () => {
@@ -33,26 +33,26 @@ export const useRestoreTasksStore = defineStore(
       logger.debug(`初始化 加载${oldList.length}条还原任务`)
       handleInitData(oldList)
       oldList.forEach((item) => {
-        restoreTasks.push(reactive(item))
+        tasks.push(reactive(item))
       })
     }
 
     // 带防抖的持久化方法
     const persistData = debounce(async () => {
-      logger.debug(`持久化${restoreTasks.length}条备份任务`, restoreTasks)
+      logger.debug(`持久化${tasks.length}条备份任务`, tasks)
       db.transaction('rw', db.restoreTask.name, async () => {
-        await db.restoreTask.bulkPut(cloneDeep(restoreTasks))
+        await db.restoreTask.bulkPut(cloneDeep(tasks))
       })
     }, 500)
 
     // 监听内存数据变化自动持久化
     watch(
-      () => restoreTasks,
+      () => tasks,
       () => persistData(),
       { deep: true },
     )
 
-    return { restoreTasks, initData }
+    return { tasks: tasks, initData }
   },
   {
     persist: false,

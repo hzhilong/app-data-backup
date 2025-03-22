@@ -11,6 +11,19 @@ export type TaskRunType = 'auto' | 'manual'
  */
 export type TaskState = 'pending' | 'running' | 'stopped' | 'finished'
 
+export const getTaskStateText = (state: TaskState) => {
+  switch (state) {
+    case 'pending':
+      return '待运行'
+    case 'running':
+      return '运行中'
+    case 'stopped':
+      return '已暂停'
+    case 'finished':
+      return '已结束'
+  }
+}
+
 /**
  * 插件执行类型
  */

@@ -19,13 +19,26 @@ const handleInitData = (list: PluginExecTask[]) => {
       item.state = 'stopped'
       item.message = '任务已暂停'
     }
+    // 测试
+    if(item.id === 'rhxaMRrc10U9c_VyKUHym'){
+      item.success = undefined
+      item.currProgress = 0;
+      item.taskResults.forEach(taskResult => {
+        taskResult.configItems.forEach(taskItemResult => {
+          taskItemResult.finished = false
+          taskItemResult.success = undefined
+        })
+      })
+      item.state = 'stopped'
+      item.message = '1任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停'
+    }
   })
 }
 
 export const useBackupTasksStore = defineStore(
   'BackupTasksStore',
   () => {
-    const backupTasks = reactive<PluginExecTask[]>([])
+    const tasks = reactive<PluginExecTask[]>([])
 
     // 从数据库加载数据
     const initData = async () => {
@@ -33,26 +46,26 @@ export const useBackupTasksStore = defineStore(
       logger.debug(`初始化 加载${oldList.length}条备份任务`)
       handleInitData(oldList)
       oldList.forEach((item) => {
-        backupTasks.push(reactive(item))
+        tasks.push(reactive(item))
       })
     }
 
     // 带防抖的持久化方法
     const persistData = debounce(async () => {
-      logger.debug(`持久化${backupTasks.length}条备份任务`, backupTasks)
+      logger.debug(`持久化${tasks.length}条备份任务`, tasks)
       db.transaction('rw', db.backupTask.name, async () => {
-        await db.backupTask.bulkPut(cloneDeep(backupTasks))
+        await db.backupTask.bulkPut(cloneDeep(tasks))
       })
     }, 500)
 
     // 监听内存数据变化自动持久化
     watch(
-      () => backupTasks,
+      () => tasks,
       () => persistData(),
       { deep: true },
     )
 
-    return { backupTasks, initData }
+    return { tasks: tasks, initData }
   },
   {
     persist: false,

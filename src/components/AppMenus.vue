@@ -9,7 +9,7 @@ import { useStartTaskAnimation } from '@/components/animation/task-animation'
 export interface AppMenuItem {
   text: string
   menuTitle?: string
-  iconClass: string
+  icon: string
   viewPath: string
   onclick?: () => void
 }
@@ -17,52 +17,47 @@ export interface AppMenuItem {
 const APP_MENUS: AppMenuItem[] = [
   {
     text: '首页',
-    iconClass: 'icon-dashboard',
+    icon: 'dashboard-3-line',
     viewPath: '/dashboard',
   },
   {
     text: '软件管理',
-    iconClass: 'icon-app',
+    icon: 'apps-line',
     viewPath: '/soft',
   },
   {
     text: '配置仓库',
-    iconClass: 'icon-app',
+    icon: 'database-2-line',
     viewPath: '/plugins',
   },
   {
     text: '我的配置',
-    iconClass: 'icon-app',
+    icon: 'user-settings-line',
     viewPath: '/my-plugins',
   },
   {
     text: '备份任务',
-    iconClass: 'icon-app',
+    icon: 'dashboard-line',
     viewPath: '/backup-tasks',
   },
   {
     text: '还原任务',
-    iconClass: 'icon-app',
+    icon: 'dashboard-horizontal-line',
     viewPath: '/restore-tasks',
   },
   {
-    text: '任务进度',
-    iconClass: 'icon-setting',
-    viewPath: '/settings2',
-  },
-  {
     text: '设置',
-    iconClass: 'icon-setting',
+    icon: 'settings-3-line',
     viewPath: '/settings',
   },
   {
     text: '关于',
-    iconClass: 'icon-about',
+    icon: 'information-line',
     viewPath: '/about',
   },
   {
     text: '退出',
-    iconClass: 'icon-exit',
+    icon: 'shut-down-line',
     viewPath: '/exit',
     onclick: () => {
       AppUtil.exitApp()
@@ -101,7 +96,7 @@ onMounted(() => {
       @click="onClickMenu(menu)"
       ref="refMenus"
     >
-      <span class="iconfont" :class="menu.iconClass"></span>
+      <i class="menu-icon" :class="`ri-${menu.icon}`"></i>
       <span>{{ menu.text }}</span>
     </el-menu-item>
   </el-menu>

@@ -29,11 +29,14 @@ const switchWindowMax = () => {
     </div>
     <div class="right-side">
       <div class="top-bar">
-
         <div class="top-bar-btn-list">
-          <span class="btn iconfont icon-min" @click="AppUtil.minApp()"></span>
-          <span class="btn iconfont" :class="windowMax ? 'icon-max2' : 'icon-max'" @click="switchWindowMax"></span>
-          <span class="btn iconfont icon-close" @click="AppUtil.exitApp()"></span>
+          <i class="ri-collapse-diagonal-line btn icon-min" @click="AppUtil.minApp()"></i>
+          <i
+            class="btn"
+            :class="windowMax ? 'ri-fullscreen-exit-line' : 'ri-fullscreen-line'"
+            @click="switchWindowMax"
+          ></i>
+          <i class="ri-close-large-line btn icon-close" @click="AppUtil.exitApp()"></i>
         </div>
       </div>
       <div class="page-wrapper">

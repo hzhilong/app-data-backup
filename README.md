@@ -14,4 +14,4 @@ Vite + Vue + Electron + TS + Pinia + Dexie + ElementPlus
 ## 感谢
 
 - [node-regedit](https://github.com/kessler/node-regedit)
-- [iconfont](https://www.iconfont.cn/)
+- [RemixIcon](https://github.com/Remix-Design/RemixIcon)

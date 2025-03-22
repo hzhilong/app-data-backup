@@ -164,6 +164,9 @@ export class Plugin implements PluginConfig {
       progress(`${i + 1}/${configLength} 开始${execTypeName}软件配置[${taskResult.configName}]`, processedCount)
       for (const taskItemResult of taskResult.configItems) {
         try {
+          if(taskItemResult.finished){
+            continue
+          }
           const size = await this.operateData(task, env, taskItemResult, progress, processedCount, signal)
           taskItemResult.finished = true
           taskItemResult.success = true
@@ -259,7 +262,9 @@ export class Plugin implements PluginConfig {
             restore: (): Promise<number> => WinUtil.copyFile(filePath, src, signal),
           },
         }
-        resolve(await operations[item.type][execType]())
+        const size = await operations[item.type][execType]()
+        console.log('size', size)
+        resolve(size)
       } catch (e) {
         reject(e)
       } finally {

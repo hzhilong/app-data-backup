@@ -22,7 +22,7 @@ const { refreshDB: refreshPluginList, tableData: pluginList } = initTable(usePlu
 
 const allInstalledSoftware = computed(() => parseAllInstalledSoftware(softwareList.value ?? []))
 const pluginConfigGroup = computed(() => PluginUtil.parsePluginConfigGroup(pluginList.value ?? []))
-const { backupTasks } = storeToRefs(useBackupTasksStore())
+const { tasks:backupTasks } = storeToRefs(useBackupTasksStore())
 const backupTaskInfo = computed(() => {
   return {
     totalCount: backupTasks.value.length,

@@ -121,7 +121,7 @@ export default class WinUtil {
   static exportRegedit(regPath: string, filePath: string): Promise<number> {
     filePath = path.resolve(filePath)
     this.ensureDirectoryExistence(filePath)
-    return this.execCmd(`reg export "${regPath}" "${filePath}"`, undefined, filePath)
+    return this.execCmd(`reg export "${regPath}" "${filePath}" /y`, undefined, filePath)
   }
 
   /**

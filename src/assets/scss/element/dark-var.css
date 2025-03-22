@@ -29,10 +29,10 @@ html.dark {
     --el-bg-color-page: #3C3F41;
     --el-bg-color-overlay: #3C3F41;
 
-    --el-box-shadow: 0px 12px 32px 4px rgba(255, 255, 255, .02), 0px 8px 20px rgba(255, 255, 255, .04);
-    --el-box-shadow-light: 0px 0px 12px rgba(255, 255, 255, .06);
-    --el-box-shadow-lighter: 0px 0px 6px rgba(255, 255, 255, .06);
-    --el-box-shadow-dark: 0px 16px 48px 16px rgba(255, 255, 255, .04), 0px 12px 32px rgba(255, 255, 255, .06), 0px 8px 16px -8px rgba(255, 255, 255, .08);
+    --el-box-shadow: 0px 0px 16px 2px rgba(255, 255, 255, .02), 0px 0px 10px rgba(255, 255, 255, .04);
+    --el-box-shadow-light: 0px 0px 6px rgba(255, 255, 255, .06);
+    --el-box-shadow-lighter: 0px 0px 3px rgba(255, 255, 255, .06);
+    --el-box-shadow-dark: 0px 8px 24px 8px rgba(255, 255, 255, .04), 0px 6px 16px rgba(255, 255, 255, .06), 0px 4px 8px -4px rgba(255, 255, 255, .08);
 
     /*--el-fill-color-darker: #424243;*/
     /*--el-fill-color-dark: #39393A;*/

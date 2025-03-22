@@ -21,9 +21,9 @@ function getFileDateName(data?: Date) {
  */
 const getBackupDir = (rootPath: string, softName: string, configId: string, fileDateName?: string) => {
   if (fileDateName) {
-    return `${rootPath}/${softName}/${configId}_${fileDateName}/`
+    return `${rootPath}\\${softName}\\${configId}_${fileDateName}\\`
   } else {
-    return `${rootPath}/${softName}/${configId}_${getFileDateName()}/`
+    return `${rootPath}\\${softName}\\${configId}_${getFileDateName()}\\`
   }
 }
 
@@ -136,7 +136,7 @@ async function runTask(task: Reactive<PluginExecTask>): Promise<Reactive<PluginE
     task.state = 'running'
     const ranTask = await PluginUtil.execPlugin(cloneDeep(task), {
       progress: (log: string, curr: number, total: number) => {
-        logger.debug(`任务[${task.id}]备份进度 ${curr}/${total} ${log}`)
+        logger.debug(`任务[${task.id}]进度 ${curr}/${total} ${log}`)
         if (curr >= total) {
           task.state = 'finished'
         }
@@ -144,6 +144,7 @@ async function runTask(task: Reactive<PluginExecTask>): Promise<Reactive<PluginE
         task.progressText = log
       },
       onItemFinished: (configName: string, result: TaskItemResult) => {
+        logger.debug(`任务[${task.id}] onItemFinished`, configName)
         const cache = resultItemCache.get(getCacheKey(configName, result))
         if (!cache) return
         cache.success = result.success
@@ -185,7 +186,7 @@ export default class BackupUtil {
     // 数据保存的路径
     const rootPath = useAppSettingsStore().backupRootDir
     // 已有的插件任务
-    const { backupTasks } = storeToRefs(useBackupTasksStore())
+    const { tasks: backupTasks } = storeToRefs(useBackupTasksStore())
     const date = new Date()
     const cTime = BaseUtil.getFormatedDateTime(date)
     const fileDateName = getFileDateName(date)
@@ -236,6 +237,7 @@ export default class BackupUtil {
       onTaskFinishedListener = listener
     }
     // 异步执行任务
+    task.message = '正在继续执行'
     runTask(task).then((r) => {
       if (onTaskFinishedListener) {
         onTaskFinishedListener(r)
@@ -272,7 +274,7 @@ export default class BackupUtil {
     }
     const execType: PluginExecType = 'restore'
     // 数据保存的路径
-    const { restoreTasks } = storeToRefs(useRestoreTasksStore())
+    const { tasks: restoreTasks } = storeToRefs(useRestoreTasksStore())
     const date = new Date()
     const cTime = BaseUtil.getFormatedDateTime(date)
     const currTasks: Reactive<PluginExecTask[]> = reactive([])

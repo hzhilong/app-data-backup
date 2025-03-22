@@ -21,7 +21,7 @@ const { themeMode } = storeToRefs(useAppThemeStore())
 const themeToggleMap: Record<AppThemeMode, AppThemeMode> = {
   dark: 'light',
   light: 'dark',
-  system: 'system',
+  system: 'light',
 }
 
 const newThemeMode: Ref<AppThemeMode> = computed(() => {

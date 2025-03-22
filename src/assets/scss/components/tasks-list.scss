@@ -26,6 +26,21 @@
     border-radius: 10px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     position: relative;
+    overflow: hidden;
+
+    .task-badge {
+      position: absolute;
+      background: $app-border-color;
+      color: $app-fill-color-extra-light;
+      left: -16px;
+      bottom: -6px;
+      font-size: 10px;
+      line-height: 14px;
+      text-align: center;
+      padding: 0px 12px 10px 12px;
+      transform: rotate(45deg);
+      user-select: none;
+    }
 
     &:hover {
       transform: translateY(-5px);
@@ -249,9 +264,9 @@
           align-items: center;
           margin-left: 20px;
           display: flex;
-          gap:10px;
+          gap: 10px;
 
-          &:hover{
+          &:hover {
             background-color: $app-color-primary-light-9;
           }
         }

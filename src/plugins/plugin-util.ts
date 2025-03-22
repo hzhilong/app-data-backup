@@ -58,8 +58,8 @@ export default class PluginUtil {
     return BuResult.getPromise(ranTaskResult)
   }
 
-  static async stopExecPlugin(task: PluginExecTask): Promise<void> {
-    await window.electronAPI?.ipcInvoke(IPC_CHANNELS.STOP_EXEC_PLUGIN, task)
+  static async stopExecPlugin(task: PluginExecTask) {
+    return BuResult.getPromise((await window.electronAPI?.ipcInvoke(IPC_CHANNELS.STOP_EXEC_PLUGIN, task)) as BuResult<void>)
   }
 
   /**

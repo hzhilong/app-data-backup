@@ -41,6 +41,11 @@ const APP_MENUS: AppMenuItem[] = [
     viewPath: '/backup-tasks',
   },
   {
+    text: '备份计划',
+    icon: 'dashboard-line',
+    viewPath: '/backup-tasks2',
+  },
+  {
     text: '还原任务',
     icon: 'dashboard-horizontal-line',
     viewPath: '/restore-tasks',

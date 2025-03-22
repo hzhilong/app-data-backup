@@ -15,6 +15,7 @@ import { getAppBasePath } from './app-path'
 import type { PluginExecTask, TaskItemResult } from '@/plugins/plugin-task'
 import { loadPluginConfig, ValidatedPluginConfig } from '@/plugins/plugin-config'
 import BrowserWindow = Electron.BrowserWindow
+import { throws } from 'assert'
 
 // 初始化互斥锁
 const initMutex = new Mutex()
@@ -65,13 +66,16 @@ function initPluginSystem(mainWindow: BrowserWindow) {
   })
   // IPC 事件监听【停止执行插件】
   ipcMain.handle(IPC_CHANNELS.STOP_EXEC_PLUGIN, async (event, task: PluginExecTask) => {
-    const abortController = abortSignals.get(task.id)
-    if (abortController) {
-      abortController.abort('取消任务')
-      // 清空临时资源
-      clearOnPluginStop(task.id)
-    }
-    return
+    return execBusiness(async () => {
+      const abortController = abortSignals.get(task.id)
+      if (abortController) {
+        abortController.abort('取消任务')
+        // 清空临时资源
+        clearOnPluginStop(task.id)
+      } else {
+        throw new CommonError('该任务未执行')
+      }
+    })
   })
   // 先在主进程初始化一次
   initPlugins().then((r) => {})

@@ -27,7 +27,7 @@
 
   --el-bg-color: #FFFFFF;
   /*--el-bg-color-page: color-mix(in srgb, #FFFFFF 95%, #000000);*/
-  --el-bg-color-page: #F0F4F9;
+  --el-bg-color-page: #F7F9FC;
   --el-bg-color-overlay: #FFFFFF;
 
   --el-text-color-primary: color-mix(in srgb, #FFFFFF 19%, #000000);
@@ -89,7 +89,6 @@
   --el-color-warning-light-8: color-mix(in srgb, #e6a23c 20%, #FFFFFF);
   --el-color-warning-light-9: color-mix(in srgb, #e6a23c 10%, #FFFFFF);
   --el-color-warning-dark-2: color-mix(in srgb, #e6a23c 80%, #000000);
-
 
   --app-danger-color: #f56c6c;
   --el-color-danger: var(--app-danger-color);

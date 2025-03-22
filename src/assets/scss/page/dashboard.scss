@@ -9,6 +9,7 @@
   flex-direction: column;
   align-items: start;
   z-index: 0;
+  background: $app-bg-color;
 
   .icon-btn {
     color: $app-color-primary;
@@ -118,7 +119,7 @@
     padding: $card-padding;
     box-sizing: border-box;
     color: $app-text-color-regular;
-    background-color: $app-fill-color-blank;
+    background-color: $app-bg-color-overlay;
     border: 1px solid $app-border-color;
     border-radius: 8px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;

@@ -57,20 +57,17 @@ const getELProgressStatus = (success?: boolean) => {
 
 const resumeTask = (task: PluginExecTask) => {
   debounce(() => {
-    AppUtil.message('开始执行')
-    BackupUtil.resumedTask(task)
+    BackupUtil.resumedTask(task, true)
   }, 100)()
 }
 const stopTask = (task: PluginExecTask) => {
   debounce(() => {
-    AppUtil.message('暂停执行')
-    BackupUtil.stopTask(task)
+    BackupUtil.stopTask(task, true)
   }, 100)()
 }
 const removeTask = (task: PluginExecTask) => {
   debounce(() => {
-    AppUtil.message('移除任务')
-    BackupUtil.removeTask(task)
+    BackupUtil.removeTask(task, true)
   }, 100)()
 }
 const getTaskItemResultState = (item: TaskItemResult) => {
@@ -101,6 +98,7 @@ const getTaskItemResultStateClass = (item: TaskItemResult) => {
   <div class="task-list">
     <div class="scroll-container">
       <el-card class="task-item" shadow="hover" v-for="task in filteredTasks" :key="task.id">
+        <div class="task-badge" v-if="task.runType === 'auto'">auto</div>
         <div class="header">
           <div class="title">{{ task.pluginName }}</div>
           <div class="state" :class="`state-${task.state}`">

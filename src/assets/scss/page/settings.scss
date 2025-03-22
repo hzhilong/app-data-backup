@@ -1,96 +1,75 @@
 @use '@/assets/scss/global' as *;
 
 .settings-container {
-  width: 100%;
   display: flex;
-  flex-direction: row;
-  align-items: start;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 20px;
 
-  .left-content, .right-content {
-    width: 49%;
-    color: $app-text-color-regular;
+  .setting-group {
+    border-radius: 8px;
 
-    $settings-item-padding-y: 4px;
-    $settings-item-padding-x: 15px;
-
-    .settings-group {
-      .title {
-        color: $app-color-primary;
-        font-weight: bold;
-        position: relative;
-        padding: 6px 10px;
-
-        &:before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 50%;
-          bottom: 0;
-          border-left: 2px solid $app-color-primary;
-        }
-      }
+    .group-name {
+      font-size: 18px;
+      color: $app-text-color-primary;
+      font-weight: bold;
+      padding-left: 4px;
+      margin-bottom: 8px;
     }
 
-    .setting-item {
-      width: 100%;
-      max-width: 100%;
+    .setting-list {
       display: flex;
-      align-items: center;
-      overflow: hidden;
-      white-space: nowrap;
-      justify-content: space-between;
-      box-sizing: border-box;
-      padding: $settings-item-padding-y $settings-item-padding-x;
-      gap: 40px;
-      position: relative;
+      flex-direction: column;
+      gap: 6px;
 
-      &:before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 0;
-        height: 100%;
-        border-left: 2px solid $app-color-primary;
-      }
-
-      &:last-of-type{
-        &:before {
-          height: 50%;
-        }
-      }
-
-      .item-label {
-        padding: 0 4px;
-        border-radius: 4px;
-      }
-
-      &:hover{
-        .item-label{
-          background: $app-color-primary-light-7;
-        }
-      }
-
-      .item-right {
+      .setting-item {
         display: flex;
         align-items: center;
-        white-space: nowrap;
-        overflow: hidden;
-        gap: 4px;
-      }
+        justify-content: space-between;
+        padding: 10px 20px;
+        border-radius: 8px;
+        border: 1px solid $app-border-color;
+        background: $app-bg-color;
+        user-select: none;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        gap: 10px;
+        line-height: 1.4;
 
-      .item-value {
-        flex: 1; /* 占据剩余空间 */
-        min-width: 0; /* 允许收缩 */
-        direction: rtl;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        overflow: hidden;
-      }
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: $app-box-shadow;
+        }
 
-      .item-value-text {
-        direction: ltr; /* 恢复正常文本方向 */
+        .item-icon {
+          font-size: 20px;
+          margin-right: 10px;
+          color: $app-text-color-regular;
+        }
+
+        .item-content {
+          flex-grow: 1;
+          min-width: 0;
+
+          .item-title {
+            font-size: 16px;
+            color: $app-text-color-primary;
+          }
+
+          .item-desc {
+            font-size: 14px;
+            color: $app-text-color-secondary;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          }
+        }
+
+        .options {
+          font-size: 16px;
+          display: flex;
+          align-items: center;
+        }
       }
     }
   }
+
 }

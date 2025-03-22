@@ -99,11 +99,11 @@ RouterUtil.onCurrRouteUpdate(() => {
             </div>
           </div>
         </div>
-        <div class="card-container">
+        <div class="card-container" @click="RouterUtil.gotoBackupTasks()">
           <div class="header">
             <div class="title">已备份的数据</div>
           </div>
-          <div class="card">
+          <div class="card has-transition" @click="RouterUtil.gotoBackupTasks()">
             <div class="card-info">
               <div class="info-item">
                 已备份次数：<span class="value">{{ backupTaskInfo.totalCount }}</span>

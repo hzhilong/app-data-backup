@@ -2,32 +2,32 @@ import type { ElMessageBoxOptions, MessageParams } from 'element-plus'
 import { IPC_CHANNELS } from '@/models/ipc-channels'
 import { CommonError } from '@/models/common-error'
 import type { BuResult } from '@/models/bu-result'
+import { db } from '@/db/db'
+import BaseUtil from '@/utils/base-util'
 
 export default class AppUtil {
-  static exitApp() {
-    if (window.electronAPI) {
-      window.electronAPI.ipcSend(IPC_CHANNELS.WINDOW_CLOSE)
-    } else {
-      // 非 Electron 环境，忽略窗口关闭操作
+  static async exitApp() {
+    const running1 = await db.backupTask.where({ state: 'running' }).count()
+    const running2 = await db.backupTask.where({ state: 'running' }).count()
+    if (running1 > 0 || running2 > 0) {
+      this.confirm(`当前有任务正在运行，是否直接退出？`).then(async () => {
+        window.electronAPI?.ipcSend(IPC_CHANNELS.WINDOW_CLOSE)
+      })
+      return
     }
+    window.electronAPI?.ipcSend(IPC_CHANNELS.WINDOW_CLOSE)
   }
 
   static maxApp() {
-    if (window.electronAPI) {
-      window.electronAPI.ipcSend(IPC_CHANNELS.WINDOW_MAX)
-    }
+    window.electronAPI?.ipcSend(IPC_CHANNELS.WINDOW_MAX)
   }
 
   static minApp() {
-    if (window.electronAPI) {
-      window.electronAPI.ipcSend(IPC_CHANNELS.WINDOW_MIN)
-    }
+    window.electronAPI?.ipcSend(IPC_CHANNELS.WINDOW_MIN)
   }
 
   static browsePage(url?: string) {
-    if (url && window.electronAPI) {
-      window.electronAPI.ipcSend(IPC_CHANNELS.BROWSE_PAGE, url)
-    }
+    window.electronAPI?.ipcSend(IPC_CHANNELS.BROWSE_PAGE, url)
   }
 
   static async openPath(path?: string) {
@@ -79,6 +79,13 @@ export default class AppUtil {
         type: result.success ? 'success' : 'error',
       })
     }
+  }
+
+  static showErrorMessage(e: unknown | string): void {
+    this.message({
+      message: typeof e === 'string' ? e : BaseUtil.getErrorMessage(e),
+      type: 'error',
+    })
   }
 
   static confirm(message: string, title: string = '提示', options: ElMessageBoxOptions = {}) {

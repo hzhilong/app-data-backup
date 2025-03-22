@@ -30,7 +30,7 @@ const handleInitData = (list: PluginExecTask[]) => {
           taskItemResult.success = undefined
         })
       })
-      item.state = 'stopped'
+      item.state = 'running'
       item.message =
         '1任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停'
     }

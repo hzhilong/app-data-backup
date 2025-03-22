@@ -4,9 +4,8 @@
   width: 100%;
   height: 100%;
   display: flex;
-  background: $app-bg-color;
   position: relative;
-  background: $app-bg-color-page;
+  background: $app-color-primary-light-9;
   color: $app-text-color-regular;
 
   &:before {
@@ -105,29 +104,26 @@
       }
     }
 
+    // 补全右边和底边的边框
     > .page-wrapper {
       width: 100%;
       height: calc(100% - $app-top-bar-height);
       padding: $app-main-content-margin;
       box-sizing: border-box;
 
-      > .page {
+      > .page{
         height: 100%;
         width: 100%;
         box-sizing: border-box;
         padding: $app-main-content-padding;
-        background: $app-bg-color;
+        background: $app-bg-color-page;
         border-radius: 10px;
         color: $app-text-color-regular;
         border: 1px solid $app-border-color-light;
+        overflow: auto;
 
-        > .page-content {
-          width: 100%;
-          height: 100%;
-          padding: 10px;
-          border-radius: 10px;
-          box-sizing: border-box;
-          overflow: auto;
+        &.page-content{
+          background: $app-bg-color;
         }
       }
     }

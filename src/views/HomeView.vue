@@ -40,13 +40,11 @@ const switchWindowMax = () => {
         </div>
       </div>
       <div class="page-wrapper">
-        <div class="page">
-          <router-view v-slot="{ Component }">
-            <keep-alive exclude="SettingView">
-              <component :is="Component" />
-            </keep-alive>
-          </router-view>
-        </div>
+        <router-view v-slot="{ Component }">
+          <keep-alive exclude="SettingView">
+            <component :is="Component" class="page"/>
+          </keep-alive>
+        </router-view>
       </div>
     </div>
   </div>

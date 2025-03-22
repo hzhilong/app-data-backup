@@ -6,11 +6,19 @@ import BaseUtil from '@/utils/base-util'
 import { storeToRefs } from 'pinia'
 import { useBackupTasksStore } from '@/stores/backup-task'
 import { logger } from '@/utils/logger'
-import type { PluginExecTask, PluginExecType, TaskItemResult, TaskResult, TaskRunType } from '@/plugins/plugin-task'
+import {
+  getTaskStateText,
+  type PluginExecTask,
+  type PluginExecType,
+  type TaskItemResult,
+  type TaskResult,
+  type TaskRunType,
+} from '@/plugins/plugin-task'
 import type { ValidatedPluginConfig } from '@/plugins/plugin-config'
 import PluginUtil from '@/plugins/plugin-util'
 import { cloneDeep } from 'lodash'
 import { useRestoreTasksStore } from '@/stores/restore-task'
+import AppUtil from '@/utils/app-util'
 
 function getFileDateName(data?: Date) {
   return dayjs(data).format('YYYY-MM-DD_HH-mm-ss')
@@ -177,8 +185,9 @@ export default class BackupUtil {
    * 开始备份数据
    * @param runType 任务运行类型 手动/自动
    * @param pluginConfigs 插件配置，可一次执行多个
+   * @param showMsg
    */
-  static async startBackupData(runType: TaskRunType, pluginConfigs: ValidatedPluginConfig[]) {
+  static async startBackupData(runType: TaskRunType, pluginConfigs: ValidatedPluginConfig[], showMsg: boolean = false) {
     if (!pluginConfigs || pluginConfigs.length === 0) {
       throw new CommonError('备份配置为空')
     }
@@ -211,11 +220,20 @@ export default class BackupUtil {
         }),
       )
       // 异步执行任务
-      runTask(task).then((r) => {
-        if (onTaskFinishedListener) {
-          onTaskFinishedListener(r)
-        }
-      })
+      runTask(task)
+        .then((r) => {
+          if (onTaskFinishedListener) {
+            onTaskFinishedListener(r)
+          }
+          if (showMsg) {
+            this.showTaskMessage(task)
+          }
+        })
+        .catch((err) => {
+          if (showMsg) {
+            AppUtil.showErrorMessage(err)
+          }
+        })
       currTasks.unshift(task)
     }
     backupTasks.value.unshift(...currTasks)
@@ -229,8 +247,9 @@ export default class BackupUtil {
   /**
    * 继续任务
    * @param task
+   * @param showMsg
    */
-  static async resumedTask(task: Reactive<PluginExecTask>) {
+  static async resumedTask(task: Reactive<PluginExecTask>, showMsg: boolean = false) {
     // 任务执行完成的监听
     let onTaskFinishedListener: (task: PluginExecTask) => void
     const onTaskFinished = (listener: (task: PluginExecTask) => void) => {
@@ -238,23 +257,62 @@ export default class BackupUtil {
     }
     // 异步执行任务
     task.message = '正在继续执行'
-    runTask(task).then((r) => {
-      if (onTaskFinishedListener) {
-        onTaskFinishedListener(r)
-      }
-    })
+    if (showMsg) {
+      AppUtil.message('继续执行')
+    }
+    runTask(task)
+      .then((r) => {
+        if (onTaskFinishedListener) {
+          onTaskFinishedListener(r)
+        }
+        if (showMsg) {
+          this.showTaskMessage(task)
+        }
+      })
+      .catch((e) => {
+        if (showMsg) {
+          AppUtil.showErrorMessage(e)
+        }
+      })
     return {
       currTask: task,
       onTaskFinished,
     }
   }
 
+  static showTaskMessage(task: PluginExecTask) {
+    if (task.state === 'finished') {
+      if (task.success) {
+        AppUtil.message(task.message)
+      } else {
+        AppUtil.showErrorMessage(task.message)
+      }
+    } else {
+      AppUtil.message({
+        message: `任务${getTaskStateText(task.state)}`,
+        type: 'info',
+      })
+    }
+  }
+
   /**
    * 停止任务
    * @param task
+   * @param showMsg
    */
-  static async stopTask(task: Reactive<PluginExecTask>) {
-    return PluginUtil.stopExecPlugin(cloneDeep(task))
+  static async stopTask(task: Reactive<PluginExecTask>, showMsg: boolean = false) {
+    PluginUtil.stopExecPlugin(cloneDeep(task))
+      .then(() => {
+        if (showMsg) {
+          AppUtil.message('暂停执行')
+        }
+      })
+      .catch((e) => {
+        if (showMsg) {
+          AppUtil.showErrorMessage(e)
+        }
+        task.state = 'stopped'
+      })
   }
 
   /**
@@ -315,15 +373,26 @@ export default class BackupUtil {
   /**
    * 移除任务
    * @param task
+   * @param showMsg
    */
-  static removeTask(task: Reactive<PluginExecTask>) {
+  static removeTask(task: Reactive<PluginExecTask>, showMsg: boolean = false) {
     if (task.state !== 'finished') {
+      if (showMsg) {
+        AppUtil.showErrorMessage('任务未结束，不支持移除')
+      }
       throw new CommonError('任务未结束，不支持移除')
     }
-    if (task.pluginExecType === 'backup') {
-      return useBackupTasksStore().removeTask(task)
-    } else {
-      return useRestoreTasksStore().removeTask(task)
+    const removeFn = (): boolean => {
+      if (task.pluginExecType === 'backup') {
+        return useBackupTasksStore().removeTask(task)
+      } else {
+        return useRestoreTasksStore().removeTask(task)
+      }
     }
+    const ret = removeFn()
+    if (showMsg) {
+      AppUtil.showErrorMessage(ret ? '成功移除' : '移除失败')
+    }
+    return ret
   }
 }

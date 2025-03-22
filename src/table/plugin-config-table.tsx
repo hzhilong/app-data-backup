@@ -142,7 +142,7 @@ export function usePluginConfigTable() {
                 clientX: e!.clientX,
                 clientY: e!.clientY,
               })
-              BackupUtil.startBackupData('manual', [data]).then((r) => {})
+              BackupUtil.startBackupData('manual', [data], true).then((r) => {})
             },
           })
           list.push({

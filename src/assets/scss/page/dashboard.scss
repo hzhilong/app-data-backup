@@ -10,6 +10,25 @@
   align-items: start;
   z-index: 0;
 
+  .icon-btn {
+    color: $app-color-primary;
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+    line-height: 18px;
+    padding: 5px;
+    border-radius: 50%;
+
+    &:hover {
+      background: $app-color-primary-light-8;
+
+      &.t-rotate {
+        animation: rotate 3s linear infinite;
+      }
+    }
+  }
+
   .content-wrapper {
     width: 100%;
     font-size: 14px;

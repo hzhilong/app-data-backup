@@ -37,12 +37,24 @@ const resumeTask = (task: PluginExecTask) => {
     BackupUtil.resumedTask(task)
   }, 100)()
 }
+const stopTask = (task: PluginExecTask) => {
+  debounce(() => {
+    AppUtil.message('暂停执行')
+    BackupUtil.stopTask(task)
+  }, 100)()
+}
+const removeTask = (task: PluginExecTask) => {
+  debounce(() => {
+    AppUtil.message('移除任务')
+    BackupUtil.removeTask(task)
+  }, 100)()
+}
 </script>
 
 <template>
   <div class="task-list">
     <div class="scroll-container">
-      <el-card class="task-item" shadow="hover" v-for="task in filteredTasks">
+      <el-card class="task-item" shadow="hover" v-for="task in filteredTasks" :key="task.id">
         <div class="header">
           <div class="title">{{ task.pluginName }}</div>
           <div class="state" :class="`state-${task.state}`">
@@ -52,13 +64,30 @@ const resumeTask = (task: PluginExecTask) => {
             {{ task.message }}
           </div>
           <div class="options">
-            <el-button v-if="task.state === 'stopped'" type="primary" @click="resumeTask(task)">继续</el-button>
+            <i
+              class="ri-play-circle-fill icon-btn"
+              v-if="task.state === 'stopped'"
+              @click="resumeTask(task)"
+              title="继续"
+            ></i>
+            <i
+              class="ri-pause-circle-fill icon-btn"
+              v-if="task.state === 'running'"
+              @click="stopTask(task)"
+              title="暂停"
+            ></i>
+            <i
+              class="ri-close-circle-fill icon-btn"
+              v-if="task.state === 'finished'"
+              @click="removeTask(task)"
+              title="移除"
+            ></i>
           </div>
         </div>
         <div class="content">
           <div class="content-item" style="flex: 1.5">
-            <div class="plugin-name">{{ task.pluginId }}</div>
-            <div class="date">{{ task.cTime }}</div>
+            <div class="plugin-name"><i class="ri-file-code-line"></i>{{ task.pluginId }}</div>
+            <div class="date"><i class="ri-time-line"></i>{{ task.cTime }}</div>
           </div>
           <div class="content-item" style="flex: 2">
             <div class="progress">
@@ -67,19 +96,27 @@ const resumeTask = (task: PluginExecTask) => {
                 :status="getELProgressStatus(task.success)"
               />
             </div>
-            <div class="progress-text">{{ task.progressText }}</div>
+            <el-tooltip
+              effect="dark"
+              :content="task.progressText"
+              placement="top-start"
+            >
+              <div class="progress-text">{{ task.progressText }}</div>
+            </el-tooltip>
           </div>
           <div class="content-item" style="flex: 2.5">
             <div class="path-item">
+              <i class="ri-folder-2-line"></i>
               <div class="path-label">软件路径：</div>
               <div class="path-wrapper">
-                <div class="path">{{ task.softInstallDir }}</div>
+                <div class="path" @click="AppUtil.openPath(task.softInstallDir)">{{ task.softInstallDir }}</div>
               </div>
             </div>
             <div class="path-item">
+              <i class="ri-folder-2-line"></i>
               <span class="path-label">备份目录：</span>
               <div class="path-wrapper">
-                <div class="path">{{ task.backupPath }}</div>
+                <div class="path" @click="AppUtil.openPath(task.backupPath)">{{ task.backupPath }}</div>
               </div>
             </div>
           </div>

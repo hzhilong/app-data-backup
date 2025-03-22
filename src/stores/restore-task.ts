@@ -52,7 +52,16 @@ export const useRestoreTasksStore = defineStore(
       { deep: true },
     )
 
-    return { tasks: tasks, initData }
+    const removeTask = (task: PluginExecTask) => {
+      const index = tasks.findIndex((i) => i.id === task.id)
+      if (index !== -1) {
+        tasks.splice(index, 1)
+        return true
+      }
+      return false
+    }
+
+    return { tasks, initData, removeTask }
   },
   {
     persist: false,

@@ -134,25 +134,6 @@ $app-scrollbar-width: 10px;
   }
 }
 
-.icon-btn {
-  color: $app-color-primary;
-  cursor: pointer;
-  width: 18px;
-  height: 18px;
-  font-size: 18px;
-  line-height: 18px;
-  padding: 5px;
-  border-radius: 50%;
-
-  &:hover {
-    background: $app-color-primary-light-8;
-
-    &.t-rotate {
-      animation: rotate 3s linear infinite;
-    }
-  }
-}
-
 :deep(.el-button) {
   // 解决文本没有垂直居中的问题
   line-height: normal;

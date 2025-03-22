@@ -7,7 +7,7 @@ module.exports = {
       name: '插件',
       items: [
         {
-          type: 'directory',
+          type: 'file',
           sourcePath: '%installDir%/Plugins',
           targetRelativePath: 'Plugins',
         },

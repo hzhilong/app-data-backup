@@ -5,6 +5,20 @@ import path from 'node:path'
 import { shell } from 'electron'
 import nLogger from './log4js'
 import { AbortedError } from '@/models/common-error'
+import iconv from 'iconv-lite'
+import * as url from 'node:url'
+
+const cmdEncoding = 'binary'
+const cmdResultEncoding = 'cp936'
+
+const encodeCmd = (cmd: string) => {
+  return iconv.encode(cmd, 'ascii').toString(cmdEncoding)
+  // return iconv.encode(cmd, cmdResultEncoding).toString(cmdEncoding)
+}
+
+const decodeCmd = (cmd: string) => {
+  return iconv.decode(Buffer.from(cmd, cmdEncoding), cmdResultEncoding)
+}
 
 interface ExecCmdOptions {
   codeIsSuccess: (number: number) => boolean
@@ -28,14 +42,17 @@ export default class WinUtil {
         return
       }
 
-      const child = exec(`chcp 65001 && ${command}`, { encoding: 'utf-8' }, (error, stdout, stderr) => {
+      const child = exec(`${command}`, { encoding: cmdEncoding }, (error, stdout, stderr) => {
+        stdout = decodeCmd(stdout)
+        stderr = decodeCmd(stderr)
+
         // 清理 abort 监听（如果存在）
         options?.signal?.removeEventListener('abort', abortHandler)
 
         const exitCode = error ? Number((error as NodeJS.ErrnoException).code ?? 0) : 0
         nLogger.debug(`cmd: [${command}](code: ${exitCode}):${stderr}`)
         if (options?.codeIsSuccess ? !options.codeIsSuccess(exitCode) : exitCode !== 0) {
-          reject(new Error(`Command exec failed (code: ${exitCode}): ${stderr || stdout}`))
+          reject(new Error(`命令行执行出错 (${exitCode}): ${stderr || stdout}`))
         } else {
           if (filePath) {
             resolve(WinUtil.getFileSizeKB(filePath))
@@ -65,13 +82,17 @@ export default class WinUtil {
    * 打开资源管理器
    * @param fileOrDir 定义的目录或文件
    */
-  static openPath(fileOrDir: string): void {
+  static async openPath(fileOrDir: string): Promise<void> {
     fileOrDir = path.resolve(fileOrDir)
+    let href = url.pathToFileURL(fileOrDir).href
+    nLogger.debug(`打开资源管理器，路径：${fileOrDir}，转码：${href}`)
     if (fs.existsSync(fileOrDir)) {
       if (fs.lstatSync(fileOrDir).isFile()) {
-        shell.showItemInFolder(fileOrDir)
+        return shell.showItemInFolder(href)
       } else {
-        shell.openExternal(fileOrDir)
+        // return shell.openExternal(href)
+        await this.execCmd(`start "" ${fileOrDir}`)
+        return
       }
     }
   }

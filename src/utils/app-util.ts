@@ -1,6 +1,7 @@
 import type { ElMessageBoxOptions, MessageParams } from 'element-plus'
 import { IPC_CHANNELS } from '@/models/ipc-channels'
 import { CommonError } from '@/models/common-error'
+import type { BuResult } from '@/models/bu-result'
 
 export default class AppUtil {
   static exitApp() {
@@ -29,9 +30,12 @@ export default class AppUtil {
     }
   }
 
-  static openPath(path?: string) {
+  static async openPath(path?: string) {
     if (path) {
-      window.electronAPI?.ipcInvoke(IPC_CHANNELS.OPEN_PATH, path)
+      const result = (await window.electronAPI?.ipcInvoke(IPC_CHANNELS.OPEN_PATH, path)) as BuResult<void>
+      if (!result.success) {
+        this.showResultMessage(result)
+      }
     }
   }
 
@@ -66,6 +70,15 @@ export default class AppUtil {
       Object.assign(options, config)
     }
     ElMessage(options)
+  }
+
+  static showResultMessage(result: BuResult<any>, onlyFail: boolean = true): void {
+    if (!result.success || !onlyFail) {
+      this.message({
+        message: result.msg,
+        type: result.success ? 'success' : 'error',
+      })
+    }
   }
 
   static confirm(message: string, title: string = '提示', options: ElMessageBoxOptions = {}) {

@@ -59,8 +59,11 @@ export default {
       return WinUtil.readRegeditValues(path)
     })
 
-    ipcMain.handle(IPC_CHANNELS.OPEN_PATH, (event, fileOrDir: string) => {
-      WinUtil.openPath(fileOrDir)
+    ipcMain.handle(IPC_CHANNELS.OPEN_PATH, async (event, fileOrDir: string) => {
+      let promise = await execBusiness(async () => {
+        await WinUtil.openPath(fileOrDir)
+      })
+      return promise
     })
 
     ipcMain.handle(IPC_CHANNELS.READ_JSON_FILE, (event, filePath: string) => {

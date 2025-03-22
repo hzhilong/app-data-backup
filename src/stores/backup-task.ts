@@ -20,17 +20,18 @@ const handleInitData = (list: PluginExecTask[]) => {
       item.message = '任务已暂停'
     }
     // 测试
-    if(item.id === 'rhxaMRrc10U9c_VyKUHym'){
+    if (item.id === 'rhxaMRrc10U9c_VyKUHym') {
       item.success = undefined
-      item.currProgress = 0;
-      item.taskResults.forEach(taskResult => {
-        taskResult.configItems.forEach(taskItemResult => {
+      item.currProgress = 0
+      item.taskResults.forEach((taskResult) => {
+        taskResult.configItems.forEach((taskItemResult) => {
           taskItemResult.finished = false
           taskItemResult.success = undefined
         })
       })
       item.state = 'stopped'
-      item.message = '1任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停'
+      item.message =
+        '1任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停任务已暂停'
     }
   })
 }
@@ -65,7 +66,16 @@ export const useBackupTasksStore = defineStore(
       { deep: true },
     )
 
-    return { tasks: tasks, initData }
+    const removeTask = (task: PluginExecTask) => {
+      const index = tasks.findIndex((i) => i.id === task.id)
+      if (index !== -1) {
+        tasks.splice(index, 1)
+        return true
+      }
+      return false
+    }
+
+    return { tasks, initData, removeTask }
   },
   {
     persist: false,

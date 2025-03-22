@@ -45,7 +45,7 @@ const refreshSoftList = async () => {
     <div class="content-wrapper installed-cards">
       <div class="header">
         <div class="title" @click="RouterUtil.gotoSoft({})">已安装的软件({{ softwareList?.length ?? 0 }})</div>
-        <span class="iconfont icon-refresh icon-btn t-rotate" @click="() => refreshSoftList()"></span>
+        <i class="ri-loop-right-line icon-btn t-rotate" @click="() => refreshSoftList()"></i>
       </div>
       <div class="content-x">
         <div class="content-y card-container">
@@ -79,7 +79,7 @@ const refreshSoftList = async () => {
         <div class="card-container">
           <div class="header">
             <div class="title" @click="RouterUtil.gotoPluginConfig({})">备份配置({{ pluginList?.length ?? 0 }})</div>
-            <span class="iconfont icon-refresh icon-btn t-rotate" @click="() => refreshPluginList()"></span>
+            <i class="ri-loop-right-line icon-btn t-rotate" @click="() => refreshPluginList()"></i>
           </div>
           <div class="card">
             <div class="card-info">

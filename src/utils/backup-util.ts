@@ -254,7 +254,7 @@ export default class BackupUtil {
    * @param task
    */
   static async stopTask(task: Reactive<PluginExecTask>) {
-    return PluginUtil.stopExecPlugin(task)
+    return PluginUtil.stopExecPlugin(cloneDeep(task))
   }
 
   /**
@@ -309,6 +309,21 @@ export default class BackupUtil {
       currTasks,
       restoreTasks,
       onTaskFinished,
+    }
+  }
+
+  /**
+   * 移除任务
+   * @param task
+   */
+  static removeTask(task: Reactive<PluginExecTask>) {
+    if (task.state !== 'finished') {
+      throw new CommonError('任务未结束，不支持移除')
+    }
+    if (task.pluginExecType === 'backup') {
+      return useBackupTasksStore().removeTask(task)
+    } else {
+      return useRestoreTasksStore().removeTask(task)
     }
   }
 }

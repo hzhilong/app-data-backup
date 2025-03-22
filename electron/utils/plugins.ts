@@ -6,6 +6,7 @@ import WinUtil from './win-util'
 import path from 'path'
 import { BackupConfig, BackupPluginTypeKey, PluginConfig } from '@/plugins/plugin-config'
 import { PluginExecTask, TaskItemResult, TaskMonitor } from '@/plugins/plugin-task'
+import nLogger from './log4js'
 
 /** 插件 */
 export class Plugin implements PluginConfig {
@@ -168,6 +169,7 @@ export class Plugin implements PluginConfig {
             continue
           }
           const size = await this.operateData(task, env, taskItemResult, progress, processedCount, signal)
+          nLogger.debug('size', size)
           taskItemResult.finished = true
           taskItemResult.success = true
           successCount++
@@ -189,11 +191,21 @@ export class Plugin implements PluginConfig {
             successCount++
             taskItemResult.skipIfMissing = true
             taskItemResult.message = `已跳过缺失项`
+            onItemFinished(taskResult.configName, taskItemResult)
           } else {
+            nLogger.error('执行错误', e)
+            const ce = BaseUtil.convertToCommonError(e)
             taskItemResult.finished = true
             taskItemResult.success = false
-            taskItemResult.error = BaseUtil.convertToCommonError(e)
-            taskItemResult.message = `${taskItemResult.error.message}`
+            taskItemResult.error = ce
+            taskItemResult.message = ce.message
+            progress(ce.message, processedCount)
+            onItemFinished(taskResult.configName, taskItemResult)
+            // 结果当前备份任务
+            task.state = 'finished'
+            task.message = `${execTypeName}失败`
+            task.success = false
+            return task
           }
         } finally {
           processedCount++

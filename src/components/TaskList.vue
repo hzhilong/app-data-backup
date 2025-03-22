@@ -1,26 +1,50 @@
 <script setup lang="ts">
 import { debounce } from 'lodash'
 import BackupUtil from '@/utils/backup-util'
-import type { PluginExecTask, PluginExecType, TaskRunType, TaskState } from '@/plugins/plugin-task'
-import { getTaskStateText } from '@/plugins/plugin-task'
+import {
+  getTaskStateText,
+  type PluginExecTask,
+  type PluginExecType,
+  type TaskItemResult,
+  type TaskRunType,
+  type TaskState,
+} from '@/plugins/plugin-task'
 import { storeToRefs } from 'pinia'
 import { useBackupTasksStore } from '@/stores/backup-task'
 import { useRestoreTasksStore } from '@/stores/restore-task'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import AppUtil from '@/utils/app-util'
 
 const props = defineProps<{
   runTypes: TaskRunType[]
   states: TaskState[]
+  success: (boolean | undefined)[]
   pluginExecType: PluginExecType
 }>()
 
 const { tasks } =
   props.pluginExecType === 'backup' ? storeToRefs(useBackupTasksStore()) : storeToRefs(useRestoreTasksStore())
+const expandItems = ref<Set<string>>(new Set())
+const expandTaskInfo = (task: PluginExecTask) => {
+  const id = task.id
+  if (expandItems.value.has(id)) {
+    expandItems.value.delete(id)
+  } else {
+    expandItems.value.add(id)
+  }
+}
 
 const filteredTasks = computed(() => {
   return tasks.value.filter((task) => {
-    return props.runTypes.some((type) => type === task.runType) && props.states.some((state) => state === task.state)
+    if (props.success === undefined) {
+      return props.runTypes.some((type) => type === task.runType) && props.states.some((state) => state === task.state)
+    } else {
+      return (
+        props.success.some((success) => success === task.success) &&
+        props.runTypes.some((type) => type === task.runType) &&
+        props.states.some((state) => state === task.state)
+      )
+    }
   })
 })
 
@@ -49,6 +73,28 @@ const removeTask = (task: PluginExecTask) => {
     BackupUtil.removeTask(task)
   }, 100)()
 }
+const getTaskItemResultState = (item: TaskItemResult) => {
+  if (!item.finished) {
+    return '等待操作'
+  } else {
+    if (item.success) {
+      return '成功'
+    } else {
+      return `失败：${item.message}`
+    }
+  }
+}
+const getTaskItemResultStateClass = (item: TaskItemResult) => {
+  if (!item.finished) {
+    return 'ri-question-line'
+  } else {
+    if (item.success) {
+      return 'ri-checkbox-circle-line'
+    } else {
+      return 'ri-close-circle-line'
+    }
+  }
+}
 </script>
 
 <template>
@@ -76,12 +122,16 @@ const removeTask = (task: PluginExecTask) => {
               @click="stopTask(task)"
               title="暂停"
             ></i>
-            <i
-              class="ri-close-circle-fill icon-btn"
+            <el-popconfirm
               v-if="task.state === 'finished'"
-              @click="removeTask(task)"
-              title="移除"
-            ></i>
+              title="移除该任务？"
+              placement="left"
+              @confirm="removeTask(task)"
+            >
+              <template #reference>
+                <i class="ri-close-circle-fill icon-btn" title="移除"></i>
+              </template>
+            </el-popconfirm>
           </div>
         </div>
         <div class="content">
@@ -96,11 +146,7 @@ const removeTask = (task: PluginExecTask) => {
                 :status="getELProgressStatus(task.success)"
               />
             </div>
-            <el-tooltip
-              effect="dark"
-              :content="task.progressText"
-              placement="top-start"
-            >
+            <el-tooltip effect="dark" :content="task.progressText" placement="top-start">
               <div class="progress-text">{{ task.progressText }}</div>
             </el-tooltip>
           </div>
@@ -117,6 +163,29 @@ const removeTask = (task: PluginExecTask) => {
               <span class="path-label">备份目录：</span>
               <div class="path-wrapper">
                 <div class="path" @click="AppUtil.openPath(task.backupPath)">{{ task.backupPath }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <i
+          class="btn-expand"
+          :class="expandItems.has(task.id) ? 'ri-arrow-down-wide-line' : 'ri-arrow-up-wide-line'"
+          @click="expandTaskInfo(task)"
+        ></i>
+        <div class="expand-info-container" :class="expandItems.has(task.id) ? 'expand' : 'collapse'">
+          <div class="expand-info">
+            <div class="plugin-config" v-for="config in task.taskResults">
+              <div class="config-name"><i class="ri-list-settings-fill"></i>{{ config.configName }}</div>
+              <div class="config-item" v-for="item in config.configItems">
+                <div class="item-field" style="flex: 4">
+                  <i class="ri-file-2-line"></i>{{ item.targetRelativePath }}
+                </div>
+                <div class="item-field" style="flex: 2">
+                  <i :class="item.sizeStr ? 'ri-file-info-fill' : ''"></i>{{ item.sizeStr }}
+                </div>
+                <div class="item-field" style="flex: 10">
+                  <i :class="getTaskItemResultStateClass(item)"></i>{{ getTaskItemResultState(item) }}
+                </div>
               </div>
             </div>
           </div>

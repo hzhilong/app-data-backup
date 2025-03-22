@@ -161,6 +161,7 @@ window.onresize = () => {
     refreshGraph()
   })()
 }
+defineExpose({ refreshGraph })
 </script>
 
 <template>

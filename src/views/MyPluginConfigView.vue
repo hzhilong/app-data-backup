@@ -43,7 +43,6 @@ const { tableData, tableColumns, queryParams, loading, searchData, refreshData }
         :data="tableData"
         style="width: 100%"
         height="100%"
-        stripe
         border
         highlight-current-row
         v-loading="loading"

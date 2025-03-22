@@ -17,6 +17,8 @@ import { cloneDeep } from 'lodash'
 import { BuResult } from '@/models/bu-result'
 import { IPC_CHANNELS } from '@/models/ipc-channels'
 import BaseUtil from '@/utils/base-util'
+import { emitter } from '@/utils/emitter'
+import BackupUtil from '@/utils/backup-util'
 
 const queryParams = {
   id: {
@@ -134,8 +136,13 @@ export function usePluginConfigTable() {
         if (row.softInstallDir) {
           list.push({
             text: '备份',
-            onClick: () => {
-              logger.debug(`备份：${row.name}`)
+            onClick: (data: MyPluginConfig, e?: MouseEvent) => {
+              AppUtil.message('已添加备份任务')
+              emitter.emit('exec-backup', {
+                clientX: e!.clientX,
+                clientY: e!.clientY,
+              })
+              BackupUtil.startBackupData('manual', [data]).then((r) => {})
             },
           })
           list.push({

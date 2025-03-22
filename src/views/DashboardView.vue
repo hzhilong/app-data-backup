@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { parseAllInstalledSoftware } from '@/models/software'
-import SoftwareGraph from '@/components/graph/software-graph.vue'
+import SoftwareGraph from '@/components/graph/SoftwareGraph.vue'
 import { RouterUtil } from '@/router/router-util'
 import PluginUtil from '@/plugins/plugin-util'
 import { initTable } from '@/table/table'
@@ -22,7 +22,7 @@ const { refreshDB: refreshPluginList, tableData: pluginList } = initTable(usePlu
 
 const allInstalledSoftware = computed(() => parseAllInstalledSoftware(softwareList.value ?? []))
 const pluginConfigGroup = computed(() => PluginUtil.parsePluginConfigGroup(pluginList.value ?? []))
-const { tasks:backupTasks } = storeToRefs(useBackupTasksStore())
+const { tasks: backupTasks } = storeToRefs(useBackupTasksStore())
 const backupTaskInfo = computed(() => {
   return {
     totalCount: backupTasks.value.length,
@@ -34,6 +34,11 @@ const backupTaskInfo = computed(() => {
 const refreshSoftList = async () => {
   await refreshInstalledList()
 }
+
+const refGraph = ref<InstanceType<typeof SoftwareGraph> | null>(null);
+RouterUtil.onCurrRouteUpdate(() => {
+  refGraph.value?.refreshGraph()
+})
 </script>
 
 <template>
@@ -68,7 +73,7 @@ const refreshSoftList = async () => {
         </div>
         <div class="soft-graph-wrapper">
           <div class="card no-transition">
-            <SoftwareGraph :softwareList="softwareList"></SoftwareGraph>
+            <SoftwareGraph ref="refGraph" :softwareList="softwareList"></SoftwareGraph>
           </div>
         </div>
       </div>

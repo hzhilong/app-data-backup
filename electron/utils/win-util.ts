@@ -4,7 +4,7 @@ import { promisified as regedit, type RegistryItem } from 'regedit'
 import path from 'node:path'
 import { shell } from 'electron'
 import nLogger from './log4js'
-import { AbortedError } from '@/models/common-error'
+import { AbortedError, CommonError } from '@/models/common-error'
 import iconv from 'iconv-lite'
 import * as url from 'node:url'
 
@@ -94,6 +94,8 @@ export default class WinUtil {
         await this.execCmd(`start "" ${fileOrDir}`)
         return
       }
+    } else {
+      throw new CommonError('该文件/文件夹不存在')
     }
   }
 

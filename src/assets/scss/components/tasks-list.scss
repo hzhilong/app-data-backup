@@ -16,6 +16,7 @@
   .task-item {
     width: 100%;
     display: flex;
+    flex-direction: column;
     gap: 10px;
     margin-bottom: 10px;
     padding: 4px 10px;
@@ -24,6 +25,7 @@
     color: $app-text-color-secondary;
     border-radius: 10px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
 
     &:hover {
       transform: translateY(-5px);
@@ -153,12 +155,13 @@
 
         .progress {
           width: 100%;
+          cursor: pointer;
 
           :deep(.el-progress__text) {
             font-size: 1em;
           }
 
-          .progress-text{
+          .progress-text {
             width: 100%;
           }
         }
@@ -192,6 +195,68 @@
         }
       }
     }
-  }
 
+    .btn-expand {
+      font-size: 14px;
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      padding: 0 5px;
+      transform: translateX(-50%);
+
+      &:hover {
+        font-size: 16px;
+        bottom: -4px;
+        color: $app-color-primary;
+      }
+    }
+
+    .expand-info-container {
+      width: 100%;
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: .3s grid-template-rows ease;
+
+      &.expand {
+        border-top: 1px solid $app-border-color-light;
+        grid-template-rows: 1fr;
+      }
+
+      .expand-info {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        padding: 7px 0;
+      }
+
+      .plugin-config {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+
+        i {
+          margin-right: 4px;
+        }
+
+        .config-name {
+          color: $app-text-color-primary;
+        }
+
+        .config-item {
+          width: calc(100% - 20px);
+          align-items: center;
+          margin-left: 20px;
+          display: flex;
+          gap:10px;
+
+          &:hover{
+            background-color: $app-color-primary-light-9;
+          }
+        }
+
+      }
+    }
+  }
 }

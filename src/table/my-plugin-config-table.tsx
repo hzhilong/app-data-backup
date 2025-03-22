@@ -139,11 +139,10 @@ export function useMyPluginConfigTable() {
             db.myConfig.delete(row.id as IDType<MyPluginConfig, never>)
           },
         })
-        if (row.type === 'INSTALLER') {
+        if(row.softInstallDir){
           list.push({
             text: '备份',
             onClick: (data: MyPluginConfig, e?: MouseEvent) => {
-              logger.debug(`备份：${data.name}`, data, e)
               AppUtil.message('已添加备份任务')
               emitter.emit('exec-backup', {
                 clientX: e!.clientX,

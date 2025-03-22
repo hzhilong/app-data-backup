@@ -5,6 +5,7 @@ import { db } from '@/db/db'
 import { logger } from '@/utils/logger'
 import { cloneDeep } from 'lodash'
 import type { PluginExecTask } from '@/plugins/plugin-task'
+import type { IDType } from 'dexie'
 
 /**
  * 处理初始化的数据
@@ -56,6 +57,7 @@ export const useRestoreTasksStore = defineStore(
       const index = tasks.findIndex((i) => i.id === task.id)
       if (index !== -1) {
         tasks.splice(index, 1)
+        db.restoreTask.delete(task.id as IDType<PluginExecTask, never>)
         return true
       }
       return false

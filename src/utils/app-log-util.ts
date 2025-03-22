@@ -1,11 +1,5 @@
 import { IPC_CHANNELS } from '@/models/ipc-channels'
-
-export type LogLevel = 'all' | 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'off'
-
-export interface AppLog {
-  level: LogLevel
-  contents: unknown[]
-}
+import type { AppLog, LogLevel } from '@/models/app-log'
 
 export default class AppLogUtil {
   static saveLog(level: LogLevel = 'info', ...args: unknown[]): AppLog {

@@ -9,9 +9,9 @@ import { execBusiness } from '@/models/bu-result'
 import fs from 'fs'
 import nLogger from './utils/log4js'
 import { getAppBasePath } from './utils/app-path'
-import { AppLog } from '@/utils/app-log-util'
 import BrowserWindow = Electron.BrowserWindow
 import OpenDialogOptions = Electron.OpenDialogOptions
+import { AppLog } from '@/models/app-log'
 
 if (process.env.NODE_ENV === 'development') {
   setExternalVBSLocation(path.join(__dirname, '../node_modules/regedit/vbs'))

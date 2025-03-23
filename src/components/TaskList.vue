@@ -14,6 +14,7 @@ import { useBackupTasksStore } from '@/stores/backup-task'
 import { useRestoreTasksStore } from '@/stores/restore-task'
 import { computed, ref } from 'vue'
 import AppUtil from '@/utils/app-util'
+import { logger } from '@/utils/logger'
 
 const props = defineProps<{
   runTypes: TaskRunType[]
@@ -37,6 +38,7 @@ const expandTaskInfo = (task: PluginExecTask) => {
 const paramPluginId = ref('')
 
 const filteredTasks = computed(() => {
+  logger.debug('filteredTasks', tasks.value)
   return tasks.value.filter((task) => {
     const pid = paramPluginId.value.toLowerCase()
     if (props.success === undefined) {

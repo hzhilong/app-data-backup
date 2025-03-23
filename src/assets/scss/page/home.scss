@@ -72,27 +72,58 @@
       position: relative;
 
       > .top-bar-btn-list {
-        $btn-margin: 2px;
         display: flex;
         align-items: center;
         app-region: no-drag;
-        position: absolute;
-        margin-right: $btn-margin;
-        top: 0;
-        right: 0;
+        margin-left: auto;
+        margin-right: 4px;
+        gap: 4px;
 
         > .btn {
-          width: calc($app-top-bar-height - $btn-margin);
-          height: calc($app-top-bar-height - $btn-margin);
+          width: calc($app-top-bar-height - 4px);
+          height: calc($app-top-bar-height - 4px);
           font-size: 16px;
           text-align: center;
+          display: inline-block;
+          user-select: none;
+          cursor: pointer;
+          position: relative;
 
-          &:before {
-            vertical-align: middle;
+          &:before{
+            content: '';
+            position: absolute;
+            left: 4px;
+            top: 4px;
+            right: 4px;
+            bottom: 4px;
+            mask: url('@/assets/logo.svg') no-repeat center / contain;
+            -webkit-mask: url('@/assets/logo.svg') no-repeat center / contain;
+            background: $app-text-color-primary;
+            z-index: 1;
+          }
+
+          &.icon-minimize:before {
+            mask: url('@/assets/image/icon-minimize.svg') no-repeat center / contain;
+            -webkit-mask: url('@/assets/image/icon-minimize.svg') no-repeat center / contain;
+          }
+
+          &.icon-maximize:before {
+            mask: url('@/assets/image/icon-maximize.svg') no-repeat center / contain;
+            -webkit-mask: url('@/assets/image/icon-maximize.svg') no-repeat center / contain;
+          }
+
+          &.icon-cancel-maximize:before {
+            mask: url('@/assets/image/icon-cancel-maximize.svg') no-repeat center / contain;
+            -webkit-mask: url('@/assets/image/icon-cancel-maximize.svg') no-repeat center / contain;
+          }
+
+          &.icon-close:before {
+            mask: url('@/assets/image/icon-close.svg') no-repeat center / contain;
+            -webkit-mask: url('@/assets/image/icon-close.svg') no-repeat center / contain;
           }
 
           &:hover {
-            background: $app-color-primary-light-8;
+            background: $app-color-primary-light-4;
           }
 
           &:nth-child(3):hover {
@@ -111,7 +142,7 @@
       padding: $app-main-content-margin;
       box-sizing: border-box;
 
-      > .page{
+      > .page {
         height: 100%;
         width: 100%;
         box-sizing: border-box;
@@ -122,7 +153,7 @@
         border: 1px solid $app-border-color-light;
         overflow: auto;
 
-        &.page-content{
+        &.page-content {
           background: $app-bg-color;
         }
       }

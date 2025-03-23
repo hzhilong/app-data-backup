@@ -15,6 +15,7 @@ import AppUtil from '@/utils/app-util'
 import ThemeUtil from '@/utils/theme-util'
 import { useAppSettingsStore } from '@/stores/app-settings'
 import { useBackupTasksStore } from '@/stores/backup-task'
+import { useRestoreTasksStore } from '@/stores/restore-task'
 
 const app = createApp(App)
 // 挂载到全局属性
@@ -29,6 +30,7 @@ async function bootstrapApp() {
 
   await ThemeUtil.initAppTheme()
   await useBackupTasksStore().initData()
+  await useRestoreTasksStore().initData()
   await useAppSettingsStore().initData()
 
   app.use(router)

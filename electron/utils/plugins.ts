@@ -275,7 +275,6 @@ export class Plugin implements PluginConfig {
           },
         }
         const size = await operations[item.type][execType]()
-        console.log('size', size)
         resolve(size)
       } catch (e) {
         reject(e)

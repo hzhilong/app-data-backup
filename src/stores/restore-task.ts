@@ -40,7 +40,7 @@ export const useRestoreTasksStore = defineStore(
 
     // 带防抖的持久化方法
     const persistData = debounce(async () => {
-      logger.debug(`持久化${tasks.length}条备份任务`, tasks)
+      logger.debug(`持久化${tasks.length}条还原任务`, tasks)
       db.transaction('rw', db.restoreTask.name, async () => {
         await db.restoreTask.bulkPut(cloneDeep(tasks))
       })

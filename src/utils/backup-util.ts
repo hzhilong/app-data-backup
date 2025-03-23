@@ -91,7 +91,6 @@ const buildTask = (options: BuildTaskDataOptions): PluginExecTask => {
         return { finished: false, ...restFields }
       })
     })
-    console.log(JSON.stringify(taskResults))
     return {
       id: BaseUtil.generateId(),
       runType: options.runType,
@@ -369,7 +368,6 @@ export default class BackupUtil {
       }
     }
     const ret = removeFn()
-    console.log('ret', ret)
     if (showMsg) {
       AppUtil.message({
         message: ret ? '成功移除' : '移除失败',

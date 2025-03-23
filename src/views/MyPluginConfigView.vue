@@ -35,6 +35,8 @@ const { tableData, tableColumns, queryParams, loading, searchData, refreshData }
         </div>
         <el-button type="primary" @click="searchData" :loading="loading">搜索</el-button>
         <el-button type="primary" @click="refreshData" :loading="loading">刷新</el-button>
+        <el-button type="primary">批量备份</el-button>
+        <el-button type="primary">批量还原最近备份的数据</el-button>
       </div>
       <div class="header-right"></div>
     </div>

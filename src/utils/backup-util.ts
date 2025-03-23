@@ -83,7 +83,8 @@ const buildTask = (options: BuildTaskDataOptions): PluginExecTask => {
       softInstallDir: options.configWithoutIcon.softInstallDir,
     } satisfies PluginExecTask
   } else {
-    // 还原
+    // 还原/自动备份
+    // 重置任务结果
     const taskResults = cloneDeep(options.backupTask.taskResults)
     taskResults.forEach((result) => {
       result.configItems = result.configItems.map((item) => {
@@ -95,7 +96,7 @@ const buildTask = (options: BuildTaskDataOptions): PluginExecTask => {
       id: BaseUtil.generateId(),
       runType: options.runType,
       state: options.success === false ? 'finished' : 'pending',
-      pluginExecType: 'restore',
+      pluginExecType: options.execType,
       success: options.success,
       message: options.message,
       taskResults: taskResults,
@@ -287,6 +288,34 @@ export default class BackupUtil {
       })
   }
 
+  static async autoBackupData(backupTasks: PluginExecTask[]) {
+    const { tasks } = storeToRefs(useBackupTasksStore())
+    const currTasks: Reactive<PluginExecTask[]> = reactive([])
+    const rootPath = useAppSettingsStore().backupRootDir
+    const date = new Date()
+    const cTime = BaseUtil.getFormatedDateTime(date)
+    const fileDateName = getFileDateName(date)
+    for (const task of backupTasks) {
+      const refTask: Reactive<PluginExecTask> = reactive(
+        buildTask({
+          runType: 'auto',
+          execType: 'backup',
+          backupTask: task,
+          cTime,
+          backupPath: getBackupDir(rootPath, task.pluginName, task.pluginId, fileDateName),
+          message: '自动备份任务，等待执行',
+        }),
+      )
+      // 异步执行任务，需等待
+      await runTask(refTask)
+        .then((r) => {})
+        .catch((err) => {})
+      currTasks.unshift(refTask)
+    }
+    tasks.value.unshift(...currTasks)
+    return
+  }
+
   /**
    * 开始还原数据
    * @param runType 任务运行类型 手动/自动
@@ -303,6 +332,11 @@ export default class BackupUtil {
     if (backupTasks.some((task) => task.success === false)) {
       throw new CommonError('存在未备份成功的任务')
     }
+    if (useAppSettingsStore().autoBackupBeforeRestore) {
+      showMsg && AppUtil.message('等待自动备份完成...')
+      await this.autoBackupData(backupTasks)
+    }
+
     const execType: PluginExecType = 'restore'
     // 数据保存的路径
     const { tasks: restoreTasks } = storeToRefs(useRestoreTasksStore())

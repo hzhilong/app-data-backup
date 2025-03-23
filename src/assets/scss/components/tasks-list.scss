@@ -250,7 +250,8 @@
       transition: .3s grid-template-rows ease;
 
       &.expand {
-        border-top: 1px solid $app-border-color-light;
+        margin-top: 2px;
+        border-top: 1px solid $app-border-color;
         grid-template-rows: 1fr;
       }
 

@@ -29,6 +29,10 @@ export const getTaskStateText = (state: TaskState) => {
  */
 export type PluginExecType = 'backup' | 'restore'
 
+export const getPluginExecName = (type: PluginExecType) => {
+  return type === 'backup' ? '备份' : '还原'
+}
+
 /**
  * 任务监听
  */
@@ -117,4 +121,15 @@ export interface PluginExecTask {
   pluginName: string
   /** 软件安装目录 */
   softInstallDir: string
+}
+
+/**
+ * 打开任务备份配置路径的选项
+ */
+export interface OpenTaskConfigPathOptions {
+  config: BackupItemConfig
+  type: 'source' | 'target'
+  softName: string
+  softInstallDir: string
+  backupPath: string
 }

@@ -85,13 +85,15 @@ export default class WinUtil {
   static async openPath(fileOrDir: string): Promise<void> {
     fileOrDir = path.resolve(fileOrDir)
     let href = url.pathToFileURL(fileOrDir).href
-    nLogger.debug(`打开资源管理器，路径：${fileOrDir}，转码：${href}`)
     if (fs.existsSync(fileOrDir)) {
       if (fs.lstatSync(fileOrDir).isFile()) {
-        return shell.showItemInFolder(href)
+        nLogger.debug(`打开资源管理器定位文件，路径：${fileOrDir}，转码：${href}`)
+        await this.execCmd(`start "" explorer /select,"${fileOrDir}"`)
+        // return shell.showItemInFolder(href)
       } else {
+        nLogger.debug(`打开资源管理器，路径：${fileOrDir}，转码：${href}`)
         // return shell.openExternal(href)
-        await this.execCmd(`start "" ${fileOrDir}`)
+        await this.execCmd(`start "" "${fileOrDir}"`)
         return
       }
     } else {
@@ -104,11 +106,7 @@ export default class WinUtil {
    * @param path 显示的路径
    */
   static openRegedit(path: string) {
-    exec(
-      `taskkill /f /im regedit.exe & REG ADD "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Applets\\Regedit" /v "LastKey" /d "${path}" /f & regedit`,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      (err, stdout, stderr) => {},
-    )
+    return this.execCmd(`taskkill /f /im regedit.exe & REG ADD "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Applets\\Regedit" /v "LastKey" /d "${path}" /f & regedit`)
   }
 
   /**

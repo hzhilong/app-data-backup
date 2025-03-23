@@ -42,6 +42,10 @@ export class RouterUtil {
     return this.gotoPage('/backup-tasks')
   }
 
+  static gotoRestoreTasks(): any {
+    return this.gotoPage('/restore-tasks')
+  }
+
   /**
    * 当前组件路由更新时的监听
    * @param updateFn

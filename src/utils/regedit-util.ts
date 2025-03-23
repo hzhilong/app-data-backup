@@ -3,12 +3,14 @@ import { IPC_CHANNELS } from '@/models/ipc-channels'
 import { type InstalledSoftware, SOFTWARE_REGEDIT_GROUP, type SoftwareRegeditGroupKey } from '@/models/software'
 import { db } from '@/db/db'
 import { BuResult } from '@/models/bu-result'
+import { CommonError } from '@/models/common-error'
 
 export default class RegeditUtil {
   static openRegedit(path?: string) {
     if (path) {
-      window.electronAPI?.ipcInvoke(IPC_CHANNELS.OPEN_REGEDIT, path)
+      return BuResult.getPromise(window.electronAPI?.ipcInvoke(IPC_CHANNELS.OPEN_REGEDIT, path) as BuResult<string>)
     }
+    throw new CommonError('注册表路径为空')
   }
 
   static async getInstalledSoftwareByGroup(path: SoftwareRegeditGroupKey): Promise<InstalledSoftware[]> {

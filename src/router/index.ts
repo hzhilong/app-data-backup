@@ -36,6 +36,11 @@ const router = createRouter({
           component: () => import('../views/BackupTaskView.vue'),
         },
         {
+          path: '/restore-tasks',
+          name: 'restore-tasks',
+          component: () => import('../views/RestoreTaskView.vue'),
+        },
+        {
           path: '/settings',
           name: 'settings',
           component: () => import('../views/SettingView.vue'),

@@ -5,7 +5,7 @@ import BaseUtil from '@/utils/base-util'
 import WinUtil from './win-util'
 import path from 'path'
 import { BackupConfig, BackupPluginTypeKey, PluginConfig } from '@/plugins/plugin-config'
-import { PluginExecTask, TaskItemResult, TaskMonitor } from '@/plugins/plugin-task'
+import { getPluginExecName, PluginExecTask, TaskItemResult, TaskMonitor } from '@/plugins/plugin-task'
 import nLogger from './log4js'
 
 /** 插件 */
@@ -134,7 +134,7 @@ export class Plugin implements PluginConfig {
     monitor?: TaskMonitor,
     signal?: AbortSignal,
   ): Promise<PluginExecTask> {
-    const execTypeName = task.pluginExecType === 'backup' ? '备份' : '还原'
+    const execTypeName = getPluginExecName(task.pluginExecType)
     // 监听函数
     const progress: (log: string, curr: number) => void = this.buildProgressFn(monitor)
     const onItemFinished: (configName: string, configItemResult: TaskItemResult) => void =
@@ -165,7 +165,7 @@ export class Plugin implements PluginConfig {
       progress(`${i + 1}/${configLength} 开始${execTypeName}软件配置[${taskResult.configName}]`, processedCount)
       for (const taskItemResult of taskResult.configItems) {
         try {
-          if(taskItemResult.finished){
+          if (taskItemResult.finished) {
             continue
           }
           const size = await this.operateData(task, env, taskItemResult, progress, processedCount, signal)
@@ -260,8 +260,8 @@ export class Plugin implements PluginConfig {
         signal?.addEventListener('abort', abortHandler)
         const execType = task.pluginExecType
         const [src, des] = [
-          this.resolvePath(item.sourcePath, env, task.softInstallDir),
-          this.resolvePath(item.targetRelativePath, env),
+          Plugin.resolvePath(item.sourcePath, env, task.softInstallDir),
+          Plugin.resolvePath(item.targetRelativePath, env),
         ]
         const filePath = path.join(task.backupPath, des)
         const operations = {
@@ -285,7 +285,7 @@ export class Plugin implements PluginConfig {
     })
   }
 
-  protected resolvePath(path: string, env: { [key: string]: string | undefined }, installDir?: string) {
+  public static resolvePath(path: string, env: { [key: string]: string | undefined }, installDir?: string) {
     let newList = path
     if (installDir) {
       newList = path.replace(/%installDir%/gi, installDir)

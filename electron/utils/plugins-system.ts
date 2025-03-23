@@ -12,7 +12,7 @@ import { InstalledSoftware } from '@/models/software'
 import BaseUtil from '@/utils/base-util'
 import nLogger from './log4js'
 import { getAppBasePath } from './app-path'
-import type { PluginExecTask, TaskItemResult } from '@/plugins/plugin-task'
+import { OpenTaskConfigPathOptions, PluginExecTask, TaskItemResult } from '@/plugins/plugin-task'
 import { loadPluginConfig, ValidatedPluginConfig } from '@/plugins/plugin-config'
 import BrowserWindow = Electron.BrowserWindow
 import { throws } from 'assert'
@@ -75,6 +75,12 @@ function initPluginSystem(mainWindow: BrowserWindow) {
       } else {
         throw new CommonError('该任务未执行')
       }
+    })
+  })
+  // IPC 事件监听【打开任务备份配置路径】
+  ipcMain.handle(IPC_CHANNELS.OPEN_TASK_CONFIG_PATH, async (event, options: OpenTaskConfigPathOptions) => {
+    return execBusiness(async () => {
+      return await openTaskConfigPath(options)
     })
   })
   // 先在主进程初始化一次
@@ -218,6 +224,24 @@ async function execPlugin(task: PluginExecTask, mainWindow: Electron.BrowserWind
   nLogger.info(`插件[${pluginId}] 任务 ${taskId} 执行完成：`, ranTask)
   clearOnPluginStop(task)
   return ranTask
+}
+
+/**
+ * 打开任务备份配置路径
+ * @param options
+ */
+async function openTaskConfigPath(options: OpenTaskConfigPathOptions) {
+  const optPath = options.type === 'source' ? options.config.sourcePath : options.config.targetRelativePath
+  if (options.config.type === 'registry' && options.type === 'source') {
+    return WinUtil.openRegedit(optPath)
+  } else {
+    const resolvePath = Plugin.resolvePath(optPath, WinUtil.getEnv(), options.softInstallDir)
+    if (options.type === 'source') {
+      return WinUtil.openPath(resolvePath)
+    } else {
+      return WinUtil.openPath(path.join(options.backupPath, resolvePath))
+    }
+  }
 }
 
 export { initPluginSystem }

@@ -52,7 +52,9 @@ export default {
     })
 
     ipcMain.handle(IPC_CHANNELS.OPEN_REGEDIT, (event, path: string) => {
-      WinUtil.openRegedit(path)
+      return execBusiness(async () => {
+        return WinUtil.openRegedit(path)
+      })
     })
 
     ipcMain.handle(IPC_CHANNELS.READ_REGEDIT_VALUES, (event, path: string) => {

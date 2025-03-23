@@ -4,6 +4,7 @@ import { CommonError } from '@/models/common-error'
 import type { BuResult } from '@/models/bu-result'
 import { db } from '@/db/db'
 import BaseUtil from '@/utils/base-util'
+import { getPluginExecName, getTaskStateText, type PluginExecTask } from '@/plugins/plugin-task'
 
 export default class AppUtil {
   static async exitApp() {
@@ -81,11 +82,36 @@ export default class AppUtil {
     }
   }
 
-  static showErrorMessage(e: unknown | string): void {
+  static showErrorMessage(e: unknown): void {
     this.message({
-      message: typeof e === 'string' ? e : BaseUtil.getErrorMessage(e),
+      message: BaseUtil.getErrorMessage(e),
       type: 'error',
     })
+  }
+
+  static showTaskMessage(task: PluginExecTask, e?: unknown | string): void {
+    const execName = getPluginExecName(task.pluginExecType)
+    const msgStart = `${execName}[${task.pluginId}]：`
+    if (e !== undefined) {
+      // 有异常信息
+      this.message({
+        message: `${msgStart}${typeof e === 'string' ? e : BaseUtil.getErrorMessage(e)}`,
+        type: 'error',
+      })
+    } else {
+      if (task.state !== 'finished') {
+        // 未结束，简单提示
+        this.message({
+          message: `${msgStart}${getTaskStateText(task.state)}`,
+          type: 'info',
+        })
+      } else {
+        this.message({
+          message: `${msgStart}${task.message}`,
+          type: task.success ? 'success' : 'error',
+        })
+      }
+    }
   }
 
   static confirm(message: string, title: string = '提示', options: ElMessageBoxOptions = {}) {

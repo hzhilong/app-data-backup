@@ -1,13 +1,14 @@
 import { IPC_CHANNELS } from '@/models/ipc-channels'
 import {
   BACKUP_PLUGIN_TYPE,
+  type BackupItemConfig,
   type BackupPluginTypeKey,
   type PluginConfig,
-  type PluginConfigGroup
+  type PluginConfigGroup,
 } from '@/plugins/plugin-config'
 import { CommonError } from '@/models/common-error'
 import { BuResult } from '@/models/bu-result'
-import type { PluginExecTask, TaskItemResult, TaskMonitor } from '@/plugins/plugin-task'
+import type { OpenTaskConfigPathOptions, PluginExecTask, TaskItemResult, TaskMonitor } from '@/plugins/plugin-task'
 
 /**
  * 插件工具
@@ -59,7 +60,9 @@ export default class PluginUtil {
   }
 
   static async stopExecPlugin(task: PluginExecTask) {
-    return BuResult.getPromise((await window.electronAPI?.ipcInvoke(IPC_CHANNELS.STOP_EXEC_PLUGIN, task)) as BuResult<void>)
+    return BuResult.getPromise(
+      (await window.electronAPI?.ipcInvoke(IPC_CHANNELS.STOP_EXEC_PLUGIN, task)) as BuResult<void>,
+    )
   }
 
   /**
@@ -75,5 +78,17 @@ export default class PluginUtil {
     list.forEach((curr) => groupData[curr.type].list?.push(curr))
 
     return groupData
+  }
+
+  static async openTaskConfigPath(task: PluginExecTask, config: BackupItemConfig, isSource: boolean) {
+    return BuResult.getPromise(
+      (await window.electronAPI?.ipcInvoke(IPC_CHANNELS.OPEN_TASK_CONFIG_PATH, {
+        softName: task.pluginName,
+        softInstallDir: task.softInstallDir,
+        config: config,
+        type: isSource ? 'source' : 'target',
+        backupPath: task.backupPath,
+      } satisfies OpenTaskConfigPathOptions)) as BuResult<void>,
+    )
   }
 }

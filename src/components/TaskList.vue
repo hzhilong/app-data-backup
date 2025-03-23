@@ -34,12 +34,20 @@ const expandTaskInfo = (task: PluginExecTask) => {
   }
 }
 
+const paramPluginId = ref('')
+
 const filteredTasks = computed(() => {
   return tasks.value.filter((task) => {
+    const pid = paramPluginId.value.toLowerCase()
     if (props.success === undefined) {
-      return props.runTypes.some((type) => type === task.runType) && props.states.some((state) => state === task.state)
+      return (
+        task.pluginId.toLowerCase().includes(pid) &&
+        props.runTypes.some((type) => type === task.runType) &&
+        props.states.some((state) => state === task.state)
+      )
     } else {
       return (
+        task.pluginId.toLowerCase().includes(pid) &&
         props.success.some((success) => success === task.success) &&
         props.runTypes.some((type) => type === task.runType) &&
         props.states.some((state) => state === task.state)
@@ -70,6 +78,11 @@ const removeTask = (task: PluginExecTask) => {
     BackupUtil.removeTask(task, true)
   }, 100)()
 }
+const restoreTask = (task: PluginExecTask) => {
+  debounce(() => {
+    BackupUtil.restoreBackupData('manual', [task], true)
+  }, 100)()
+}
 const getTaskItemResultState = (item: TaskItemResult) => {
   if (!item.finished) {
     return '等待操作'
@@ -96,6 +109,12 @@ const getTaskItemResultStateClass = (item: TaskItemResult) => {
 
 <template>
   <div class="task-list">
+    <div class="header">
+      <div class="search-item">
+        <div class="label">配置名称</div>
+        <el-input class="value" v-model="paramPluginId" placeholder="" size="small" clearable />
+      </div>
+    </div>
     <div class="scroll-container">
       <el-card class="task-item" shadow="hover" v-for="task in filteredTasks" :key="task.id">
         <div class="task-badge" v-if="task.runType === 'auto'">auto</div>
@@ -121,7 +140,7 @@ const getTaskItemResultStateClass = (item: TaskItemResult) => {
               title="暂停"
             ></i>
             <el-popconfirm
-              v-if="task.state === 'finished'"
+              v-if="task.state !== 'running'"
               title="移除该任务？"
               placement="left"
               @confirm="removeTask(task)"
@@ -130,6 +149,12 @@ const getTaskItemResultStateClass = (item: TaskItemResult) => {
                 <i class="ri-close-circle-fill icon-btn" title="移除"></i>
               </template>
             </el-popconfirm>
+            <i
+              class="ri-inbox-unarchive-line icon-btn"
+              v-if="task.state === 'finished' && task.success === true"
+              @click="restoreTask(task)"
+              title="还原"
+            ></i>
           </div>
         </div>
         <div class="content">
@@ -175,14 +200,30 @@ const getTaskItemResultStateClass = (item: TaskItemResult) => {
             <div class="plugin-config" v-for="config in task.taskResults">
               <div class="config-name"><i class="ri-list-settings-fill"></i>{{ config.configName }}</div>
               <div class="config-item" v-for="item in config.configItems">
+                <div class="item-field" style="flex: 6">
+                  <el-tooltip effect="dark" :content="item.sourcePath" placement="top-start">
+                    <span class="path-field" @click="BackupUtil.openTaskConfigPath(task, item, true)"
+                      ><i class="ri-file-2-line"></i>{{ item.sourcePath }}</span
+                    >
+                  </el-tooltip>
+                </div>
+                <div class="item-field">
+                  <i :class="`ri-arrow-${task.pluginExecType === 'backup' ? 'right' : 'left'}-long-line`"></i>
+                </div>
                 <div class="item-field" style="flex: 4">
-                  <i class="ri-file-2-line"></i>{{ item.targetRelativePath }}
+                  <el-tooltip effect="dark" :content="item.targetRelativePath" placement="top-start">
+                    <span class="path-field" @click="BackupUtil.openTaskConfigPath(task, item, false)"
+                      ><i class="ri-file-2-line"></i>{{ item.targetRelativePath }}</span
+                    >
+                  </el-tooltip>
                 </div>
                 <div class="item-field" style="flex: 2">
-                  <i :class="item.sizeStr ? 'ri-file-info-fill' : ''"></i>{{ item.sizeStr }}
+                  <span><i :class="item.sizeStr ? 'ri-file-info-fill' : ''"></i>{{ item.sizeStr }}</span>
                 </div>
-                <div class="item-field" style="flex: 10">
-                  <i :class="getTaskItemResultStateClass(item)"></i>{{ getTaskItemResultState(item) }}
+                <div class="item-field" style="flex: 6">
+                  <el-tooltip effect="dark" :content="getTaskItemResultState(item)" placement="top-start">
+                    <span><i :class="getTaskItemResultStateClass(item)"></i>{{ getTaskItemResultState(item) }}</span>
+                  </el-tooltip>
                 </div>
               </div>
             </div>

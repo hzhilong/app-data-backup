@@ -7,14 +7,13 @@ import { storeToRefs } from 'pinia'
 import { useBackupTasksStore } from '@/stores/backup-task'
 import { logger } from '@/utils/logger'
 import {
-  getTaskStateText,
   type PluginExecTask,
   type PluginExecType,
   type TaskItemResult,
   type TaskResult,
   type TaskRunType,
 } from '@/plugins/plugin-task'
-import type { ValidatedPluginConfig } from '@/plugins/plugin-config'
+import type { BackupItemConfig, ValidatedPluginConfig } from '@/plugins/plugin-config'
 import PluginUtil from '@/plugins/plugin-util'
 import { cloneDeep } from 'lodash'
 import { useRestoreTasksStore } from '@/stores/restore-task'
@@ -225,14 +224,10 @@ export default class BackupUtil {
           if (onTaskFinishedListener) {
             onTaskFinishedListener(r)
           }
-          if (showMsg) {
-            this.showTaskMessage(task)
-          }
+          showMsg && AppUtil.showTaskMessage(task)
         })
         .catch((err) => {
-          if (showMsg) {
-            AppUtil.showErrorMessage(err)
-          }
+          showMsg && AppUtil.showTaskMessage(task, err)
         })
       currTasks.unshift(task)
     }
@@ -265,33 +260,14 @@ export default class BackupUtil {
         if (onTaskFinishedListener) {
           onTaskFinishedListener(r)
         }
-        if (showMsg) {
-          this.showTaskMessage(task)
-        }
+        showMsg && AppUtil.showTaskMessage(task)
       })
-      .catch((e) => {
-        if (showMsg) {
-          AppUtil.showErrorMessage(e)
-        }
+      .catch((err) => {
+        showMsg && AppUtil.showTaskMessage(task, err)
       })
     return {
       currTask: task,
       onTaskFinished,
-    }
-  }
-
-  static showTaskMessage(task: PluginExecTask) {
-    if (task.state === 'finished') {
-      if (task.success) {
-        AppUtil.message(task.message)
-      } else {
-        AppUtil.showErrorMessage(task.message)
-      }
-    } else {
-      AppUtil.message({
-        message: `任务${getTaskStateText(task.state)}`,
-        type: 'info',
-      })
     }
   }
 
@@ -303,14 +279,10 @@ export default class BackupUtil {
   static async stopTask(task: Reactive<PluginExecTask>, showMsg: boolean = false) {
     PluginUtil.stopExecPlugin(cloneDeep(task))
       .then(() => {
-        if (showMsg) {
-          AppUtil.message('暂停执行')
-        }
+        showMsg && AppUtil.showTaskMessage(task)
       })
-      .catch((e) => {
-        if (showMsg) {
-          AppUtil.showErrorMessage(e)
-        }
+      .catch((err) => {
+        showMsg && AppUtil.showTaskMessage(task, err)
         task.state = 'stopped'
       })
   }
@@ -320,7 +292,7 @@ export default class BackupUtil {
    * @param runType 任务运行类型 手动/自动
    * @param backupTasks 备份记录
    */
-  static async restoreBackupData(runType: TaskRunType, backupTasks: PluginExecTask[]) {
+  static async restoreBackupData(runType: TaskRunType, backupTasks: PluginExecTask[], showMsg: boolean = false) {
     if (!backupTasks || backupTasks.length === 0) {
       throw new CommonError('备份记录为空')
     }
@@ -355,11 +327,16 @@ export default class BackupUtil {
         }),
       )
       // 异步执行任务
-      runTask(refTask).then((r) => {
-        if (onTaskFinishedListener) {
-          onTaskFinishedListener(r)
-        }
-      })
+      runTask(refTask)
+        .then((r) => {
+          if (onTaskFinishedListener) {
+            onTaskFinishedListener(r)
+          }
+          showMsg && AppUtil.showTaskMessage(task)
+        })
+        .catch((err) => {
+          showMsg && AppUtil.showTaskMessage(task, err)
+        })
       currTasks.unshift(refTask)
     }
     restoreTasks.value.unshift(...currTasks)
@@ -376,11 +353,11 @@ export default class BackupUtil {
    * @param showMsg
    */
   static removeTask(task: Reactive<PluginExecTask>, showMsg: boolean = false) {
-    if (task.state !== 'finished') {
+    if (task.state === 'running') {
       if (showMsg) {
-        AppUtil.showErrorMessage('任务未结束，不支持移除')
+        showMsg && AppUtil.showTaskMessage(task, '任务正在运行，不支持移除')
       }
-      throw new CommonError('任务未结束，不支持移除')
+      throw new CommonError('任务正在运行，不支持移除')
     }
     const removeFn = (): boolean => {
       if (task.pluginExecType === 'backup') {
@@ -390,9 +367,27 @@ export default class BackupUtil {
       }
     }
     const ret = removeFn()
+    console.log('ret', ret)
     if (showMsg) {
-      AppUtil.showErrorMessage(ret ? '成功移除' : '移除失败')
+      AppUtil.message({
+        message: ret ? '成功移除' : '移除失败',
+        type: ret ? 'success' : 'error',
+      })
     }
     return ret
+  }
+
+  static async openTaskConfigPath(
+    task: PluginExecTask,
+    config: BackupItemConfig,
+    isSource: boolean,
+    showFailedMsg: boolean = true,
+  ) {
+    PluginUtil.openTaskConfigPath(cloneDeep(task), cloneDeep(config), isSource)
+      .then(() => {
+      })
+      .catch((err) => {
+        showFailedMsg && AppUtil.showErrorMessage(err)
+      })
   }
 }

@@ -41,14 +41,14 @@ const APP_MENUS: AppMenuItem[] = [
     viewPath: '/backup-tasks',
   },
   {
-    text: '备份计划',
-    icon: 'dashboard-line',
-    viewPath: '/backup-tasks2',
-  },
-  {
     text: '还原任务',
     icon: 'dashboard-horizontal-line',
     viewPath: '/restore-tasks',
+  },
+  {
+    text: '备份计划',
+    icon: 'dashboard-line',
+    viewPath: '/backup-tasks2',
   },
   {
     text: '设置',
@@ -97,7 +97,7 @@ onMounted(() => {
       class="menu"
       :index="menu.viewPath"
       v-for="menu in menus"
-      :key="menu.text"
+      :key="menu.viewPath"
       @click="onClickMenu(menu)"
       ref="refMenus"
     >

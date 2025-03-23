@@ -6,6 +6,22 @@
   flex: 1;
   overflow-y: hidden;
 
+  .header{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0 6px 10px 6px;
+    box-sizing: border-box;
+
+    .search-item{
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      gap: 4px;
+
+    }
+  }
+
   .scroll-container {
     height: 100%;
     overflow-y: auto;
@@ -131,12 +147,14 @@
 
       .options {
         margin-left: auto;
-        font-size: 18px;
+        font-size: 24px;
         color: $app-color-primary-light-3;
 
         .icon-btn {
           cursor: pointer;
-          border-radius: 50%;
+          border-radius: 4px;
+          padding: 2px;
+          margin-left: 4px;
 
           &:hover {
             color: $app-color-primary;
@@ -268,6 +286,10 @@
 
           &:hover {
             background-color: $app-color-primary-light-9;
+          }
+
+          .path-field{
+            cursor: pointer;
           }
         }
 

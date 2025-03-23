@@ -151,7 +151,7 @@ const getTaskItemResultStateClass = (item: TaskItemResult) => {
             </el-popconfirm>
             <i
               class="ri-inbox-unarchive-line icon-btn"
-              v-if="task.state === 'finished' && task.success === true"
+              v-if="task.state === 'finished' && task.pluginExecType === 'backup' && task.success === true"
               @click="restoreTask(task)"
               title="还原"
             ></i>

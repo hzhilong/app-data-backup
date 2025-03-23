@@ -86,16 +86,17 @@ const buildTask = (options: BuildTaskDataOptions): PluginExecTask => {
     // 还原
     const taskResults = cloneDeep(options.backupTask.taskResults)
     taskResults.forEach((result) => {
-      result.configItems.map((item) => {
-        const { success, message, error, size, sizeStr, skipped, meta, ...restFields } = item
-        return restFields
+      result.configItems = result.configItems.map((item) => {
+        const { finished, success, message, error, size, sizeStr, skipped, meta, ...restFields } = item
+        return { finished: false, ...restFields }
       })
     })
+    console.log(JSON.stringify(taskResults))
     return {
       id: BaseUtil.generateId(),
       runType: options.runType,
       state: options.success === false ? 'finished' : 'pending',
-      pluginExecType: options.execType,
+      pluginExecType: 'restore',
       success: options.success,
       message: options.message,
       taskResults: taskResults,
@@ -291,6 +292,7 @@ export default class BackupUtil {
    * 开始还原数据
    * @param runType 任务运行类型 手动/自动
    * @param backupTasks 备份记录
+   * @param showMsg
    */
   static async restoreBackupData(runType: TaskRunType, backupTasks: PluginExecTask[], showMsg: boolean = false) {
     if (!backupTasks || backupTasks.length === 0) {
@@ -332,10 +334,10 @@ export default class BackupUtil {
           if (onTaskFinishedListener) {
             onTaskFinishedListener(r)
           }
-          showMsg && AppUtil.showTaskMessage(task)
+          showMsg && AppUtil.showTaskMessage(refTask)
         })
         .catch((err) => {
-          showMsg && AppUtil.showTaskMessage(task, err)
+          showMsg && AppUtil.showTaskMessage(refTask, err)
         })
       currTasks.unshift(refTask)
     }
@@ -384,8 +386,7 @@ export default class BackupUtil {
     showFailedMsg: boolean = true,
   ) {
     PluginUtil.openTaskConfigPath(cloneDeep(task), cloneDeep(config), isSource)
-      .then(() => {
-      })
+      .then(() => {})
       .catch((err) => {
         showFailedMsg && AppUtil.showErrorMessage(err)
       })

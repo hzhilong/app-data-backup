@@ -3,22 +3,26 @@ import {
   type BackupConfig,
   isValidatedPluginConfig,
   type PluginConfig,
-  type ValidatedPluginConfig
+  type ValidatedPluginConfig,
 } from '@/plugins/plugin-config'
 import PluginConfigModal from '@/components/modal/PluginConfigModal.vue'
 import type { PluginExecTask, PluginExecType } from '@/plugins/plugin-task'
 
-export interface PluginConfigModalOptions {
-  configs: BackupConfig[]
-  modal?: boolean
+export interface PluginConfigModalData {
   pluginId: string
   pluginName: string
   totalItemNum: number
-  title?: string
+  configs: BackupConfig[]
   cTime?: string
   softInstallDir?: string
   pluginExecType?: PluginExecType
   backupPath?: string
+}
+
+export interface PluginConfigModalOptions {
+  plugins: PluginConfigModalData[]
+  modal?: boolean
+  title?: string
   showCancel?: boolean
   confirmBtnText?: string
   onBeforeClose?: () => boolean
@@ -26,47 +30,59 @@ export interface PluginConfigModalOptions {
 
 let instances: VNode[] = []
 
+/**
+ * 全局弹窗
+ */
 export const GPluginConfigModal = {
   /**
    * 显示插件配置详细信息
-   * @param pluginConfig
+   * @param pluginConfigs
    * @param modalOptions
    */
   showPluginConfig(
-    pluginConfig: PluginConfig|ValidatedPluginConfig,
-    modalOptions: Omit<PluginConfigModalOptions, 'configs' | 'pluginId' | 'pluginName' | 'totalItemNum'>,
+    pluginConfigs: PluginConfig[] | ValidatedPluginConfig[],
+    modalOptions: Omit<PluginConfigModalOptions, 'plugins'>,
   ): Promise<'confirm' | 'cancel'> {
     return this.show({
       title: '配置详情',
-      configs: pluginConfig.backupConfigs,
-      pluginId: pluginConfig.id,
-      pluginName: pluginConfig.name,
-      totalItemNum: pluginConfig.totalItemNum,
-      cTime: pluginConfig.cTime,
-      confirmBtnText: modalOptions.showCancel?'确定':'关闭',
-      softInstallDir: isValidatedPluginConfig(pluginConfig) ? pluginConfig.softInstallDir : undefined,
+      plugins: pluginConfigs.map((pluginConfig) => {
+        return {
+          pluginId: pluginConfig.id,
+          pluginName: pluginConfig.name,
+          totalItemNum: pluginConfig.totalItemNum,
+          configs: pluginConfig.backupConfigs,
+          cTime: pluginConfig.cTime,
+          softInstallDir: isValidatedPluginConfig(pluginConfig) ? pluginConfig.softInstallDir : undefined,
+        } satisfies PluginConfigModalData
+      }),
+      confirmBtnText: modalOptions.showCancel ? '确定' : '关闭',
       ...modalOptions,
     })
   },
   /**
    * 显示任务的插件配置详细信息
-   * @param task
+   * @param tasks
    * @param modalOptions
    */
   showTask(
-    task: PluginExecTask,
-    modalOptions: Omit<PluginConfigModalOptions, 'configs' | 'pluginId' | 'pluginName' | 'totalItemNum'>,
+    tasks: PluginExecTask[],
+    modalOptions: Omit<PluginConfigModalOptions, 'plugins'>,
   ): Promise<'confirm' | 'cancel'> {
     return this.show({
       title: '任务配置详情',
-      configs: task.taskResults.map((item) => ({ name: item.configName, items: item.configItems })),
-      pluginId: task.pluginId,
-      pluginName: task.pluginName,
-      totalItemNum: task.totalProgress,
-      softInstallDir: task.softInstallDir,
-      cTime: task.cTime,
-      backupPath: task.backupPath,
-      confirmBtnText: modalOptions.showCancel?'确定':'关闭',
+      plugins: tasks.map((task) => {
+        return {
+          pluginId: task.pluginId,
+          pluginName: task.pluginName,
+          totalItemNum: task.totalProgress,
+          configs: task.taskResults.map((item) => ({ name: item.configName, items: item.configItems })),
+          cTime: task.cTime,
+          softInstallDir: task.softInstallDir,
+          pluginExecType: task.pluginExecType,
+          backupPath: task.backupPath,
+        }
+      }),
+      confirmBtnText: modalOptions.showCancel ? '确定' : '关闭',
       ...modalOptions,
     })
   },
@@ -87,9 +103,9 @@ export const GPluginConfigModal = {
       }
       // 创建虚拟节点
       const vNode = createVNode(PluginConfigModal, {
-        ...options,
         modelValue: true,
         modal: true,
+        ...options,
         onClose: close,
       })
       // 记录实例

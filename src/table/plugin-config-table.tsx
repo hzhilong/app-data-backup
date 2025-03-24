@@ -139,7 +139,7 @@ export function usePluginConfigTable<T extends boolean = false>(getMyPluginConfi
         list.push({
           text: '查看',
           onClick: () => {
-            GPluginConfigModal.showPluginConfig(row, {
+            GPluginConfigModal.showPluginConfig([row,row,row], {
               showCancel: false,
             }).then((r) => {})
           },

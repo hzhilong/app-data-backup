@@ -410,17 +410,4 @@ export default class BackupUtil {
     }
     return ret
   }
-
-  static async openTaskConfigPath(
-    task: PluginExecTask,
-    config: BackupItemConfig,
-    isSource: boolean,
-    showFailedMsg: boolean = true,
-  ) {
-    PluginUtil.openTaskConfigPath(cloneDeep(task), cloneDeep(config), isSource)
-      .then(() => {})
-      .catch((err) => {
-        showFailedMsg && AppUtil.showErrorMessage(err)
-      })
-  }
 }

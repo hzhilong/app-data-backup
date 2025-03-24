@@ -15,6 +15,7 @@ import { useRestoreTasksStore } from '@/stores/restore-task'
 import { computed, ref } from 'vue'
 import AppUtil from '@/utils/app-util'
 import { logger } from '@/utils/logger'
+import PluginUtil from '@/plugins/plugin-util'
 
 const props = defineProps<{
   runTypes: TaskRunType[]
@@ -204,7 +205,7 @@ const getTaskItemResultStateClass = (item: TaskItemResult) => {
               <div class="config-item" v-for="item in config.configItems">
                 <div class="item-field" style="flex: 6">
                   <el-tooltip effect="dark" :content="item.sourcePath" placement="top-start">
-                    <span class="path-field" @click="BackupUtil.openTaskConfigPath(task, item, true)"
+                    <span class="path-field" @click="PluginUtil.openTaskConfigPath(task, item, true)"
                       ><i class="ri-file-2-line"></i>{{ item.sourcePath }}</span
                     >
                   </el-tooltip>
@@ -214,7 +215,7 @@ const getTaskItemResultStateClass = (item: TaskItemResult) => {
                 </div>
                 <div class="item-field" style="flex: 4">
                   <el-tooltip effect="dark" :content="item.targetRelativePath" placement="top-start">
-                    <span class="path-field" @click="BackupUtil.openTaskConfigPath(task, item, false)"
+                    <span class="path-field" @click="PluginUtil.openTaskConfigPath(task, item, false)"
                       ><i class="ri-file-2-line"></i>{{ item.targetRelativePath }}</span
                     >
                   </el-tooltip>

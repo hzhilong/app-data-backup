@@ -101,6 +101,10 @@ export type PluginConfigGroup = {
   } & { list?: PluginConfig[] }
 }
 
+export function isValidatedPluginConfig(config: PluginConfig): config is ValidatedPluginConfig {
+return ('softInstallDir' in config) && (typeof config.softInstallDir === 'string')
+}
+
 /**
  * 已验证过的插件配置
  */
@@ -152,4 +156,19 @@ export function loadPluginConfig(config: Record<string, unknown>, cTime: string,
     totalItemNum: total,
     cTime: cTime,
   } as PluginConfig
+}
+
+/**
+ * 插件配置分组
+ * @param list 插件配置
+ */
+export function parsePluginConfigGroup(list: PluginConfig[]): PluginConfigGroup {
+  const groupData: PluginConfigGroup = { ...BACKUP_PLUGIN_TYPE }
+  for (const key in groupData) {
+    groupData[key as BackupPluginTypeKey].list = []
+  }
+
+  list.forEach((curr) => groupData[curr.type].list?.push(curr))
+
+  return groupData
 }

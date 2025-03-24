@@ -3,12 +3,12 @@ import { computed, ref } from 'vue'
 import { parseAllInstalledSoftware } from '@/models/software'
 import SoftwareGraph from '@/components/graph/SoftwareGraph.vue'
 import { RouterUtil } from '@/router/router-util'
-import PluginUtil from '@/plugins/plugin-util'
 import { initTable } from '@/table/table'
 import { useInstalledSoftwareTable } from '@/table/installed-software-table'
 import { usePluginConfigTable } from '@/table/plugin-config-table'
 import { useBackupTasksStore } from '@/stores/backup-task'
 import { storeToRefs } from 'pinia'
+import { parsePluginConfigGroup } from '@/plugins/plugin-config'
 
 const loading1 = ref(true)
 const loading2 = ref(true)
@@ -21,7 +21,7 @@ const { refreshDB: refreshInstalledList, tableData: softwareList } = initTable(
 const { refreshDB: refreshPluginList, tableData: pluginList } = initTable(usePluginConfigTable(), loading2)
 
 const allInstalledSoftware = computed(() => parseAllInstalledSoftware(softwareList.value ?? []))
-const pluginConfigGroup = computed(() => PluginUtil.parsePluginConfigGroup(pluginList.value ?? []))
+const pluginConfigGroup = computed(() => parsePluginConfigGroup(pluginList.value ?? []))
 const { tasks: backupTasks } = storeToRefs(useBackupTasksStore())
 const backupTaskInfo = computed(() => {
   return {
@@ -35,7 +35,7 @@ const refreshSoftList = async () => {
   await refreshInstalledList()
 }
 
-const refGraph = ref<InstanceType<typeof SoftwareGraph> | null>(null);
+const refGraph = ref<InstanceType<typeof SoftwareGraph> | null>(null)
 RouterUtil.onCurrRouteUpdate(() => {
   refGraph.value?.refreshGraph()
 })

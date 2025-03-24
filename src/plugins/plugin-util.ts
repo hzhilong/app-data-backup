@@ -3,12 +3,22 @@ import {
   BACKUP_PLUGIN_TYPE,
   type BackupItemConfig,
   type BackupPluginTypeKey,
+  isValidatedPluginConfig,
   type PluginConfig,
   type PluginConfigGroup,
+  type ValidatedPluginConfig,
 } from '@/plugins/plugin-config'
 import { CommonError } from '@/models/common-error'
 import { BuResult } from '@/models/bu-result'
-import type { OpenTaskConfigPathOptions, PluginExecTask, TaskItemResult, TaskMonitor } from '@/plugins/plugin-task'
+import type {
+  OpenPluginConfigSourcePathOptions,
+  OpenTaskConfigPathOptions,
+  PluginExecTask,
+  TaskItemResult,
+  TaskMonitor,
+} from '@/plugins/plugin-task'
+import { cloneDeep } from 'lodash'
+import AppUtil from '@/utils/app-util'
 
 /**
  * 插件工具
@@ -65,30 +75,43 @@ export default class PluginUtil {
     )
   }
 
-  /**
-   * 插件配置分组
-   * @param list 插件配置
-   */
-  static parsePluginConfigGroup(list: PluginConfig[]): PluginConfigGroup {
-    const groupData: PluginConfigGroup = { ...BACKUP_PLUGIN_TYPE }
-    for (const key in groupData) {
-      groupData[key as BackupPluginTypeKey].list = []
-    }
-
-    list.forEach((curr) => groupData[curr.type].list?.push(curr))
-
-    return groupData
+  static async openPluginConfigSourcePath(
+    pluginName:string,
+    softInstallDir:string,
+    itemConfig: BackupItemConfig,
+    showFailedMsg: boolean = true,
+  ) {
+    BuResult.getPromise(
+      (await window.electronAPI?.ipcInvoke(IPC_CHANNELS.OPEN_PLUGIN_CONFIG_SOURCE_PATH, {
+        softName: pluginName,
+        softInstallDir: softInstallDir,
+        itemConfig: cloneDeep(itemConfig),
+      } satisfies OpenPluginConfigSourcePathOptions)) as BuResult<void>,
+    )
+      .then(() => {})
+      .catch((err) => {
+        showFailedMsg && AppUtil.showErrorMessage(err)
+      })
   }
 
-  static async openTaskConfigPath(task: PluginExecTask, config: BackupItemConfig, isSource: boolean) {
-    return BuResult.getPromise(
+  static async openTaskConfigPath(
+    task: Pick<PluginExecTask, 'pluginName' | 'softInstallDir' | 'backupPath'>,
+    itemConfig: BackupItemConfig,
+    isSource: boolean,
+    showFailedMsg: boolean = true,
+  ) {
+    BuResult.getPromise(
       (await window.electronAPI?.ipcInvoke(IPC_CHANNELS.OPEN_TASK_CONFIG_PATH, {
         softName: task.pluginName,
         softInstallDir: task.softInstallDir,
-        config: config,
+        itemConfig: cloneDeep(itemConfig),
         type: isSource ? 'source' : 'target',
         backupPath: task.backupPath,
       } satisfies OpenTaskConfigPathOptions)) as BuResult<void>,
     )
+      .then(() => {})
+      .catch((err) => {
+        showFailedMsg && AppUtil.showErrorMessage(err)
+      })
   }
 }

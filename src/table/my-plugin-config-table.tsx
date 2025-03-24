@@ -16,6 +16,7 @@ import { logger } from '@/utils/logger'
 import { emitter } from '@/utils/emitter'
 import AppUtil from '@/utils/app-util'
 import BackupUtil from '@/utils/backup-util'
+import { GPluginConfigModal } from '@/components/modal/global-modal'
 
 const queryParams = {
   id: {
@@ -131,6 +132,14 @@ export function useMyPluginConfigTable() {
       formatter: (row: DataType) => {
         const list: TableOptionBtn<DataType>[] = []
         list.push({
+          text: '查看',
+          onClick: () => {
+            GPluginConfigModal.showPluginConfig(row, {
+              showCancel: false,
+            }).then((r) => {})
+          },
+        })
+        list.push({
           text: '移除',
           confirmContent: (row: DataType) => {
             return `是否从我的配置中移除[${row.id}]？`
@@ -139,7 +148,7 @@ export function useMyPluginConfigTable() {
             db.myConfig.delete(row.id as IDType<MyPluginConfig, never>)
           },
         })
-        if(row.softInstallDir){
+        if (row.softInstallDir) {
           list.push({
             text: '备份',
             onClick: (data: MyPluginConfig, e?: MouseEvent) => {

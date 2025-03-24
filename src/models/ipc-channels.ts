@@ -24,6 +24,8 @@ export const IPC_CHANNELS = {
   SHOW_OPEN_DIALOG: 'SHOW_OPEN_DIALOG',
   CREATE_BACKUP_DIR: 'CREATE_BACKUP_DIR',
   SAVE_LOG: 'SAVE_LOG',
+  /** 打开插件备份配置源路径 参数 OpenPluginConfigPathOptions */
+  OPEN_PLUGIN_CONFIG_SOURCE_PATH: 'OPEN_PLUGIN_CONFIG_SOURCE_PATH',
   /** 打开任务备份配置路径 参数 OpenTaskConfigPathOptions */
   OPEN_TASK_CONFIG_PATH: 'OPEN_TASK_CONFIG_PATH',
 } as const

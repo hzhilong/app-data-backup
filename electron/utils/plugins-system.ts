@@ -12,7 +12,12 @@ import { InstalledSoftware } from '@/models/software'
 import BaseUtil from '@/utils/base-util'
 import nLogger from './log4js'
 import { getAppBasePath } from './app-path'
-import { OpenTaskConfigPathOptions, PluginExecTask, TaskItemResult } from '@/plugins/plugin-task'
+import {
+  OpenPluginConfigSourcePathOptions,
+  OpenTaskConfigPathOptions,
+  PluginExecTask,
+  TaskItemResult,
+} from '@/plugins/plugin-task'
 import { loadPluginConfig, ValidatedPluginConfig } from '@/plugins/plugin-config'
 import BrowserWindow = Electron.BrowserWindow
 import { throws } from 'assert'
@@ -75,6 +80,12 @@ function initPluginSystem(mainWindow: BrowserWindow) {
       } else {
         throw new CommonError('该任务未执行')
       }
+    })
+  })
+  // IPC 事件监听【打开插件备份配置源路径】
+  ipcMain.handle(IPC_CHANNELS.OPEN_PLUGIN_CONFIG_SOURCE_PATH, async (event, options: OpenPluginConfigSourcePathOptions) => {
+    return execBusiness(async () => {
+      return await openPluginConfigSourcePath(options)
     })
   })
   // IPC 事件监听【打开任务备份配置路径】
@@ -227,12 +238,28 @@ async function execPlugin(task: PluginExecTask, mainWindow: Electron.BrowserWind
 }
 
 /**
+ * 打开插件备份配置源路径
+ * @param options
+ */
+async function openPluginConfigSourcePath(options: OpenPluginConfigSourcePathOptions) {
+  if (options.itemConfig.type === 'registry') {
+    return WinUtil.openRegedit(options.itemConfig.sourcePath)
+  } else {
+    if (!options.softInstallDir) {
+      throw new CommonError('无关联的软件目录')
+    }
+    const resolvePath = Plugin.resolvePath(options.itemConfig.sourcePath, WinUtil.getEnv(), options.softInstallDir)
+    return WinUtil.openPath(resolvePath)
+  }
+}
+
+/**
  * 打开任务备份配置路径
  * @param options
  */
 async function openTaskConfigPath(options: OpenTaskConfigPathOptions) {
-  const optPath = options.type === 'source' ? options.config.sourcePath : options.config.targetRelativePath
-  if (options.config.type === 'registry' && options.type === 'source') {
+  const optPath = options.type === 'source' ? options.itemConfig.sourcePath : options.itemConfig.targetRelativePath
+  if (options.itemConfig.type === 'registry' && options.type === 'source') {
     return WinUtil.openRegedit(optPath)
   } else {
     const resolvePath = Plugin.resolvePath(optPath, WinUtil.getEnv(), options.softInstallDir)

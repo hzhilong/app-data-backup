@@ -1,0 +1,65 @@
+@use '@/assets/scss/global' as *;
+
+.config-container{
+  width: 100%;
+  height: 100%;
+
+  .header-x{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+
+    .header-y{
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: start;
+      color: $app-text-color-regular;
+
+      span{
+        color: $app-text-color-primary;
+      }
+    }
+
+  }
+
+  .configs{
+    flex: 1;
+    margin-top: 8px;
+    border-top: 1px solid $app-border-color;
+    padding: 7px 0;
+
+    .config{
+      width: 100%;
+      padding-left: 10px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+
+      i {
+        margin-right: 4px;
+      }
+
+      .config-name {
+        color: $app-text-color-primary;
+      }
+
+      .config-item {
+        width: calc(100% - 20px);
+        align-items: center;
+        margin-left: 20px;
+        display: flex;
+        gap: 10px;
+
+        &:hover {
+          background-color: $app-color-primary-light-9;
+        }
+
+        .path-field{
+        }
+      }
+    }
+  }
+
+
+}

@@ -332,6 +332,8 @@ export default class BackupUtil {
     if (backupTasks.some((task) => task.success === false)) {
       throw new CommonError('存在未备份成功的任务')
     }
+
+
     if (useAppSettingsStore().autoBackupBeforeRestore) {
       showMsg && AppUtil.message('等待自动备份完成...')
       await this.autoBackupData(backupTasks)

@@ -4,7 +4,7 @@ import {
   BACKUP_PLUGIN_TYPE,
   type BackupPluginTypeKey,
   type MyPluginConfig,
-  type ValidatedPluginConfig as DataType,
+  type ValidatedPluginConfig,
 } from '@/plugins/plugin-config'
 import { createOptionList, type TableConfig, type TableOptionBtn } from '@/table/table'
 import defaultIcon from '@/assets/image/software-icon-default.png'
@@ -19,6 +19,8 @@ import { IPC_CHANNELS } from '@/models/ipc-channels'
 import BaseUtil from '@/utils/base-util'
 import { emitter } from '@/utils/emitter'
 import BackupUtil from '@/utils/backup-util'
+import { GPluginConfigModal } from '@/components/modal/global-modal'
+import type { IDType } from 'dexie'
 
 const queryParams = {
   id: {
@@ -36,7 +38,8 @@ export type PluginConfigQueryParams = {
   [P in keyof typeof queryParams]?: (typeof queryParams)[P]['value']
 }
 
-export function usePluginConfigTable() {
+export function usePluginConfigTable<T extends boolean = false>(getMyPluginConfig: T) {
+  type DataType = T extends true ? MyPluginConfig : ValidatedPluginConfig
   const { maxWindow } = storeToRefs(AppSessionStore())
   const cTimeWidth = computed(() => {
     return maxWindow.value ? 140 : 90
@@ -133,6 +136,25 @@ export function usePluginConfigTable() {
       minWidth: '100',
       formatter: (row: DataType) => {
         const list: TableOptionBtn<DataType>[] = []
+        list.push({
+          text: '查看',
+          onClick: () => {
+            GPluginConfigModal.showPluginConfig(row, {
+              showCancel: false,
+            }).then((r) => {})
+          },
+        })
+        if (getMyPluginConfig) {
+          list.push({
+            text: '移除',
+            confirmContent: (row: DataType) => {
+              return `是否从我的配置中移除[${row.id}]？`
+            },
+            onClick: () => {
+              db.myConfig.delete(row.id as IDType<MyPluginConfig, never>)
+            },
+          })
+        }
         if (row.softInstallDir) {
           list.push({
             text: '备份',
@@ -145,41 +167,53 @@ export function usePluginConfigTable() {
               BackupUtil.startBackupData('manual', [data], true).then((r) => {})
             },
           })
-          list.push({
-            text: '添加到我的配置',
-            onClick: () => {
-              const data = cloneDeep(row as MyPluginConfig)
-              data.cTime = BaseUtil.getFormatedDateTime()
-              logger.debug('添加到我的配置', data)
-              db.myConfig
-                .bulkPut([data])
-                .then(() => {
-                  AppUtil.message('添加成功')
-                })
-                .catch((e) => {
-                  logger.debug(e)
-                })
-            },
-          })
+          if (!getMyPluginConfig) {
+            list.push({
+              text: '添加到我的配置',
+              onClick: () => {
+                const data = cloneDeep(row as MyPluginConfig)
+                data.cTime = BaseUtil.getFormatedDateTime()
+                logger.debug('添加到我的配置', data)
+                db.myConfig
+                  .bulkPut([data])
+                  .then(() => {
+                    AppUtil.message('添加成功')
+                  })
+                  .catch((e) => {
+                    logger.debug(e)
+                  })
+              },
+            })
+          }
         }
         return createOptionList(row, list)
       },
     },
   ]
 
-  const initData = async (): Promise<DataType[]> => {
-    return BuResult.getPromise(
-      (await window.electronAPI?.ipcInvoke(
-        IPC_CHANNELS.REFRESH_PLUGINS,
-        await db.installedSoftware.toArray(),
-      )) as BuResult<DataType[]>,
-    )
-  }
+  if(getMyPluginConfig){
 
-  return {
-    tableColumns: tableColumns,
-    queryParams: queryParams,
-    initData: initData,
-    table: db.pluginConfig,
-  } as TableConfig<DataType, typeof queryParams>
+    return {
+      tableColumns: tableColumns,
+      queryParams: queryParams,
+      table: db.myConfig,
+    } as TableConfig<MyPluginConfig, typeof queryParams>
+
+  }else{
+
+    const initData = async (): Promise<DataType[]> => {
+      return BuResult.getPromise(
+        (await window.electronAPI?.ipcInvoke(
+          IPC_CHANNELS.REFRESH_PLUGINS,
+          await db.installedSoftware.toArray(),
+        )) as BuResult<DataType[]>,
+      )
+    }
+    return {
+      tableColumns: tableColumns,
+      queryParams: queryParams,
+      initData: initData,
+      table: db.pluginConfig,
+    } as TableConfig<ValidatedPluginConfig, typeof queryParams>
+  }
 }

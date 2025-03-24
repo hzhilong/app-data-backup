@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { initTable } from '@/table/table'
-import { useMyPluginConfigTable } from '@/table/my-plugin-config-table'
 import { RouterUtil } from '@/router/router-util'
+import { usePluginConfigTable } from '@/table/plugin-config-table'
 
-const { tableData, tableColumns, queryParams, loading, searchData, refreshData } = initTable(useMyPluginConfigTable())
+const { tableData, tableColumns, queryParams, loading, searchData, refreshData } = initTable(usePluginConfigTable(true))
 </script>
 <template>
   <div class="page-content">
@@ -41,14 +41,7 @@ const { tableData, tableColumns, queryParams, loading, searchData, refreshData }
       <div class="header-right"></div>
     </div>
     <div class="table-wrapper">
-      <el-table
-        :data="tableData"
-        style="width: 100%"
-        height="100%"
-        border
-        highlight-current-row
-        v-loading="loading"
-      >
+      <el-table :data="tableData" style="width: 100%" height="100%" border highlight-current-row v-loading="loading">
         <template #empty>
           <div class="empty-hint">
             当前数据为空。<br />

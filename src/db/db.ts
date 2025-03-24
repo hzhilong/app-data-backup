@@ -20,21 +20,21 @@ export type IconCache = {
 }
 
 export const db = new Dexie('appDataBackupDatabase') as Dexie & {
-  installedSoftware: EntityTable<InstalledSoftware>
-  iconCache: EntityTable<IconCache>
-  pluginConfig: EntityTable<ValidatedPluginConfig>
-  myConfig: EntityTable<MyPluginConfig>
-  backupTask: EntityTable<PluginExecTask>
-  restoreTask: EntityTable<PluginExecTask>
+  installedSoftware: EntityTable<InstalledSoftware, 'regeditDir'>
+  iconCache: EntityTable<IconCache, 'path'>
+  pluginConfig: EntityTable<ValidatedPluginConfig, 'id'>
+  myConfig: EntityTable<MyPluginConfig, 'id'>
+  backupTask: EntityTable<PluginExecTask, 'id'>
+  restoreTask: EntityTable<PluginExecTask, 'id'>
 }
 
-db.version(10).stores({
+db.version(11).stores({
   installedSoftware: 'regeditDir, regeditGroupKey,name', // regeditDir作为主键,同时也是复合索引。
   iconCache: 'path',
   pluginConfig: 'id,type,name',
   myConfig: 'id,type,name',
-  backupTask: '++id,runType,state,finished,success,pluginId,pluginName,softInstallDir,cTime',
-  restoreTask: '++id,runType,state,finished,success,pluginId,pluginName,softInstallDir,cTime',
+  backupTask: '++id,[pluginId+cTime],runType,state,finished,success,pluginId,pluginName,softInstallDir,cTime',
+  restoreTask: '++id,[pluginId+cTime],runType,state,finished,success,pluginId,pluginName,softInstallDir,cTime',
 })
 
 export type QueryParam<O extends Record<string, any> = Record<string, any>, OVK extends string = never> = {

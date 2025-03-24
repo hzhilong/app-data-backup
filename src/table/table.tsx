@@ -9,11 +9,15 @@ import { type InsertType, liveQuery } from 'dexie'
 import BaseUtil from '@/utils/base-util'
 import { CommonError } from '@/models/common-error'
 
-export interface TableConfig<T, Q extends Record<string, QueryParam> = Record<string, QueryParam>> {
+export interface TableConfig<
+  T,
+  Q extends Record<string, QueryParam> = Record<string, QueryParam>,
+  K extends string = 'id',
+> {
   initData?: () => Promise<T[]>
   tableColumns: Partial<typeof TableColumn>
   queryParams: QueryParams<Q>
-  table: DexieTable<T>
+  table: DexieTable<T, K>
   parseData?: (list: T[]) => Promise<T[]>
 }
 

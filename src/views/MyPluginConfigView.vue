@@ -4,11 +4,8 @@ import { initTable } from '@/table/table'
 import { RouterUtil } from '@/router/router-util'
 import { usePluginConfigTable } from '@/table/plugin-config-table'
 import type { TableInstance } from 'element-plus'
-import type { MyPluginConfig, ValidatedPluginConfig } from '@/plugins/plugin-config'
+import type { MyPluginConfig } from '@/plugins/plugin-config'
 import AppUtil from '@/utils/app-util'
-import BaseUtil from '@/utils/base-util'
-import { db } from '@/db/db'
-import { cloneDeep } from 'lodash'
 import BackupUtil from '@/utils/backup-util'
 import { useAppSettingsStore } from '@/stores/app-settings'
 
@@ -24,7 +21,17 @@ const bulkBackup = () => {
     return AppUtil.showFailedMessage('未选择配置')
   }
   BackupUtil.startBackupData('manual', list, settings.bulkBackupShowMsg).then((r) => {
-    AppUtil.message('批量执行任务...')
+    AppUtil.message('批量备份中...')
+  })
+}
+
+const bulkRestoreRecent = () => {
+  const list = refTable.value?.getSelectionRows() as MyPluginConfig[]
+  if (!list || list.length == 0) {
+    return AppUtil.showFailedMessage('未选择配置')
+  }
+  BackupUtil.bulkRestoreRecent('manual',list, settings.bulkBackupShowMsg).then((r) => {
+    AppUtil.message('批量还原中...')
   })
 }
 </script>
@@ -59,7 +66,7 @@ const bulkBackup = () => {
         <el-button type="primary" @click="searchData" :loading="loading">搜索</el-button>
         <el-button type="primary" @click="refreshData" :loading="loading">刷新</el-button>
         <el-button type="primary" @click="bulkBackup">批量备份</el-button>
-        <el-button type="primary">批量还原最近备份的数据</el-button>
+        <el-button type="primary" @click="bulkRestoreRecent">批量还原最近备份的数据</el-button>
       </div>
       <div class="header-right"></div>
     </div>

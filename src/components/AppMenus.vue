@@ -45,11 +45,11 @@ const APP_MENUS: AppMenuItem[] = [
     icon: 'dashboard-horizontal-line',
     viewPath: '/restore-tasks',
   },
-  {
+/*  {
     text: '备份计划',
     icon: 'dashboard-line',
     viewPath: '/backup-tasks2',
-  },
+  },*/
   {
     text: '设置',
     icon: 'settings-3-line',

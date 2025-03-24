@@ -30,7 +30,7 @@
     "consola": "^3.4.0",
     "dayjs": "^1.11.13",
     "dexie": "^4.0.11",
-    "element-plus": "^2.9.4",
+    "element-plus": "^2.9.7",
     "iconv-lite": "^0.6.3",
     "lodash": "^4.17.21",
     "log4js": "^6.9.1",

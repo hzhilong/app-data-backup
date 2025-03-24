@@ -1,8 +1,37 @@
 <script setup lang="ts">
-import { usePluginConfigTable } from '@/table/plugin-config-table'
 import { initTable } from '@/table/table'
-
-const { tableData, tableColumns, queryParams, loading, searchData, refreshDB } = initTable(usePluginConfigTable())
+import { ref } from 'vue'
+import { usePluginConfigTable } from '@/table/plugin-config-table'
+import { type TableInstance } from 'element-plus'
+import AppUtil from '@/utils/app-util'
+import type { MyPluginConfig, ValidatedPluginConfig } from '@/plugins/plugin-config'
+import BaseUtil from '@/utils/base-util'
+import { db } from '@/db/db'
+import { cloneDeep } from 'lodash'
+const refTable = ref<TableInstance>()
+const { tableData, tableColumns, queryParams, loading, searchData, refreshDB } = initTable(
+  usePluginConfigTable(true, false),
+)
+const addToMyConfig = () => {
+  const list = refTable.value?.getSelectionRows() as ValidatedPluginConfig[]
+  if (!list || list.length == 0) {
+    return AppUtil.showFailedMessage('未选择配置')
+  }
+  const cTime = BaseUtil.getFormatedDateTime()
+  db.myConfig
+    .bulkPut(
+      cloneDeep(list).map((item) => {
+        item.cTime = cTime
+        return item as MyPluginConfig
+      }),
+    )
+    .then(() => {
+      AppUtil.message('添加成功')
+    })
+    .catch((e) => {
+      AppUtil.showErrorMessage(e)
+    })
+}
 </script>
 <template>
   <div class="page-content">
@@ -33,19 +62,13 @@ const { tableData, tableColumns, queryParams, loading, searchData, refreshDB } =
           />
         </div>
         <el-button type="primary" @click="searchData" :loading="loading">搜索</el-button>
-        <el-button type="primary" @click="refreshDB" :loading="loading">重新加载配置文件</el-button>
+        <el-button type="primary" @click="refreshDB" :loading="loading">刷新</el-button>
+        <el-button type="primary" @click="addToMyConfig" :loading="loading">添加到我的配置</el-button>
       </div>
       <div class="header-right"></div>
     </div>
     <div class="table-wrapper">
-      <el-table
-        :data="tableData"
-        style="width: 100%"
-        height="100%"
-        border
-        highlight-current-row
-        v-loading="loading"
-      >
+      <el-table ref="refTable" :data="tableData" style="width: 100%" height="100%" border highlight-current-row v-loading="loading">
         <el-table-column v-bind="item" v-for="item in tableColumns" :key="item.label"></el-table-column>
       </el-table>
     </div>

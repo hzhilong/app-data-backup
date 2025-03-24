@@ -82,6 +82,13 @@ export default class AppUtil {
     }
   }
 
+  static showFailedMessage(msg: string): void {
+    this.message({
+      message: msg,
+      type: 'error',
+    })
+  }
+
   static showErrorMessage(e: unknown): void {
     this.message({
       message: BaseUtil.getErrorMessage(e),

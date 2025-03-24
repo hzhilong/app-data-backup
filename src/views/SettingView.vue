@@ -7,7 +7,8 @@ import ThemeUtil from '@/utils/theme-util'
 import { DEFAULT_PRIMARY_COLORS, useAppThemeStore } from '@/stores/app-theme'
 
 const { primaryColor, themeMode } = storeToRefs(useAppThemeStore())
-const { backupRootDir, confirmBeforeRestore, autoBackupBeforeRestore } = storeToRefs(useAppSettingsStore())
+const { backupRootDir, confirmBeforeRestore, autoBackupBeforeRestore, bulkBackupShowMsg, backupPathType } =
+  storeToRefs(useAppSettingsStore())
 
 const chooseBackupRootDir = () => {
   FileUtil.chooseDirectory({ defaultPath: backupRootDir.value, title: '选择备份目录' }).then((res) => {
@@ -51,6 +52,33 @@ const resetTheme = () => {
 <template>
   <div class="settings-container">
     <div class="setting-group">
+      <div class="group-name">应用设置</div>
+      <div class="setting-list">
+        <div class="setting-item">
+          <i class="item-icon ri-equalizer-2-line"></i>
+          <div class="item-content">
+            <div class="item-title">主题颜色</div>
+          </div>
+          <div class="options">
+            <el-color-picker v-model="selectedPrimaryColor" @change="updatePrimaryColor" :predefine="predefineColors" />
+          </div>
+        </div>
+        <div class="setting-item">
+          <i class="item-icon ri-equalizer-2-line"></i>
+          <div class="item-content">
+            <div class="item-title">主题模式</div>
+          </div>
+          <div class="options">
+            <el-radio-group v-model="themeMode" @change="ThemeUtil.toggleDarkTheme(themeMode)">
+              <el-radio-button label="浅色" value="light" />
+              <el-radio-button label="深色" value="dark" />
+              <el-radio-button label="系统" value="system" />
+            </el-radio-group>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="setting-group">
       <div class="group-name">备份设置</div>
       <div class="setting-list">
         <div class="setting-item">
@@ -86,39 +114,23 @@ const resetTheme = () => {
         <div class="setting-item">
           <i class="item-icon ri-equalizer-2-line"></i>
           <div class="item-content">
+            <div class="item-title">批量备份时显示任务结果的提示</div>
+            <div class="item-desc">批量备份时可能因为任务过多/执行过快，导致大量结果提示信息</div>
+          </div>
+          <div class="options">
+            <el-switch v-model="bulkBackupShowMsg" />
+          </div>
+        </div>
+        <div class="setting-item">
+          <i class="item-icon ri-equalizer-2-line"></i>
+          <div class="item-content">
             <div class="item-title">备份文件夹路径格式</div>
+            <div class="item-desc">设置日期开头可方便整理批量备份的内容</div>
           </div>
           <div class="options">
-            <el-radio-group>
-              <el-radio-button label="/软件名/日期" value="light" />
-              <el-radio-button label="/日期/软件名" value="dark" />
-            </el-radio-group>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="setting-group">
-      <div class="group-name">应用设置</div>
-      <div class="setting-list">
-        <div class="setting-item">
-          <i class="item-icon ri-equalizer-2-line"></i>
-          <div class="item-content">
-            <div class="item-title">主题颜色</div>
-          </div>
-          <div class="options">
-            <el-color-picker v-model="selectedPrimaryColor" @change="updatePrimaryColor" :predefine="predefineColors" />
-          </div>
-        </div>
-        <div class="setting-item">
-          <i class="item-icon ri-equalizer-2-line"></i>
-          <div class="item-content">
-            <div class="item-title">主题模式</div>
-          </div>
-          <div class="options">
-            <el-radio-group v-model="themeMode" @change="ThemeUtil.toggleDarkTheme(themeMode)">
-              <el-radio-button label="浅色" value="light" />
-              <el-radio-button label="深色" value="dark" />
-              <el-radio-button label="系统" value="system" />
+            <el-radio-group v-model="backupPathType">
+              <el-radio-button label="/软件名/日期" value="name/date" />
+              <el-radio-button label="/日期/软件名" value="date/name" />
             </el-radio-group>
           </div>
         </div>

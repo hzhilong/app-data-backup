@@ -38,169 +38,177 @@ export type PluginConfigQueryParams = {
   [P in keyof typeof queryParams]?: (typeof queryParams)[P]['value']
 }
 
-export function usePluginConfigTable<T extends boolean = false>(getMyPluginConfig: T) {
+export function usePluginConfigTable<T extends boolean = false>(selection: boolean, getMyPluginConfig: T) {
   type DataType = T extends true ? MyPluginConfig : ValidatedPluginConfig
   const { maxWindow } = storeToRefs(AppSessionStore())
   const cTimeWidth = computed(() => {
     return maxWindow.value ? 140 : 90
   })
-  const tableColumns = [
-    { label: '配置', fixed: true, prop: 'id', minWidth: '80', showOverflowTooltip: true, sortable: true },
-    {
-      label: '类型',
-      prop: 'type',
-      width: '80',
-      formatter: (row: DataType) => {
-        return row.type ? BACKUP_PLUGIN_TYPE[row.type].title : '-'
+  let tableColumns = []
+  if (selection) {
+    tableColumns.push({
+      type: 'selection',
+      fixed: true,
+      width: '40',
+      minWidth: '40',
+      selectable: (row: DataType, index: number) => row.softInstallDir,
+    })
+  }
+  tableColumns.push(
+    ...[
+      { label: '配置', fixed: !selection, prop: 'id', minWidth: '80', showOverflowTooltip: true, sortable: true },
+      {
+        label: '类型',
+        prop: 'type',
+        width: '80',
+        formatter: (row: DataType) => {
+          return row.type ? BACKUP_PLUGIN_TYPE[row.type].title : '-'
+        },
+        sortable: true,
       },
-      sortable: true,
-    },
-    {
-      label: '添加时间',
-      prop: 'cTime',
-      width: cTimeWidth,
-      sortable: true,
-      formatter: (row: DataType) => {
-        return (
-          <el-tooltip
-            placement="top"
-            v-slots={{
-              content: () => <>{row.cTime}</>,
-            }}
-          >
-            {maxWindow.value ? row.cTime : row.cTime?.split(' ')[0]}
-          </el-tooltip>
-        )
+      {
+        label: '添加时间',
+        prop: 'cTime',
+        width: cTimeWidth,
+        sortable: true,
+        formatter: (row: DataType) => {
+          return (
+            <el-tooltip
+              placement="top"
+              v-slots={{
+                content: () => <>{row.cTime}</>,
+              }}
+            >
+              {maxWindow.value ? row.cTime : row.cTime?.split(' ')[0]}
+            </el-tooltip>
+          )
+        },
       },
-    },
-    {
-      label: '备份项目和数量',
-      prop: 'type',
-      formatter: (row: DataType) => {
-        const configs = row.backupConfigs
-        return (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }} key={row.id}>
-            {configs.map(({ name, items }) => {
+      {
+        label: '备份项目和数量',
+        prop: 'type',
+        formatter: (row: DataType) => {
+          const configs = row.backupConfigs
+          return (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }} key={row.id}>
+              {configs.map(({ name, items }) => {
+                return (
+                  <el-tooltip
+                    placement="top"
+                    v-slots={{
+                      content: () => (
+                        <>
+                          {items.map((item, index) => (
+                            <div key={index}>{item.sourcePath}</div>
+                          ))}
+                        </>
+                      ),
+                    }}
+                  >
+                    <span class="">
+                      {name}({items.length})
+                    </span>
+                  </el-tooltip>
+                )
+              })}
+            </div>
+          )
+        },
+      },
+      {
+        label: '关联的软件',
+        prop: 'softName',
+        showOverflowTooltip: true,
+        minWidth: '100',
+        formatter: (row: DataType) => {
+          if (row.type === 'INSTALLER') {
+            if (row.softInstallDir) {
               return (
-                <el-tooltip
-                  placement="top"
-                  v-slots={{
-                    content: () => (
-                      <>
-                        {items.map((item, index) => (
-                          <div key={index}>{item.sourcePath}</div>
-                        ))}
-                      </>
-                    ),
+                <div
+                  class="bind-soft"
+                  onClick={() => {
+                    RouterUtil.gotoSoft({ name: row.softName })
                   }}
                 >
-                  <span class="">
-                    {name}({items.length})
-                  </span>
-                </el-tooltip>
+                  <img src={row.softBase64Icon || defaultIcon} class="soft-icon" alt="" />
+                  {row.softName}
+                </div>
               )
-            })}
-          </div>
-        )
-      },
-    },
-    {
-      label: '关联的软件',
-      prop: 'softName',
-      showOverflowTooltip: true,
-      minWidth: '100',
-      formatter: (row: DataType) => {
-        if (row.type === 'INSTALLER') {
-          if (row.softInstallDir) {
-            return (
-              <div
-                class="bind-soft"
-                onClick={() => {
-                  RouterUtil.gotoSoft({ name: row.softName })
-                }}
-              >
-                <img src={row.softBase64Icon || defaultIcon} class="soft-icon" alt="" />
-                {row.softName}
-              </div>
-            )
+            } else {
+              return '-'
+            }
           } else {
-            return '-'
+            return <div style={{ color: 'red' }}>{row.softInstallDir}</div>
           }
-        } else {
-          return <div style={{ color: 'red' }}>{row.softInstallDir}</div>
-        }
+        },
       },
-    },
-    {
-      label: '操作',
-      minWidth: '100',
-      formatter: (row: DataType) => {
-        const list: TableOptionBtn<DataType>[] = []
-        list.push({
-          text: '查看',
-          onClick: () => {
-            GPluginConfigModal.showPluginConfig([row,row,row], {
-              showCancel: false,
-            }).then((r) => {})
-          },
-        })
-        if (getMyPluginConfig) {
+      {
+        label: '操作',
+        minWidth: '100',
+        formatter: (row: DataType) => {
+          const list: TableOptionBtn<DataType>[] = []
           list.push({
-            text: '移除',
-            confirmContent: (row: DataType) => {
-              return `是否从我的配置中移除[${row.id}]？`
-            },
+            text: '查看',
             onClick: () => {
-              db.myConfig.delete(row.id as IDType<MyPluginConfig, never>)
+              GPluginConfigModal.showPluginConfig([row, row, row], {
+                showCancel: false,
+              }).then((r) => {})
             },
           })
-        }
-        if (row.softInstallDir) {
-          list.push({
-            text: '备份',
-            onClick: (data: MyPluginConfig, e?: MouseEvent) => {
-              AppUtil.message('已添加备份任务')
-              emitter.emit('exec-backup', {
-                clientX: e!.clientX,
-                clientY: e!.clientY,
-              })
-              BackupUtil.startBackupData('manual', [data], true).then((r) => {})
-            },
-          })
-          if (!getMyPluginConfig) {
+          if (getMyPluginConfig) {
             list.push({
-              text: '添加到我的配置',
+              text: '移除',
+              confirmContent: (row: DataType) => {
+                return `是否从我的配置中移除[${row.id}]？`
+              },
               onClick: () => {
-                const data = cloneDeep(row as MyPluginConfig)
-                data.cTime = BaseUtil.getFormatedDateTime()
-                logger.debug('添加到我的配置', data)
-                db.myConfig
-                  .bulkPut([data])
-                  .then(() => {
-                    AppUtil.message('添加成功')
-                  })
-                  .catch((e) => {
-                    logger.debug(e)
-                  })
+                db.myConfig.delete(row.id as IDType<MyPluginConfig, never>)
               },
             })
           }
-        }
-        return createOptionList(row, list)
+          if (row.softInstallDir) {
+            list.push({
+              text: '备份',
+              onClick: (data: MyPluginConfig, e?: MouseEvent) => {
+                AppUtil.message('已添加备份任务')
+                emitter.emit('exec-backup', {
+                  clientX: e!.clientX,
+                  clientY: e!.clientY,
+                })
+                BackupUtil.startBackupData('manual', [data], true).then((r) => {})
+              },
+            })
+            if (!getMyPluginConfig) {
+              list.push({
+                text: '添加到我的配置',
+                onClick: () => {
+                  const data = cloneDeep(row as MyPluginConfig)
+                  data.cTime = BaseUtil.getFormatedDateTime()
+                  logger.debug('添加到我的配置', data)
+                  db.myConfig
+                    .bulkPut([data])
+                    .then(() => {
+                      AppUtil.message('添加成功')
+                    })
+                    .catch((e) => {
+                      logger.debug(e)
+                    })
+                },
+              })
+            }
+          }
+          return createOptionList(row, list)
+        },
       },
-    },
-  ]
-
-  if(getMyPluginConfig){
-
+    ],
+  )
+  if (getMyPluginConfig) {
     return {
       tableColumns: tableColumns,
       queryParams: queryParams,
       table: db.myConfig,
     } as TableConfig<MyPluginConfig, typeof queryParams>
-
-  }else{
-
+  } else {
     const initData = async (): Promise<DataType[]> => {
       return BuResult.getPromise(
         (await window.electronAPI?.ipcInvoke(

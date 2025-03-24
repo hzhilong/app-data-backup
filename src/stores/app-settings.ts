@@ -4,12 +4,16 @@ import { BuResult } from '@/models/bu-result'
 import { IPC_CHANNELS } from '@/models/ipc-channels'
 import { logger } from '@/utils/logger'
 
+export type BackupPathType = 'name/date' | 'date/name'
+
 export const useAppSettingsStore = defineStore(
   'AppSettings',
   () => {
     const backupRootDir = ref('')
     const confirmBeforeRestore = ref(true)
     const autoBackupBeforeRestore = ref(true)
+    const bulkBackupShowMsg = ref(false)
+    const backupPathType = ref<BackupPathType>('name/date')
     const initData = async () => {
       logger.debug('initData', backupRootDir.value)
       if (!backupRootDir.value) {
@@ -21,7 +25,7 @@ export const useAppSettingsStore = defineStore(
         })
       }
     }
-    return { backupRootDir, confirmBeforeRestore, autoBackupBeforeRestore, initData }
+    return { backupRootDir, confirmBeforeRestore, autoBackupBeforeRestore, bulkBackupShowMsg, backupPathType, initData }
   },
   {
     persist: true,

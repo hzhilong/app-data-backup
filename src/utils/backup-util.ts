@@ -18,6 +18,7 @@ import PluginUtil from '@/plugins/plugin-util'
 import { cloneDeep } from 'lodash'
 import { useRestoreTasksStore } from '@/stores/restore-task'
 import AppUtil from '@/utils/app-util'
+import { GPluginConfigModal } from '@/components/modal/global-modal'
 
 function getFileDateName(data?: Date) {
   return dayjs(data).format('YYYY-MM-DD_HH-mm-ss')
@@ -27,10 +28,11 @@ function getFileDateName(data?: Date) {
  * 获取备份目录
  */
 const getBackupDir = (rootPath: string, softName: string, configId: string, fileDateName?: string) => {
-  if (fileDateName) {
-    return `${rootPath}\\${softName}\\${configId}_${fileDateName}\\`
+  const dateStr = fileDateName ? fileDateName : getFileDateName()
+  if (useAppSettingsStore().backupPathType === 'name/date') {
+    return `${rootPath}\\${softName}\\${configId}_${dateStr}\\`
   } else {
-    return `${rootPath}\\${softName}\\${configId}_${getFileDateName()}\\`
+    return `${rootPath}\\${dateStr}\\${softName}\\`
   }
 }
 
@@ -333,8 +335,18 @@ export default class BackupUtil {
       throw new CommonError('存在未备份成功的任务')
     }
 
+    const settingsStore = useAppSettingsStore()
+    if (settingsStore.confirmBeforeRestore) {
+      const ret = await GPluginConfigModal.showTask(backupTasks, {
+        title: '是否还原以下项目？',
+        showCancel: true,
+      })
+      if (ret === 'cancel') {
+        throw new CommonError('已取消')
+      }
+    }
 
-    if (useAppSettingsStore().autoBackupBeforeRestore) {
+    if (settingsStore.autoBackupBeforeRestore) {
       showMsg && AppUtil.message('等待自动备份完成...')
       await this.autoBackupData(backupTasks)
     }

@@ -5,6 +5,11 @@ import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 import ThemeUtil from '@/utils/theme-util'
 import { DEFAULT_PRIMARY_COLORS, useAppThemeStore } from '@/stores/app-theme'
+import PluginUtil from '@/plugins/plugin-util'
+import AppUtil from '@/utils/app-util'
+import { usePluginConfigTable } from '@/table/plugin-config-table'
+import { db } from '@/db/db'
+import { initTable } from '@/table/table'
 
 const { primaryColor, themeMode } = storeToRefs(useAppThemeStore())
 const { backupRootDir, confirmBeforeRestore, autoBackupBeforeRestore, bulkBackupShowMsg, backupPathType } =
@@ -47,6 +52,29 @@ const resetTheme = () => {
   ThemeUtil.updatePrimaryColor(oldPrimaryColor)
   dialogSaveTheme.value = false
 }
+
+const { refreshDB: refreshPluginDB } = initTable(usePluginConfigTable(true, false))
+const updateLocalPlugins = () => {
+  AppUtil.message('更新中...')
+  PluginUtil.updateLocalPlugins()
+    .then((res) => {
+      AppUtil.message('更新成功...')
+      refreshPluginDB()
+        .then((list) => {
+          AppUtil.message(`目前已有${list.length}个备份配置`)
+        })
+        .catch(AppUtil.showErrorMessage)
+    })
+    .catch(AppUtil.showErrorMessage)
+}
+const clearIconCache = () => {
+  db.iconCache
+    .clear()
+    .then(() => {
+      AppUtil.message('已清空图标缓存')
+    })
+    .catch(AppUtil.showErrorMessage)
+}
 </script>
 
 <template>
@@ -74,6 +102,26 @@ const resetTheme = () => {
               <el-radio-button label="深色" value="dark" />
               <el-radio-button label="系统" value="system" />
             </el-radio-group>
+          </div>
+        </div>
+        <div class="setting-item">
+          <i class="item-icon ri-equalizer-2-line"></i>
+          <div class="item-content">
+            <div class="item-title">更新配置仓库</div>
+            <div class="item-desc">从github仓库获取最新的备份配置</div>
+          </div>
+          <div class="options">
+            <el-button type="primary" @click="updateLocalPlugins()">更新</el-button>
+          </div>
+        </div>
+        <div class="setting-item">
+          <i class="item-icon ri-equalizer-2-line"></i>
+          <div class="item-content">
+            <div class="item-title">清空软件图标的缓存</div>
+            <div class="item-desc">获取已安装的软件时，应用会缓存软件图标</div>
+          </div>
+          <div class="options">
+            <el-button type="primary" @click="clearIconCache()">清空</el-button>
           </div>
         </div>
       </div>

@@ -4,6 +4,7 @@ import { type InstalledSoftware, SOFTWARE_REGEDIT_GROUP, type SoftwareRegeditGro
 import { db } from '@/db/db'
 import { BuResult } from '@/models/bu-result'
 import { CommonError } from '@/models/common-error'
+import { logger } from '@/utils/logger'
 
 export default class RegeditUtil {
   static openRegedit(path?: string) {
@@ -26,12 +27,15 @@ export default class RegeditUtil {
     for (const soft of list) {
       const iconPath = soft.iconPath
       if (iconPath) {
+        // logger.debug(`软件[${soft.name}]图标路径：${iconPath}`)
         const first = await db.iconCache.where('path').equals(iconPath).first()
         if (first) {
+          // logger.debug(`软件[${soft.name}] 从数据获取到的图标大小：${first.base64.length}`)
           soft.base64Icon = first.base64
         } else {
           const base64 = ((await window.electronAPI?.ipcInvoke(IPC_CHANNELS.GET_ICON, iconPath)) as BuResult<string>)
             .data
+          // logger.debug(`软件[${soft.name}] 获取到的图标大小：${base64?.length}`)
           if (base64) {
             soft.base64Icon = base64
             db.iconCache.put({
@@ -54,6 +58,7 @@ export default class RegeditUtil {
         all.push(...list)
       }
     }
+    logger.debug(`结果：RegeditUtil.getInstalledSoftwareList`, all)
     return all
   }
 }

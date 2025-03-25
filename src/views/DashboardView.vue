@@ -11,14 +11,17 @@ import { storeToRefs } from 'pinia'
 import { parsePluginConfigGroup } from '@/plugins/plugin-config'
 
 const loading1 = ref(true)
-const loading2 = ref(true)
+const loading2 = ref(false)
 const loadingText = ref('正在获取已安装的软件列表，请稍候...')
 
-const { refreshDB: refreshInstalledList, tableData: softwareList } = initTable(
-  useInstalledSoftwareTable(false),
-  loading1,
-)
-const { refreshDB: refreshPluginList, tableData: pluginList } = initTable(usePluginConfigTable(), loading2)
+const { refreshDB: refreshInstalledList, tableData: softwareList } = initTable(useInstalledSoftwareTable(false), {
+  loading: loading1,
+  isTryInit: true,
+})
+const { refreshDB: refreshPluginList, tableData: pluginList } = initTable(usePluginConfigTable(false, false), {
+  loading: loading2,
+  isTryInit: true,
+})
 
 const allInstalledSoftware = computed(() => parseAllInstalledSoftware(softwareList.value ?? []))
 const pluginConfigGroup = computed(() => parsePluginConfigGroup(pluginList.value ?? []))
@@ -31,10 +34,6 @@ const backupTaskInfo = computed(() => {
   }
 })
 
-const refreshSoftList = async () => {
-  await refreshInstalledList()
-}
-
 const refGraph = ref<InstanceType<typeof SoftwareGraph> | null>(null)
 RouterUtil.onCurrRouteUpdate(() => {
   refGraph.value?.refreshGraph()
@@ -44,13 +43,13 @@ RouterUtil.onCurrRouteUpdate(() => {
 <template>
   <div
     class="page-content dashboard-container"
-    v-loading.fullscreen.lock="loading1 || loading2"
+    v-loading.fullscreen.lock="loading1"
     :element-loading-text="loadingText"
   >
     <div class="content-wrapper installed-cards">
       <div class="header">
         <div class="title" @click="RouterUtil.gotoSoft({})">已安装的软件({{ softwareList?.length ?? 0 }})</div>
-        <i class="ri-loop-right-line icon-btn t-rotate" @click="() => refreshSoftList()"></i>
+        <i class="ri-loop-right-line icon-btn t-rotate" @click="() => refreshInstalledList()"></i>
       </div>
       <div class="content-x">
         <div class="content-y card-container">

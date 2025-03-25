@@ -9,9 +9,9 @@ import { execBusiness } from '@/models/bu-result'
 import fs from 'fs'
 import nLogger from './utils/log4js'
 import { getAppBasePath } from './utils/app-path'
+import { AppLog } from '@/models/app-log'
 import BrowserWindow = Electron.BrowserWindow
 import OpenDialogOptions = Electron.OpenDialogOptions
-import { AppLog } from '@/models/app-log'
 
 if (process.env.NODE_ENV === 'development') {
   setExternalVBSLocation(path.join(__dirname, '../node_modules/regedit/vbs'))
@@ -45,14 +45,15 @@ export default {
       return getInstalledSoftware(regeditGroupKey)
     })
 
-    ipcMain.handle(IPC_CHANNELS.GET_ICON, (event, iconPath: string) => {
-      return execBusiness(async () => {
-        await getIconBase64(iconPath)
+    ipcMain.handle(IPC_CHANNELS.GET_ICON, async (event, iconPath: string) => {
+      // nLogger.debug('获取的图标大小：', buResult.data?.length)
+      return await execBusiness(async () => {
+        return await getIconBase64(iconPath)
       })
     })
 
-    ipcMain.handle(IPC_CHANNELS.OPEN_REGEDIT, (event, path: string) => {
-      return execBusiness(async () => {
+    ipcMain.handle(IPC_CHANNELS.OPEN_REGEDIT, async (event, path: string) => {
+      return await execBusiness(async () => {
         return WinUtil.openRegedit(path)
       })
     })
@@ -62,10 +63,9 @@ export default {
     })
 
     ipcMain.handle(IPC_CHANNELS.OPEN_PATH, async (event, fileOrDir: string) => {
-      let promise = await execBusiness(async () => {
-        await WinUtil.openPath(fileOrDir)
+      return await execBusiness(async () => {
+        return await WinUtil.openPath(fileOrDir)
       })
-      return promise
     })
 
     ipcMain.handle(IPC_CHANNELS.READ_JSON_FILE, (event, filePath: string) => {
@@ -94,8 +94,8 @@ export default {
 
     ipcMain.handle(
       IPC_CHANNELS.SHOW_OPEN_DIALOG,
-      (_event, options: OpenDialogOptions, defaultCurrDir: boolean = true) => {
-        return execBusiness(async () => {
+      async (_event, options: OpenDialogOptions, defaultCurrDir: boolean = true) => {
+        return await execBusiness(async () => {
           if (!options.defaultPath && defaultCurrDir) {
             options.defaultPath = getAppBasePath()
           }
@@ -104,8 +104,8 @@ export default {
       },
     )
 
-    ipcMain.handle(IPC_CHANNELS.CREATE_BACKUP_DIR, () => {
-      return execBusiness(async () => {
+    ipcMain.handle(IPC_CHANNELS.CREATE_BACKUP_DIR, async () => {
+      return await execBusiness(async () => {
         const dir = path.join(getAppBasePath(), import.meta.env.APP_DEFAULT_BACKUP_DIR)
         if (!fs.existsSync(dir)) {
           const ret = fs.mkdirSync(dir)

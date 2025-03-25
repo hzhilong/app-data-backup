@@ -75,15 +75,16 @@ export type ParamOptions<O extends Record<string, any>, OVK extends string = nev
 }
 
 export class DBUtil {
-  static query<T, Q extends Record<string, QueryParam>>(
-    table: DexieTable<T>,
+  static query<T, Q extends Record<string, QueryParam>,
+    TKeyPropName extends keyof T = never, TInsertType = InsertType<T, TKeyPropName>>(
+    table: DexieTable<T, TKeyPropName>,
     queryParams?: QueryParams<Q>,
   ): Promise<Array<T>> {
     logger.debug('DBUtil query', table.name, queryParams)
     if (!queryParams) {
       return table.toArray()
     }
-    let query: DexieQuery<T> = table
+    let query: DexieQuery<T, TKeyPropName> = table
     const eqObj: Record<string, unknown> = {}
     const likeObj: Record<string, unknown> = {}
     if (queryParams) {

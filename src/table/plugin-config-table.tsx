@@ -138,7 +138,16 @@ export function usePluginConfigTable<T extends boolean = false>(selection: boole
               return '-'
             }
           } else {
-            return <div style={{ color: 'red' }}>{row.softInstallDir}</div>
+            return (
+              <div
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                  AppUtil.openPath(row.softInstallDir).then()
+                }}
+              >
+                {row.softInstallDir}
+              </div>
+            )
           }
         },
       },
@@ -150,7 +159,7 @@ export function usePluginConfigTable<T extends boolean = false>(selection: boole
           list.push({
             text: '查看',
             onClick: () => {
-              GPluginConfigModal.showPluginConfig([row, row, row], {
+              GPluginConfigModal.showPluginConfig([row], {
                 showCancel: false,
               }).then((r) => {})
             },
@@ -207,7 +216,7 @@ export function usePluginConfigTable<T extends boolean = false>(selection: boole
       tableColumns: tableColumns,
       queryParams: queryParams,
       table: db.myConfig,
-    } as TableConfig<MyPluginConfig, typeof queryParams>
+    } as TableConfig<MyPluginConfig, typeof queryParams, 'id'>
   } else {
     const initData = async (): Promise<DataType[]> => {
       return BuResult.getPromise(
@@ -222,6 +231,6 @@ export function usePluginConfigTable<T extends boolean = false>(selection: boole
       queryParams: queryParams,
       initData: initData,
       table: db.pluginConfig,
-    } as TableConfig<ValidatedPluginConfig, typeof queryParams>
+    } as TableConfig<ValidatedPluginConfig, typeof queryParams, 'id'>
   }
 }

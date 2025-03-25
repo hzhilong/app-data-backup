@@ -1,13 +1,5 @@
 import { IPC_CHANNELS } from '@/models/ipc-channels'
-import {
-  BACKUP_PLUGIN_TYPE,
-  type BackupItemConfig,
-  type BackupPluginTypeKey,
-  isValidatedPluginConfig,
-  type PluginConfig,
-  type PluginConfigGroup,
-  type ValidatedPluginConfig,
-} from '@/plugins/plugin-config'
+import { type BackupItemConfig, type ValidatedPluginConfig } from '@/plugins/plugin-config'
 import { CommonError } from '@/models/common-error'
 import { BuResult } from '@/models/bu-result'
 import type {
@@ -19,6 +11,7 @@ import type {
 } from '@/plugins/plugin-task'
 import { cloneDeep } from 'lodash'
 import AppUtil from '@/utils/app-util'
+import { logger } from '@/utils/logger'
 
 /**
  * 插件工具
@@ -76,8 +69,8 @@ export default class PluginUtil {
   }
 
   static async openPluginConfigSourcePath(
-    pluginName:string,
-    softInstallDir:string,
+    pluginName: string,
+    softInstallDir: string,
     itemConfig: BackupItemConfig,
     showFailedMsg: boolean = true,
   ) {
@@ -113,5 +106,12 @@ export default class PluginUtil {
       .catch((err) => {
         showFailedMsg && AppUtil.showErrorMessage(err)
       })
+  }
+
+  /**
+   * 更新本地插件
+   */
+  static async updateLocalPlugins() {
+    return BuResult.getPromise(await window.electronAPI?.ipcInvoke(IPC_CHANNELS.UPDATE_LOCAL_PLUGINS) as BuResult<ValidatedPluginConfig[]>)
   }
 }

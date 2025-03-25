@@ -21,6 +21,10 @@ import {
 import { loadPluginConfig, ValidatedPluginConfig } from '@/plugins/plugin-config'
 import BrowserWindow = Electron.BrowserWindow
 import { throws } from 'assert'
+import axios from 'axios'
+
+const pluginRootDir = process.env.VITE_DEV_SERVER_URL ? 'dist/' : 'resources/'
+const pluginRootPath = path.join(getAppBasePath(), pluginRootDir)
 
 // 初始化互斥锁
 const initMutex = new Mutex()
@@ -44,7 +48,7 @@ function initPluginSystem(mainWindow: BrowserWindow) {
         // 已初始化
         return BuResult.createSuccess(loadedPluginConfigs)
       }
-      return execBusiness(() => {
+      return await execBusiness(() => {
         return initPlugins(softList)
       })
     } finally {
@@ -55,8 +59,21 @@ function initPluginSystem(mainWindow: BrowserWindow) {
   ipcMain.handle(IPC_CHANNELS.REFRESH_PLUGINS, async (_event, softList: InstalledSoftware[]) => {
     const release = await initMutex.acquire()
     try {
-      return execBusiness(() => {
+      return await execBusiness(() => {
         initialized = false
+        return initPlugins(softList)
+      })
+    } finally {
+      release()
+    }
+  })
+  // IPC 事件监听【更新本地插件插件】
+  ipcMain.handle(IPC_CHANNELS.UPDATE_LOCAL_PLUGINS, async (_event, softList: InstalledSoftware[]) => {
+    const release = await initMutex.acquire()
+    try {
+      return await execBusiness(async () => {
+        initialized = false
+        await downloadPlugins()
         return initPlugins(softList)
       })
     } finally {
@@ -65,13 +82,13 @@ function initPluginSystem(mainWindow: BrowserWindow) {
   })
   // IPC 事件监听【执行插件】
   ipcMain.handle(IPC_CHANNELS.EXEC_PLUGIN, async (event, task: PluginExecTask) => {
-    return execBusiness(async () => {
+    return await execBusiness(async () => {
       return await execPlugin(task, mainWindow)
     })
   })
   // IPC 事件监听【停止执行插件】
   ipcMain.handle(IPC_CHANNELS.STOP_EXEC_PLUGIN, async (event, task: PluginExecTask) => {
-    return execBusiness(async () => {
+    return await execBusiness(async () => {
       const abortController = abortSignals.get(task.id)
       if (abortController) {
         abortController.abort('取消任务')
@@ -83,14 +100,17 @@ function initPluginSystem(mainWindow: BrowserWindow) {
     })
   })
   // IPC 事件监听【打开插件备份配置源路径】
-  ipcMain.handle(IPC_CHANNELS.OPEN_PLUGIN_CONFIG_SOURCE_PATH, async (event, options: OpenPluginConfigSourcePathOptions) => {
-    return execBusiness(async () => {
-      return await openPluginConfigSourcePath(options)
-    })
-  })
+  ipcMain.handle(
+    IPC_CHANNELS.OPEN_PLUGIN_CONFIG_SOURCE_PATH,
+    async (event, options: OpenPluginConfigSourcePathOptions) => {
+      return await execBusiness(async () => {
+        return await openPluginConfigSourcePath(options)
+      })
+    },
+  )
   // IPC 事件监听【打开任务备份配置路径】
   ipcMain.handle(IPC_CHANNELS.OPEN_TASK_CONFIG_PATH, async (event, options: OpenTaskConfigPathOptions) => {
-    return execBusiness(async () => {
+    return await execBusiness(async () => {
       return await openTaskConfigPath(options)
     })
   })
@@ -102,10 +122,8 @@ function initPluginSystem(mainWindow: BrowserWindow) {
 function getPluginFiles(...paths: string[]): string[] {
   nLogger.info(`准备加载插件目录`, paths)
   const pluginFiles = []
-  const rootDir = process.env.VITE_DEV_SERVER_URL ? 'dist/' : 'resources/'
-  const rootPath = path.join(getAppBasePath(), rootDir)
   for (const item of paths) {
-    const pluginsDir = path.join(rootPath, item)
+    const pluginsDir = path.join(pluginRootPath, item)
     nLogger.info(`正在加载插件目录 ${pluginsDir}`)
     if (fs.existsSync(pluginsDir)) {
       pluginFiles.push(
@@ -207,7 +225,7 @@ async function execPlugin(task: PluginExecTask, mainWindow: Electron.BrowserWind
   const plugin = activePlugins.get(pluginId)
   if (!plugin) {
     nLogger.info(`未找到插件[${pluginId}]，可能已被删除`)
-    throw new CommonError(`未找到插件[${pluginId}]，可能已被删除`)
+    throw new CommonError(`未找到插件，可能已被删除`)
   }
   const abortController = new AbortController()
   abortSignals.set(taskId, abortController)
@@ -268,6 +286,59 @@ async function openTaskConfigPath(options: OpenTaskConfigPathOptions) {
     } else {
       return WinUtil.openPath(path.join(options.backupPath, resolvePath))
     }
+  }
+}
+
+interface GitHubFileEntry {
+  name: string
+  path: string
+  type: 'file' | 'dir'
+  download_url?: string
+}
+
+const downloadPlugins = async () => {
+  nLogger.info('准备更新本地插件...')
+  const apiUrl = import.meta.env.APP_PLUGINS_API_URL
+  try {
+    // 获取目录内容
+    const response = await axios.get<GitHubFileEntry[]>(apiUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
+        Accept: 'application/vnd.github.v3+json',
+      },
+    })
+    nLogger.debug('API响应内容：', response)
+
+    // 创建基础目录（如果不存在）
+    const localBasePath = path.join(pluginRootPath, 'plugins/core/')
+    if (!fs.existsSync(localBasePath)) {
+      fs.mkdirSync(localBasePath, { recursive: true })
+    }
+
+    // 处理每个条目
+    for (const item of response.data) {
+      if (item.type === 'file' && path.extname(item.name) === '.js') {
+        // 处理 JS 文件
+        try {
+          // 下载文件内容
+          const fileResponse = await axios.get(item.download_url!, {
+            responseType: 'text',
+            headers: {
+              'User-Agent':
+                'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36',
+            },
+          })
+          const localFilePath = path.join(localBasePath, item.name)
+          fs.writeFileSync(localFilePath, fileResponse.data)
+          nLogger.info(`已下载插件：${localFilePath}`)
+        } catch (error) {
+          nLogger.error(`下载插件[${item.path}]报错：`, error)
+        }
+      }
+    }
+  } catch (error) {
+    nLogger.error('无法访问github', error)
+    throw new CommonError('无法访问github')
   }
 }
 

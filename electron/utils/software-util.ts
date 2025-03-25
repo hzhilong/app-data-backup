@@ -316,7 +316,7 @@ async function getDllIconBase64(dllPath: string): Promise<string> {
         $icon.ToBitmap().Save("${path.resolve(tempIcoPath)}")
         Write-Output "${path.resolve(tempIcoPath)}"
       `
-      nLogger.debug(`正在调用ps脚本创建图标`, script)
+      // nLogger.debug(`正在调用ps脚本创建图标`, script)
       // 调用 PowerShell
       exec(`powershell -Command "${script}"`, (error, stdout, stderr) => {
         if (error) {

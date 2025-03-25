@@ -4,6 +4,7 @@ interface ImportMetaEnv {
   readonly APP_TITLE: string
   readonly APP_DEFAULT_BACKUP_DIR: string
   readonly APP_LOG_LEVEL: string
+  readonly APP_PLUGINS_API_URL: string
   readonly PROD: boolean
   // 和其他环境变量
 }

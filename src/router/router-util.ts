@@ -2,7 +2,6 @@ import router from '@/router/index'
 import { logger } from '@/utils/logger'
 import { type SoftwareQueryParams } from '@/table/installed-software-table'
 import { type PluginConfigQueryParams } from '@/table/plugin-config-table'
-import type { MyPluginConfigQueryParams } from '@/table/my-plugin-config-table'
 import { type RouteLocationNormalized, type RouteLocationNormalizedLoaded, useRoute, useRouter } from 'vue-router'
 import { watch } from 'vue'
 
@@ -34,7 +33,7 @@ export class RouterUtil {
     return this.gotoPage('/plugins', query)
   }
 
-  static gotoMyPluginConfig(query?: MyPluginConfigQueryParams): any {
+  static gotoMyPluginConfig(query?: PluginConfigQueryParams): any {
     return this.gotoPage('/my-plugins', query)
   }
 

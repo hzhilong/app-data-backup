@@ -76,7 +76,7 @@ export function useInstalledSoftwareTable(isExtendData: boolean = true) {
     },
   ]
 
-  const initData = async (): Promise<DataType[]> => {
+  const initData = async ()=> {
     logger.debug(`[installedSoftware] initData`)
     return await RegeditUtil.getInstalledSoftwareList()
   }
@@ -109,5 +109,5 @@ export function useInstalledSoftwareTable(isExtendData: boolean = true) {
     initData: initData,
     table: db.installedSoftware,
     parseData: parseData,
-  } as TableConfig<DataType, typeof queryParams>
+  } as TableConfig<DataType, typeof queryParams, 'regeditDir'>
 }

@@ -82,6 +82,13 @@ export default class AppUtil {
     }
   }
 
+  static showInfoMessage(msg: string): void {
+    this.message({
+      message: msg,
+      type: 'info',
+    })
+  }
+
   static showFailedMessage(msg: string): void {
     this.message({
       message: msg,

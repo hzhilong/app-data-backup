@@ -80,7 +80,9 @@ const getArrowClass = (plugin: PluginConfigModalData, pluginExecType?: PluginExe
                 软件名称：<span>{{ plugin.pluginName }}</span>
               </div>
               <div class="plugin-desc">
-                备份配置：<span>{{ plugin.pluginId }}</span>
+                备份配置：<el-tooltip effect="dark" :content="plugin.pluginId" placement="top-start">
+                  <span>{{ plugin.pluginId }}</span>
+                </el-tooltip>
               </div>
             </div>
             <div class="header-y">
@@ -88,11 +90,13 @@ const getArrowClass = (plugin: PluginConfigModalData, pluginExecType?: PluginExe
                 添加时间：<span>{{ plugin.cTime }}</span>
               </div>
               <div class="soft-install-dir">
-                关联目录：<span
+                关联目录：<el-tooltip effect="dark" :content="plugin.softInstallDir" placement="top-start">
+                  <span
                   @click="openPath(plugin, plugin.softInstallDir)"
                   :style="getPathStyle(plugin.softInstallDir)"
-                  >{{ plugin.softInstallDir }}</span
+                >{{ plugin.softInstallDir }}</span
                 >
+                </el-tooltip>
               </div>
             </div>
           </div>

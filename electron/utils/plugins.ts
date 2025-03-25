@@ -7,6 +7,7 @@ import path from 'path'
 import { BackupConfig, BackupPluginTypeKey, PluginConfig } from '@/plugins/plugin-config'
 import { getPluginExecName, PluginExecTask, TaskItemResult, TaskMonitor } from '@/plugins/plugin-task'
 import nLogger from './log4js'
+import fs from 'fs'
 
 /** 插件 */
 export class Plugin implements PluginConfig {
@@ -94,6 +95,25 @@ export class Plugin implements PluginConfig {
       if (new RegExp(`[/\\\\]${this.name}\$`).test(soft.installLocation)) {
         return soft
       }
+    }
+  }
+
+  /**
+   * 验证插件支持的软件源（通过APPDATA下是否有关键的文件夹进行判断）
+   * @param list
+   * @param env
+   */
+  public detectByAppData(
+    list: InstalledSoftware[],
+    env: {
+      [key: string]: string | undefined
+    },
+  ) {
+    const appDataPath = Plugin.resolvePath(path.join('%APPDATA%', this.name), env)
+    nLogger.debug('detectByAppData', path.resolve(appDataPath))
+    const state = fs.statSync(path.resolve(appDataPath))
+    if (state.isDirectory()) {
+      return appDataPath
     }
   }
 

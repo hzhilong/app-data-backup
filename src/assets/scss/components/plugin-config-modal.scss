@@ -1,20 +1,21 @@
 @use '@/assets/scss/global' as *;
 
-.content-container{
+.content-container {
   width: 100%;
   max-height: 400px;
   overflow: auto;
   padding-right: 10px;
   box-sizing: border-box;
 
-  .plugins{
+  .plugins {
     display: flex;
     flex-direction: column;
     gap: 16px;
 
-    .plugin{
+    .plugin {
       border-radius: 10px;
       color: $app-text-color-regular;
+      white-space: nowrap;
 
       :deep(.el-card__body) {
         width: 100%;
@@ -22,35 +23,37 @@
         box-sizing: border-box;
       }
 
-      .header-x{
+      .header-x {
         width: 100%;
         display: flex;
         justify-content: space-between;
+        gap: 20px;
+        overflow: hidden;
 
-        .header-y{
+        .header-y {
           flex: 1;
           display: flex;
           flex-direction: column;
           align-items: start;
 
-          span{
+          span {
             color: $app-text-color-primary;
           }
 
-          .plugin-name span{
+          .plugin-name span {
             color: $app-color-primary;
           }
         }
 
       }
 
-      .configs{
+      .configs {
         flex: 1;
         margin-top: 6px;
         border-top: 1px solid $app-border-color;
         padding-top: 6px;
 
-        .config{
+        .config {
           width: 100%;
           padding-left: 10px;
           box-sizing: border-box;
@@ -76,7 +79,7 @@
               background-color: $app-color-primary-light-9;
             }
 
-            .path-field{
+            .path-field {
             }
           }
         }

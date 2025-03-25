@@ -11,7 +11,7 @@ import { useAppSettingsStore } from '@/stores/app-settings'
 
 const refTable = ref<TableInstance>()
 const { tableData, tableColumns, queryParams, loading, searchData, refreshData } = initTable(
-  usePluginConfigTable(true, true),
+  usePluginConfigTable(true, true)
 )
 const settings = useAppSettingsStore()
 

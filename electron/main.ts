@@ -8,21 +8,13 @@ import path from 'node:path'
 import IPC from './ipc'
 import { initPluginSystem } from './utils/plugins-system'
 import * as os from 'node:os'
+import { AppPath } from './utils/app-path'
 
-// APP目录
-const rootPath = path.join(__dirname, '../')
-// Vite 打包前端代码的目录（渲染进程）
-const rendererDist = path.join(rootPath, 'dist')
-// Electron 代码后的目录（主进程）
-const mainDist = path.join(rootPath, 'dist-electron')
-// 开发环境 url
-const devServerUrl = process.env.VITE_DEV_SERVER_URL
-// 静态资源目录
-const publicPath = devServerUrl ? path.join(rootPath, 'public') : rendererDist
+const { devUrl, appMainDist, appRendererDist, appPublicPath } = AppPath
 
 // 禁用 Windows 7 的 GPU 加速
-if (os.release().startsWith('6.1')){
-app.disableHardwareAcceleration()
+if (os.release().startsWith('6.1')) {
+  app.disableHardwareAcceleration()
 }
 
 // 设置 Windows 10+ 通知的应用程序名称
@@ -36,9 +28,9 @@ if (!gotTheLock) {
 }
 
 let mainWindow: BrowserWindow | null = null
-const preload = path.join(mainDist, 'preload.js')
-const icon = path.join(publicPath, 'favicon.ico')
-const indexHtml = path.join(rendererDist, 'index.html')
+const preload = path.join(appMainDist, 'preload.js')
+const icon = path.join(appPublicPath, 'favicon.ico')
+const indexHtml = path.join(appRendererDist, 'index.html')
 
 // 创建窗口 https://www.electronjs.org/zh/docs/latest/api/browser-window
 const createWindow = () => {
@@ -84,9 +76,9 @@ const createWindow = () => {
   // 初始化插件系统
   initPluginSystem(mainWindow)
 
-  if (devServerUrl) {
+  if (devUrl) {
     // 开发
-    mainWindow.loadURL(devServerUrl).then(() => {})
+    mainWindow.loadURL(devUrl).then(() => {})
   } else {
     // 生产
     mainWindow.loadFile(indexHtml).then(() => {})

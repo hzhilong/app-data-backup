@@ -5,12 +5,14 @@ import {
   type InstalledSoftware,
   SOFTWARE_REGEDIT_GROUP,
   type SoftwareRegeditGroupKey,
-} from '@/models/software'
+} from '@/types/Software'
 import { promisified as regedit, type RegistryItem, type RegistryItemValue } from 'regedit'
 import path from 'path'
 import { app } from 'electron'
-import { exec } from 'child_process'
 import nLogger from './log4js'
+import WinUtil from './win-util'
+import { CommonError } from '@/types/CommonError'
+import BaseUtil from '@/utils/base-util'
 
 // 去除首位空白字符和双引号
 function stripQuotesAndTrim(str: string) {
@@ -304,42 +306,33 @@ export async function getIconBase64(iconPath: string): Promise<string> {
 }
 
 async function getDllIconBase64(dllPath: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    try {
-      // 生成临时 .ico 文件路径
-      const tempIcoPath = path.join(app.getPath('temp'), 'extracted_icon.ico')
-
-      // PowerShell 脚本
-      const script = `
+  // 生成临时 .ico 文件路径
+  const tempIcoPath = path.resolve(path.join(app.getPath('temp'), 'extracted_icon.ico'))
+  // PowerShell 脚本
+  const script = `
         Add-Type -AssemblyName System.Drawing
         $icon = [System.Drawing.Icon]::ExtractAssociatedIcon("${path.resolve(dllPath)}")
-        $icon.ToBitmap().Save("${path.resolve(tempIcoPath)}")
-        Write-Output "${path.resolve(tempIcoPath)}"
+        $icon.ToBitmap().Save("${tempIcoPath}")
+        Write-Output "${tempIcoPath}"
       `
-      // nLogger.debug(`正在调用ps脚本创建图标`, script)
-      // 调用 PowerShell
-      exec(`powershell -Command "${script}"`, (error, stdout, stderr) => {
-        if (error) {
-          reject(`PowerShell 执行失败: ${stderr}`)
-          return
-        }
-
-        setTimeout(() => {
-          // 读取生成的 .ico 文件
-          if (fs.existsSync(tempIcoPath)) {
-            const buffer = fs.readFileSync(tempIcoPath)
-            const base64 = buffer.toString('base64')
-            resolve(`data:image/x-icon;base64,${base64}`)
-            // 删除临时文件
-            // fs.unlinkSync(tempIcoPath)
-          } else {
-            reject('无法生成图标文件')
-          }
-        }, 100)
-      })
-    } catch (err) {
-      reject(err)
-    }
+  nLogger.debug(`正在调用ps脚本创建图标`, script)
+  const cmd = `powershell -Command "${script}"`
+  await WinUtil.execCmd(cmd).catch((err) => {
+    throw BaseUtil.convertToCommonError(err, `调用PS脚本生成图标失败：`)
+  })
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      // 读取生成的 .ico 文件
+      if (fs.existsSync(tempIcoPath)) {
+        const buffer = fs.readFileSync(tempIcoPath)
+        const base64 = buffer.toString('base64')
+        resolve(`data:image/x-icon;base64,${base64}`)
+        // 删除临时文件
+        // fs.unlinkSync(tempIcoPath)
+      } else {
+        reject(new CommonError('无法生成图标文件'))
+      }
+    }, 100)
   })
 }
 

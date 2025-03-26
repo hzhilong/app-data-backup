@@ -9,6 +9,7 @@ const appTitle = ref(import.meta.env.APP_PRODUCT_NAME as string)
 
 const windowMax = ref(false)
 const appSessionStore = AppSessionStore()
+
 const switchWindowMax = () => {
   windowMax.value = !windowMax.value
   appSessionStore.setMaxWindow(windowMax.value)

@@ -2,9 +2,6 @@
 
 技术栈：Vue3 + TS + Electron + Pinia + Dexie + ElementPlus
 
-
-设置：清空软件图标缓存
-
 ## 感谢
 
 - [RemixIcon](https://github.com/Remix-Design/RemixIcon)

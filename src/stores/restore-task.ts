@@ -2,9 +2,9 @@ import { defineStore } from 'pinia'
 import { reactive, watch } from 'vue'
 import { debounce } from '@/utils/base-util'
 import { db } from '@/db/db'
-import { logger } from '@/utils/logger'
+import { logger } from '@/utils/logger-util'
 import { cloneDeep } from 'lodash'
-import type { PluginExecTask } from '@/plugins/plugin-task'
+import type { PluginExecTask } from '@/types/PluginTask'
 import type { IDType } from 'dexie'
 
 /**

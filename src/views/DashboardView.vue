@@ -1,24 +1,24 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { parseAllInstalledSoftware } from '@/models/software'
+import { parseAllInstalledSoftware } from '@/types/Software'
 import SoftwareGraph from '@/components/graph/SoftwareGraph.vue'
-import { RouterUtil } from '@/router/router-util'
-import { initTable } from '@/table/table'
-import { useInstalledSoftwareTable } from '@/table/installed-software-table'
-import { usePluginConfigTable } from '@/table/plugin-config-table'
+import { RouterUtil } from '@/utils/router-util'
+import { useTable } from '@/composables/table/useTable'
+import { useInstalledSoftwareTable } from '@/composables/table/useInstalledSoftwareTable'
+import { usePluginConfigTable } from '@/composables/table/usePluginConfigTable'
 import { useBackupTasksStore } from '@/stores/backup-task'
 import { storeToRefs } from 'pinia'
-import { parsePluginConfigGroup } from '@/plugins/plugin-config'
+import { parsePluginConfigGroup } from '@/types/PluginConfig'
 
 const loading1 = ref(true)
 const loading2 = ref(false)
 const loadingText = ref('正在获取已安装的软件列表，请稍候...')
 
-const { refreshDB: refreshInstalledList, tableData: softwareList } = initTable(useInstalledSoftwareTable(false), {
+const { refreshDB: refreshInstalledList, tableData: softwareList } = useTable(useInstalledSoftwareTable(false), {
   loading: loading1,
   isTryInit: true,
 })
-const { refreshDB: refreshPluginList, tableData: pluginList } = initTable(usePluginConfigTable(false, false), {
+const { refreshDB: refreshPluginList, tableData: pluginList } = useTable(usePluginConfigTable(false, false), {
   loading: loading2,
   isTryInit: true,
 })

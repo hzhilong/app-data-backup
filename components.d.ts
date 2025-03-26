@@ -8,6 +8,9 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AppMenus: typeof import('./src/components/AppMenus.vue')['default']
+    ChooseBackupRootButton: typeof import('./src/components/app-settings/ChooseBackupRootButton.vue')['default']
+    ClearIconCacheButton: typeof import('./src/components/app-settings/ClearIconCacheButton.vue')['default']
+    CountdownDialog: typeof import('./src/components/dialog/CountdownDialog.vue')['default']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElCard: typeof import('element-plus/es')['ElCard']
     ElColorPicker: typeof import('element-plus/es')['ElColorPicker']
@@ -30,8 +33,13 @@ declare module 'vue' {
     PluginConfigModal: typeof import('./src/components/modal/PluginConfigModal.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SettingGroup: typeof import('./src/components/app-settings/SettingGroup.vue')['default']
+    SettingItem: typeof import('./src/components/app-settings/SettingItem.vue')['default']
     SoftwareGraph: typeof import('./src/components/graph/SoftwareGraph.vue')['default']
     TaskList: typeof import('./src/components/TaskList.vue')['default']
+    UpdatePluginsButton: typeof import('./src/components/app-settings/UpdatePluginsButton.vue')['default']
+    UpdateThemeColorButton: typeof import('./src/components/app-settings/UpdateThemeColorButton.vue')['default']
+    UpdateThemeModeButton: typeof import('./src/components/app-settings/UpdateThemeModeButton.vue')['default']
   }
   export interface ComponentCustomProperties {
     vLoading: typeof import('element-plus/es')['ElLoadingDirective']

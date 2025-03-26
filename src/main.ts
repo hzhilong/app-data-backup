@@ -34,9 +34,9 @@ async function bootstrapApp() {
   await useAppSettingsStore().initData()
 
   app.use(router)
-  app.config.errorHandler = (err) => {
-    AppUtil.handleError(err)
-  }
+  // Vue 组件中发生的错误
+  app.config.errorHandler = AppUtil.handleError
+  // 捕捉那些没有被catch处理的Promise错误
   window.addEventListener('unhandledrejection', (event) => {
     AppUtil.handleError(event.reason)
   })

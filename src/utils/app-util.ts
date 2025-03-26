@@ -1,43 +1,40 @@
 import type { ElMessageBoxOptions, MessageParams } from 'element-plus'
-import { IPC_CHANNELS } from '@/models/ipc-channels'
-import { CommonError } from '@/models/common-error'
-import type { BuResult } from '@/models/bu-result'
+import { IPC_CHANNELS } from '@/types/IpcChannels'
+import type { BuResult } from '@/types/BuResult'
 import { db } from '@/db/db'
 import BaseUtil from '@/utils/base-util'
-import { getPluginExecName, getTaskStateText, type PluginExecTask } from '@/plugins/plugin-task'
+import { getPluginExecName, getTaskStateText, type PluginExecTask } from '@/types/PluginTask'
+import { logger } from '@/utils/logger-util'
+import { ipcInvoke, ipcSend } from '@/utils/electron-api'
 
 export default class AppUtil {
   static async exitApp() {
     const running1 = await db.backupTask.where({ state: 'running' }).count()
     const running2 = await db.backupTask.where({ state: 'running' }).count()
-    if (running1 > 0 || running2 > 0) {
-      this.confirm(`当前有任务正在运行，是否直接退出？`).then(async () => {
-        window.electronAPI?.ipcSend(IPC_CHANNELS.WINDOW_CLOSE)
+    if (running1 === 0 && running2 === 0) {
+      // 没有任务在执行，直接关闭
+      ipcSend(IPC_CHANNELS.WINDOW_CLOSE)
+    } else {
+      AppUtil.confirm(`当前有任务正在运行，是否直接退出？`).then(() => {
+        ipcSend(IPC_CHANNELS.WINDOW_CLOSE)
       })
-      return
     }
-    window.electronAPI?.ipcSend(IPC_CHANNELS.WINDOW_CLOSE)
   }
 
   static maxApp() {
-    window.electronAPI?.ipcSend(IPC_CHANNELS.WINDOW_MAX)
+    ipcSend(IPC_CHANNELS.WINDOW_MAX)
   }
 
   static minApp() {
-    window.electronAPI?.ipcSend(IPC_CHANNELS.WINDOW_MIN)
+    ipcSend(IPC_CHANNELS.WINDOW_MIN)
   }
 
-  static browsePage(url?: string) {
-    window.electronAPI?.ipcSend(IPC_CHANNELS.BROWSE_PAGE, url)
+  static async browsePage(url?: string) {
+    await ipcInvoke(IPC_CHANNELS.BROWSE_PAGE, url)
   }
 
   static async openPath(path?: string) {
-    if (path) {
-      const result = (await window.electronAPI?.ipcInvoke(IPC_CHANNELS.OPEN_PATH, path)) as BuResult<void>
-      if (!result.success) {
-        this.showResultMessage(result)
-      }
-    }
+    await ipcInvoke(IPC_CHANNELS.OPEN_PATH, path)
   }
 
   static message(message: string): void
@@ -75,7 +72,7 @@ export default class AppUtil {
 
   static showResultMessage(result: BuResult<any>, onlyFail: boolean = true): void {
     if (!result.success || !onlyFail) {
-      this.message({
+      AppUtil.message({
         message: result.msg,
         type: result.success ? 'success' : 'error',
       })
@@ -83,44 +80,44 @@ export default class AppUtil {
   }
 
   static showInfoMessage(msg: string): void {
-    this.message({
+    AppUtil.message({
       message: msg,
       type: 'info',
     })
   }
 
   static showFailedMessage(msg: string): void {
-    this.message({
+    AppUtil.message({
       message: msg,
       type: 'error',
     })
   }
 
-  static showErrorMessage(e: unknown): void {
-    this.message({
-      message: BaseUtil.getErrorMessage(e),
-      type: 'error',
-    })
-  }
+  /*  static showErrorMessage(e: unknown): void {
+      AppUtil.message({
+        message: BaseUtil.getErrorMessage(e),
+        type: 'error',
+      })
+    }*/
 
   static showTaskMessage(task: PluginExecTask, e?: unknown | string): void {
     const execName = getPluginExecName(task.pluginExecType)
     const msgStart = `${execName}[${task.pluginId}]：`
     if (e !== undefined) {
       // 有异常信息
-      this.message({
+      AppUtil.message({
         message: `${msgStart}${typeof e === 'string' ? e : BaseUtil.getErrorMessage(e)}`,
         type: 'error',
       })
     } else {
       if (task.state !== 'finished') {
         // 未结束，简单提示
-        this.message({
+        AppUtil.message({
           message: `${msgStart}${getTaskStateText(task.state)}`,
           type: 'info',
         })
       } else {
-        this.message({
+        AppUtil.message({
           message: `${msgStart}${task.message}`,
           type: task.success ? 'success' : 'error',
         })
@@ -154,15 +151,13 @@ export default class AppUtil {
    */
   static handleError(error: unknown): void {
     if (!error) {
-      console.error('[app]:未知错误')
+      logger.error('[app]:未知错误')
     } else {
-      console.error('[app]:出现错误', error)
-      if (error instanceof CommonError) {
-        this.message({
-          message: error.message,
-          type: 'error',
-        })
-      }
+      logger.error('[app]:出现错误', error)
+      AppUtil.message({
+        message: BaseUtil.getErrorMessage(error),
+        type: 'error',
+      })
     }
   }
 }

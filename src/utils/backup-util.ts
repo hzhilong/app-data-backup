@@ -1,27 +1,27 @@
 import { useAppSettingsStore } from '@/stores/app-settings'
 import dayjs from 'dayjs'
 import { type Reactive, reactive } from 'vue'
-import { CommonError } from '@/models/common-error'
+import { CommonError } from '@/types/CommonError'
 import BaseUtil from '@/utils/base-util'
 import { storeToRefs } from 'pinia'
 import { useBackupTasksStore } from '@/stores/backup-task'
-import { logger } from '@/utils/logger'
+import { logger } from '@/utils/logger-util'
 import {
   type PluginExecTask,
   type PluginExecType,
   type TaskItemResult,
   type TaskResult,
   type TaskRunType,
-} from '@/plugins/plugin-task'
-import type { BackupItemConfig, MyPluginConfig, ValidatedPluginConfig } from '@/plugins/plugin-config'
-import PluginUtil from '@/plugins/plugin-util'
+} from '@/types/PluginTask'
+import type { BackupItemConfig, MyPluginConfig, ValidatedPluginConfig } from '@/types/PluginConfig'
+import PluginUtil from '@/utils/plugin-util'
 import { cloneDeep } from 'lodash'
 import { useRestoreTasksStore } from '@/stores/restore-task'
 import AppUtil from '@/utils/app-util'
 import { GPluginConfigModal } from '@/components/modal/global-modal'
 import { db } from '@/db/db'
 
-function getFileDateName(data?: Date) {
+const getFileDateName = (data?: Date) => {
   return dayjs(data).format('YYYY-MM-DD_HH-mm-ss')
 }
 
@@ -426,21 +426,22 @@ export default class BackupUtil {
     return ret
   }
 
+  /**
+   * 批量还原最近的备份数据
+   */
   static async bulkRestoreRecent(runType: TaskRunType, pluginConfigs: MyPluginConfig[], showMsg: boolean = false) {
     const pluginIds = pluginConfigs.map((pluginConfig) => pluginConfig.id)
     const records = await db.backupTask
       .orderBy('[pluginId+cTime]')
-      .filter((task) => (task.success === true && task.state === 'finished' && pluginIds.includes(task.pluginId)))
+      .filter((task) => task.success === true && task.state === 'finished' && pluginIds.includes(task.pluginId))
       .reverse()
       .toArray()
-    console.log('查询结果：', records)
     const latestMap = new Map<string, PluginExecTask>()
     for (const record of records) {
       if (!latestMap.has(record.pluginId)) {
         latestMap.set(record.pluginId, record)
       }
     }
-    console.log('过滤结果：', Array.from(latestMap.values()))
     return this.restoreBackupData(runType, Array.from(latestMap.values()), showMsg)
   }
 }

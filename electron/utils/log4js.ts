@@ -1,9 +1,9 @@
 import log4js from 'log4js'
 import path from 'path'
-import { getAppBasePath } from './app-path'
+import { AppPath } from './app-path'
 
 // 定义日志目录路径
-const LOG_DIR = path.join(getAppBasePath(), '/logs')
+const LOG_DIR = path.join(AppPath.programRoot, '/logs')
 
 log4js.configure({
   appenders: {

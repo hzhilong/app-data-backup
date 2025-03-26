@@ -1,11 +1,11 @@
 // 插件接口定义
-import { AbortedError } from '@/models/common-error'
-import { formatSize, type InstalledSoftware } from '@/models/software'
+import { AbortedError } from '@/types/CommonError'
+import { formatSize, type InstalledSoftware } from '@/types/Software'
 import BaseUtil from '@/utils/base-util'
 import WinUtil from './win-util'
 import path from 'path'
-import { BackupConfig, BackupPluginTypeKey, PluginConfig } from '@/plugins/plugin-config'
-import { getPluginExecName, PluginExecTask, TaskItemResult, TaskMonitor } from '@/plugins/plugin-task'
+import { BackupConfig, BackupPluginTypeKey, PluginConfig } from '@/types/PluginConfig'
+import { getPluginExecName, PluginExecTask, TaskItemResult, TaskMonitor } from '@/types/PluginTask'
 import nLogger from './log4js'
 import fs from 'fs'
 
@@ -102,15 +102,16 @@ export class Plugin implements PluginConfig {
    * 验证插件支持的软件源（通过APPDATA下是否有关键的文件夹进行判断）
    * @param list
    * @param env
+   * @param dataPath 数据路径，默认为软件名
    */
   public detectByAppData(
     list: InstalledSoftware[],
     env: {
       [key: string]: string | undefined
     },
+    dataPath?: string,
   ) {
-    const appDataPath = Plugin.resolvePath(path.join('%APPDATA%', this.name), env)
-    nLogger.debug('detectByAppData', path.resolve(appDataPath))
+    const appDataPath = Plugin.resolvePath(path.join('%APPDATA%', dataPath ? path.normalize(dataPath) : this.name), env)
     const state = fs.statSync(path.resolve(appDataPath))
     if (state.isDirectory()) {
       return appDataPath

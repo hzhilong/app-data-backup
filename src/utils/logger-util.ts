@@ -1,4 +1,7 @@
 import { consola } from 'consola'
+import type { AppLog, LogLevel } from '@/types/AppLog'
+import { IPC_CHANNELS } from '@/types/IpcChannels'
+import { ipcSend } from '@/utils/electron-api'
 
 // 配置 consola
 // 可选，让 console.xxx 也受控
@@ -28,4 +31,14 @@ export const logger = {
   error: consola.error,
   success: consola.success,
   fatal: consola.fatal,
+}
+
+// 保存日志到后端
+export const saveLog = (level: LogLevel = 'info', ...args: unknown[]): AppLog => {
+  const appLog: AppLog = {
+    level: level,
+    contents: args.map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : arg)),
+  }
+  ipcSend(IPC_CHANNELS.SAVE_LOG, appLog)
+  return appLog
 }

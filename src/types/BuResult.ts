@@ -1,4 +1,5 @@
 import BaseUtil from '@/utils/base-util'
+import { CommonError } from '@/types/CommonError'
 
 /**
  * 业务执行结果
@@ -29,15 +30,15 @@ export class BuResult<T> {
   /**
    * 展开成Promise
    */
-  static getPromise<T>(result: BuResult<T>): Promise<T> {
+/*  static getPromise<T>(result: BuResult<T>): Promise<T> {
     return new Promise<T>((resolve, reject) => {
       if (result.success) {
         resolve(result.data as T)
       } else {
-        reject(result.msg)
+        reject(new CommonError(result.msg))
       }
     })
-  }
+  }*/
 }
 
 /**

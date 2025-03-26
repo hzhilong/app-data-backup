@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { BuResult } from '@/models/bu-result'
-import { IPC_CHANNELS } from '@/models/ipc-channels'
-import { logger } from '@/utils/logger'
+import { IPC_CHANNELS } from '@/types/IpcChannels'
+import { logger } from '@/utils/logger-util'
+import { ipcInvoke } from '@/utils/electron-api'
 
 export type BackupPathType = 'name/date' | 'date/name'
 
@@ -15,13 +15,9 @@ export const useAppSettingsStore = defineStore(
     const bulkBackupShowMsg = ref(false)
     const backupPathType = ref<BackupPathType>('name/date')
     const initData = async () => {
-      logger.debug('initData', backupRootDir.value)
       if (!backupRootDir.value) {
-        BuResult.getPromise(
-          (await window.electronAPI?.ipcInvoke(IPC_CHANNELS.CREATE_BACKUP_DIR)) as BuResult<string>,
-        ).then((r) => {
-          logger.debug('创建默认备份目录', r)
-          backupRootDir.value = r
+        ipcInvoke<string>(IPC_CHANNELS.CREATE_BACKUP_DIR).then((dir) => {
+          logger.debug('创建默认备份目录', dir)
         })
       }
     }

@@ -1,5 +1,6 @@
-import { IPC_CHANNELS } from '@/models/ipc-channels'
+import { IPC_CHANNELS } from '@/types/IpcChannels'
 import { useAppThemeStore } from '@/stores/app-theme'
+import { ipcInvoke } from '@/utils/electron-api'
 
 const whiteColor = '#ffffff'
 const blackColor = '#000000'
@@ -38,9 +39,10 @@ function switchThemeMode(dark: boolean, vars: AppThemeCssVars) {
  */
 async function baseUpdateThemeColor(primaryColor: string, themeMode: AppThemeMode) {
   const vars: AppThemeCssVars = {}
-  let foreground: string, background: string
+  let foreground: string
+  let background: string
   if (themeMode === 'system') {
-    const shouldUseDarkColors = (await window.electronAPI?.ipcInvoke(IPC_CHANNELS.SHOULD_USE_DARK_COLORS)) as boolean
+    const shouldUseDarkColors = await ipcInvoke<boolean>(IPC_CHANNELS.SHOULD_USE_DARK_COLORS)
     ;({ foreground, background } = switchThemeMode(shouldUseDarkColors, vars))
   } else {
     ;({ foreground, background } = switchThemeMode(themeMode === 'dark', vars))
@@ -90,7 +92,7 @@ export default class ThemeUtil {
     await baseUpdateThemeColor(themeStore.switchThemeColor(), themeStore.themeMode)
   }
 
-  static async initAppTheme(){
+  static async initAppTheme() {
     let themeStore = useAppThemeStore()
     await baseUpdateThemeColor(themeStore.primaryColor, themeStore.themeMode)
   }

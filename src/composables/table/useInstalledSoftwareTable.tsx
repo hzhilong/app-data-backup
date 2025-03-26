@@ -1,13 +1,13 @@
 import { h, type VNode } from 'vue'
-import type { InstalledSoftware, SoftwareRegeditGroupKey } from '@/models/software'
-import { SOFTWARE_REGEDIT_GROUP } from '@/models/software'
+import type { InstalledSoftware, SoftwareRegeditGroupKey } from '@/types/Software'
+import { SOFTWARE_REGEDIT_GROUP } from '@/types/Software'
 import defaultIcon from '@/assets/image/software-icon-default.png'
 import { createParamOptions, db } from '@/db/db'
-import { createTags, type TableConfig, type TableTag } from '@/table/table'
-import { RouterUtil } from '@/router/router-util'
+import { RouterUtil } from '@/utils/router-util'
 import RegeditUtil from '@/utils/regedit-util'
-import type { ValidatedPluginConfig } from '@/plugins/plugin-config'
-import { logger } from '@/utils/logger'
+import type { ValidatedPluginConfig } from '@/types/PluginConfig'
+import TableUtil from '@/utils/table-util'
+import type { TableConfig, Tag } from '@/types/Table'
 
 export type ExtendedInstalledSoftware = InstalledSoftware & {
   supportPlugins?: ValidatedPluginConfig[]
@@ -61,7 +61,7 @@ export function useInstalledSoftwareTable(isExtendData: boolean = true) {
       minWidth: '100',
       showOverflowTooltip: true,
       formatter: (row: DataType) => {
-        return createTags(
+        return TableUtil.createTags(
           row,
           row?.supportPlugins?.map((item) => {
             return {
@@ -69,19 +69,17 @@ export function useInstalledSoftwareTable(isExtendData: boolean = true) {
               onClick: (row: DataType) => {
                 RouterUtil.gotoPluginConfig({ id: item.id })
               },
-            } as TableTag<DataType>
+            } as Tag<DataType>
           }),
         )
       },
     },
   ]
 
-  const initData = async ()=> {
-    logger.debug(`[installedSoftware] initData`)
+  const initData = async () => {
     return await RegeditUtil.getInstalledSoftwareList()
   }
   const parseData = async (list: DataType[]): Promise<DataType[]> => {
-    logger.debug(`[installedSoftware] parseData`)
     if (!isExtendData) {
       return Promise.resolve(list)
     }

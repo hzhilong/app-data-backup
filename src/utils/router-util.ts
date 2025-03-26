@@ -1,7 +1,7 @@
-import router from '@/router/index'
-import { logger } from '@/utils/logger'
-import { type SoftwareQueryParams } from '@/table/installed-software-table'
-import { type PluginConfigQueryParams } from '@/table/plugin-config-table'
+import router from '@/router'
+import { logger } from '@/utils/logger-util'
+import { type SoftwareQueryParams } from '@/composables/table/useInstalledSoftwareTable'
+import { type PluginConfigQueryParams } from '@/composables/table/usePluginConfigTable'
 import { type RouteLocationNormalized, type RouteLocationNormalizedLoaded, useRoute, useRouter } from 'vue-router'
 import { watch } from 'vue'
 

@@ -8,6 +8,7 @@ body {
   max-height: 100vh;
   line-height: 1.6;
   font-size: 14px;
+  overflow: hidden;
   // 浏览器在绘制文本时将着重考虑易读性，而不是渲染速度和几何精度。它会使字间距和连字有效。
   text-rendering: optimizeLegibility;
   // WebKit 字体抗锯齿

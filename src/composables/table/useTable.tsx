@@ -1,44 +1,21 @@
-import { db, DBUtil, type DexieTable, type QueryParam, type QueryParams } from '@/db/db'
-import TableColumn from 'element-plus/es/components/table/src/tableColumn'
-import { h, onMounted, ref, type Ref, watch, nextTick, onUnmounted } from 'vue'
+import { db, DBUtil, type QueryParam, type QueryParams } from '@/db/db'
+import { onMounted, onUnmounted, type Ref, ref, watch } from 'vue'
 import { cloneDeep } from 'lodash'
 import { type RouteLocationNormalized, type RouteLocationNormalizedLoaded, useRoute, useRouter } from 'vue-router'
-import { logger } from '@/utils/logger'
+import { logger } from '@/utils/logger-util'
 import type { Subscription as DexieSubscription } from 'dexie'
 import { type InsertType, liveQuery } from 'dexie'
 import BaseUtil from '@/utils/base-util'
-import { CommonError } from '@/models/common-error'
-import { Subscription } from 'rxjs'
+import { CommonError } from '@/types/CommonError'
 import AppUtil from '@/utils/app-util'
-
-export interface TableConfig<
-  T,
-  Q extends Record<string, QueryParam> = Record<string, QueryParam>,
-  TKeyPropName extends keyof T = never,
-  TInsertType = InsertType<T, TKeyPropName>,
-> {
-  initData?: () => Promise<T[]>
-  tableColumns: Partial<typeof TableColumn>
-  queryParams: QueryParams<Q>
-  table: DexieTable<T, TKeyPropName>
-  parseData?: (list: T[]) => Promise<T[]>
-}
-
-export interface InitTableOptions {
-  // 加载状态
-  loading?: Ref<boolean>
-  // 路由参数，为空则知道根据查询参数创建
-  routeQueryKeys?: string[]
-  // 尝试初始化（db.count=0>调用表格配置的initData）
-  isTryInit?: boolean
-}
+import type { InitTableOptions, TableConfig } from '@/types/Table'
 
 /**
  * 初始化表格，返回各种响应式数据
  * @param config 表格配置
  * @param options
  */
-export function initTable<
+export function useTable<
   T,
   Q extends Record<string, QueryParam>,
   TKeyPropName extends keyof T = never,
@@ -102,7 +79,7 @@ export function initTable<
         tableData.value = data
       },
       error: (err) => {
-        AppUtil.showErrorMessage(err)
+        AppUtil.handleError(err)
       },
     })
   }
@@ -230,6 +207,7 @@ export function initTable<
     )
   }
 
+  // 尝试初始化
   if (isTryInit) {
     onMounted(async () => {
       try {
@@ -263,91 +241,5 @@ export function initTable<
     searchData,
     refreshData,
     onAfterTableRefresh,
-  }
-}
-
-/**
- * 表格操作按钮
- */
-export interface TableOptionBtn<T> {
-  text: string
-  onClick: (row: T, e?: MouseEvent) => void
-  confirmContent?: (row: T) => string
-}
-
-export function createOptionList<T>(row: T, list: TableOptionBtn<T>[]) {
-  return (
-    <div class="table-option-list">
-      {list.map((item) => {
-        if (item.confirmContent) {
-          return (
-            <el-popconfirm
-              title={item.confirmContent(row)}
-              confirmButtonText="Yes"
-              cancelButtonText="No"
-              hideIcon
-              onConfirm={(e: MouseEvent) => {
-                item.onClick(row, e)
-              }}
-              v-slots={{
-                reference: () => <span class="table-option-btn">{item.text}</span>,
-              }}
-            ></el-popconfirm>
-          )
-        } else {
-          return (
-            <span
-              class="table-option-btn"
-              onClick={(e) => {
-                item.onClick(row, e)
-              }}
-            >
-              {item.text}
-            </span>
-          )
-        }
-      })}
-    </div>
-  )
-}
-
-export interface TableTag<T> {
-  text: string
-  onClick?: (row: T, e?: MouseEvent) => void
-}
-
-export function createTags<T>(row: T, tags: TableTag<T>[] | string[] | undefined, color?: string) {
-  if (!tags) {
-    return <></>
-  }
-  if (tags.every((tag) => typeof tag === 'string')) {
-    return (
-      <div class="table-tag-list">
-        {tags.map((tag) => {
-          return <el-tag type="primary">{tag}</el-tag>
-        })}
-      </div>
-    )
-  } else {
-    return (
-      <div class="table-tag-list">
-        {tags.map((tag) => {
-          return (
-            <el-tag
-              type="primary"
-              disable-transitions
-              style={{ cursor: tag.onClick ? 'pointer' : 'unset' }}
-              onClick={(e: MouseEvent) => {
-                if (tag.onClick) {
-                  tag.onClick(row, e)
-                }
-              }}
-            >
-              {tag.text}
-            </el-tag>
-          )
-        })}
-      </div>
-    )
   }
 }

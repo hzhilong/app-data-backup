@@ -7,4 +7,4 @@ type Events = {
   }
 }
 
-export const emitter = mitt<Events>()
+export const eventBus = mitt<Events>()

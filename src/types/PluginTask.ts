@@ -1,5 +1,5 @@
-import type { BackupItemConfig, BackupPluginTypeKey } from '@/plugins/plugin-config'
-import { CommonError } from '@/models/common-error'
+import type { BackupItemConfig, BackupPluginTypeKey } from '@/types/PluginConfig'
+import { CommonError } from '@/types/CommonError'
 
 /**
  * 任务运行类型 手动/自动

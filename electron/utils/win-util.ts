@@ -2,9 +2,8 @@ import { exec } from 'child_process'
 import fs from 'fs'
 import { promisified as regedit, type RegistryItem } from 'regedit'
 import path from 'node:path'
-import { shell } from 'electron'
 import nLogger from './log4js'
-import { AbortedError, CommonError } from '@/models/common-error'
+import { AbortedError, CommonError } from '@/types/CommonError'
 import iconv from 'iconv-lite'
 import * as url from 'node:url'
 
@@ -21,7 +20,7 @@ const decodeCmd = (cmd: string) => {
 }
 
 interface ExecCmdOptions {
-  codeIsSuccess: (number: number) => boolean
+  codeIsSuccess?: (number: number) => boolean
   signal?: AbortSignal
 }
 
@@ -94,7 +93,6 @@ export default class WinUtil {
         nLogger.debug(`打开资源管理器，路径：${fileOrDir}，转码：${href}`)
         // return shell.openExternal(href)
         await this.execCmd(`start "" "${fileOrDir}"`)
-        return
       }
     } else {
       throw new CommonError('该文件/文件夹不存在')
@@ -106,7 +104,9 @@ export default class WinUtil {
    * @param path 显示的路径
    */
   static openRegedit(path: string) {
-    return this.execCmd(`taskkill /f /im regedit.exe & REG ADD "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Applets\\Regedit" /v "LastKey" /d "${path}" /f & regedit`)
+    return this.execCmd(
+      `taskkill /f /im regedit.exe & REG ADD "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Applets\\Regedit" /v "LastKey" /d "${path}" /f & regedit`,
+    )
   }
 
   /**

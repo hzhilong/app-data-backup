@@ -1,4 +1,4 @@
-import { CommonError } from '@/models/common-error'
+import { CommonError } from '@/types/CommonError'
 import dayjs from 'dayjs'
 import { nanoid } from 'nanoid'
 

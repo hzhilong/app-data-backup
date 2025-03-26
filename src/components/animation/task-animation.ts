@@ -1,4 +1,4 @@
-import { emitter } from '@/utils/emitter'
+import { eventBus } from '@/utils/event-bus'
 
 let cartEL: HTMLElement | undefined = undefined
 let style: HTMLElement | undefined = undefined
@@ -29,7 +29,7 @@ export function useStartTaskAnimation(cart: HTMLElement) {
   `
   document.head.appendChild(style)
 
-  emitter.on('exec-backup', ({ clientX, clientY }) => {
+  eventBus.on('exec-backup', ({ clientX, clientY }) => {
     const cartRect = cart.getBoundingClientRect()
     // 购物车中心位置
     const cartCX = cartRect.left + cartRect.width / 2

@@ -1,6 +1,7 @@
 import { Route, Router } from 'vue-router'
 import AppUtil from '@/utils/app-util'
-import type { IpcChannels } from '@/models/ipc-channels'
+import type { IpcChannels } from '@/types/IpcChannels'
+import type { IpcRendererEventListener } from '@/types/ElectronRenderer'
 
 // 对vue进行类型补充说明
 declare module 'vue' {
@@ -17,16 +18,15 @@ declare module 'vue' {
 
 // 全局类型
 declare global {
-
   export interface Window {
     electronAPI?: {
-      ipcSend: (channel: IpcChannels, ...data: unknown[]) => void
-      ipcSendSync: (channel: IpcChannels, ...data: unknown[]) => unknown
-      ipcOn: (channel: IpcChannels, listener: IpcListener) => void
-      ipcOnce: (channel: IpcChannels, listener: IpcListener) => void
-      ipcOff: (channel: IpcChannels, listener: IpcListener) => void
+      ipcSend: (channel: IpcChannels, ...args: any[]) => void
+      // ipcSendSync: (channel: IpcChannels, ...args: any[]) => any
+      ipcOn: (channel: IpcChannels, listener: IpcRendererEventListener) => void
+      ipcOnce: (channel: IpcChannels, listener: IpcRendererEventListener) => void
+      ipcOff: (channel: IpcChannels, listener: IpcRendererEventListener) => void
       ipcOffAll: (channel: IpcChannels) => void
-      ipcInvoke: (channel: IpcChannels, ...data: unknown[]) => unknown
+      ipcInvoke: (channel: IpcChannels, ...args: any[]) => any
     }
   }
 }

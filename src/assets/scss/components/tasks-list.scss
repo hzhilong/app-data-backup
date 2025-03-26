@@ -3,7 +3,8 @@
 .task-list {
   width: 100%;
   height: 100%;
-  overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
 
   >.header{
     width: 100%;
@@ -22,7 +23,7 @@
   }
 
   .scroll-container {
-    height: 100%;
+    flex: 1;
     overflow-y: auto;
     padding: 6px;
     box-sizing: border-box;
@@ -175,7 +176,7 @@
         align-items: start;
 
 
-        .plugin-name, .date {
+        .plugin-id, .date {
           display: flex;
           align-items: center;
 

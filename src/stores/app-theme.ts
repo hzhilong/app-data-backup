@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import type { AppThemeMode } from '@/utils/theme-util'
-import { logger } from '@/utils/logger'
+import { logger } from '@/utils/logger-util'
 
 export const DEFAULT_PRIMARY_COLORS = [
   '#6284DF',

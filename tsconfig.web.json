@@ -26,7 +26,12 @@
     "jsxFragmentFactory": "Fragment",
     // 启用所有严格类型检查
     "strict": true,
-    "types": ["vite/client"],
-    "lib": ["DOM", "ESNext"]
+    "types": [
+      "vite/client"
+    ],
+    "lib": [
+      "DOM",
+      "ESNext"
+    ],
   }
 }

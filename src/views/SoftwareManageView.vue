@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useInstalledSoftwareTable } from '@/table/installed-software-table'
-import { initTable } from '@/table/table'
-import { type InstalledSoftware } from '@/models/software'
+import { useInstalledSoftwareTable } from '@/composables/table/useInstalledSoftwareTable'
+import { useTable } from '@/composables/table/useTable'
+import { type InstalledSoftware } from '@/types/Software'
 import { type Ref, ref } from 'vue'
 import defaultIcon from '../assets/image/software-icon-default.png'
 import RegeditUtil from '@/utils/regedit-util'
@@ -10,7 +10,7 @@ import type { TableInstance } from 'element-plus'
 
 const softTable = ref<TableInstance | null>(null)
 const { tableColumns, queryParams, tableData, searchData, loading, onAfterTableRefresh } =
-  initTable(useInstalledSoftwareTable())
+  useTable(useInstalledSoftwareTable())
 const currentData: Ref<InstalledSoftware | null> = ref(null)
 onAfterTableRefresh(() => {
   if (tableData.value?.length === 1) {

@@ -8,14 +8,14 @@ import {
   type TaskItemResult,
   type TaskRunType,
   type TaskState,
-} from '@/plugins/plugin-task'
+} from '@/types/PluginTask'
 import { storeToRefs } from 'pinia'
 import { useBackupTasksStore } from '@/stores/backup-task'
 import { useRestoreTasksStore } from '@/stores/restore-task'
 import { computed, ref } from 'vue'
 import AppUtil from '@/utils/app-util'
-import { logger } from '@/utils/logger'
-import PluginUtil from '@/plugins/plugin-util'
+import { logger } from '@/utils/logger-util'
+import PluginUtil from '@/utils/plugin-util'
 
 const props = defineProps<{
   runTypes: TaskRunType[]
@@ -162,7 +162,9 @@ const getTaskItemResultStateClass = (item: TaskItemResult) => {
         </div>
         <div class="content">
           <div class="content-item" style="flex: 1.5">
-            <div class="plugin-name"><i class="ri-file-code-line"></i>{{ task.pluginId }}</div>
+            <el-tooltip effect="dark" :content="task.pluginId" placement="top-start">
+              <div class="plugin-id"><i class="ri-file-code-line"></i>{{ task.pluginId }}</div>
+            </el-tooltip>
             <div class="date"><i class="ri-time-line"></i>{{ task.cTime }}</div>
           </div>
           <div class="content-item" style="flex: 2">
@@ -181,7 +183,9 @@ const getTaskItemResultStateClass = (item: TaskItemResult) => {
               <i class="ri-folder-2-line"></i>
               <div class="path-label">软件路径：</div>
               <div class="path-wrapper">
-                <div class="path" @click="AppUtil.openPath(task.softInstallDir)">{{ task.softInstallDir }}</div>
+                <el-tooltip effect="dark" :content="task.softInstallDir" placement="top-start">
+                  <div class="path" @click="AppUtil.openPath(task.softInstallDir)">{{ task.softInstallDir }}</div>
+                </el-tooltip>
               </div>
             </div>
             <div class="path-item">

@@ -5,22 +5,23 @@ import {
   type BackupPluginTypeKey,
   type MyPluginConfig,
   type ValidatedPluginConfig,
-} from '@/plugins/plugin-config'
-import { createOptionList, type TableConfig, type TableOptionBtn } from '@/table/table'
+} from '@/types/PluginConfig'
 import defaultIcon from '@/assets/image/software-icon-default.png'
 import { AppSessionStore } from '@/stores/app-session'
 import { storeToRefs } from 'pinia'
-import { RouterUtil } from '@/router/router-util'
+import { RouterUtil } from '@/utils/router-util'
 import AppUtil from '@/utils/app-util'
-import { logger } from '@/utils/logger'
+import { logger } from '@/utils/logger-util'
 import { cloneDeep } from 'lodash'
-import { BuResult } from '@/models/bu-result'
-import { IPC_CHANNELS } from '@/models/ipc-channels'
+import { IPC_CHANNELS } from '@/types/IpcChannels'
 import BaseUtil from '@/utils/base-util'
-import { emitter } from '@/utils/emitter'
+import { eventBus } from '@/utils/event-bus'
 import BackupUtil from '@/utils/backup-util'
 import { GPluginConfigModal } from '@/components/modal/global-modal'
 import type { IDType } from 'dexie'
+import { ipcInvoke } from '@/utils/electron-api'
+import TableUtil from '@/utils/table-util'
+import type { TableConfig, OptionButton } from '@/types/Table'
 
 const queryParams = {
   id: {
@@ -155,7 +156,7 @@ export function usePluginConfigTable<T extends boolean = false>(selection: boole
         label: '操作',
         minWidth: '100',
         formatter: (row: DataType) => {
-          const list: TableOptionBtn<DataType>[] = []
+          const list: OptionButton<DataType>[] = []
           list.push({
             text: '查看',
             onClick: () => {
@@ -180,7 +181,7 @@ export function usePluginConfigTable<T extends boolean = false>(selection: boole
               text: '备份',
               onClick: (data: MyPluginConfig, e?: MouseEvent) => {
                 AppUtil.message('已添加备份任务')
-                emitter.emit('exec-backup', {
+                eventBus.emit('exec-backup', {
                   clientX: e!.clientX,
                   clientY: e!.clientY,
                 })
@@ -206,7 +207,7 @@ export function usePluginConfigTable<T extends boolean = false>(selection: boole
               })
             }
           }
-          return createOptionList(row, list)
+          return TableUtil.createOptions(row, list)
         },
       },
     ],
@@ -219,12 +220,7 @@ export function usePluginConfigTable<T extends boolean = false>(selection: boole
     } as TableConfig<MyPluginConfig, typeof queryParams, 'id'>
   } else {
     const initData = async (): Promise<DataType[]> => {
-      return BuResult.getPromise(
-        (await window.electronAPI?.ipcInvoke(
-          IPC_CHANNELS.REFRESH_PLUGINS,
-          await db.installedSoftware.toArray(),
-        )) as BuResult<DataType[]>,
-      )
+      return ipcInvoke<DataType[]>(IPC_CHANNELS.REFRESH_PLUGINS, await db.installedSoftware.toArray())
     }
     return {
       tableColumns: tableColumns,

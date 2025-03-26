@@ -1,9 +1,9 @@
 import Dexie, { type Collection, type EntityTable, type IDType, type InsertType, type Table } from 'dexie'
-import { type InstalledSoftware } from '@/models/software'
+import { type InstalledSoftware } from '@/types/Software'
 import BaseUtil from '@/utils/base-util'
-import { logger } from '@/utils/logger'
-import type { PluginExecTask } from '@/plugins/plugin-task'
-import type { MyPluginConfig, ValidatedPluginConfig } from '@/plugins/plugin-config'
+import { logger } from '@/utils/logger-util'
+import type { PluginExecTask } from '@/types/PluginTask'
+import type { MyPluginConfig, ValidatedPluginConfig } from '@/types/PluginConfig'
 
 export type DexieTable<T, TKeyPropName extends keyof T = never, TInsertType = InsertType<T, TKeyPropName>> = Table<
   T,

@@ -1,4 +1,4 @@
-import { CommonError } from '@/models/common-error'
+import { CommonError } from '@/types/CommonError'
 
 /**
  * 备份配置 可根据该配置快速进行备份还原 也可自己实现备份还原方法
@@ -15,7 +15,7 @@ export interface BackupConfig {
  */
 export interface BackupItemConfig {
   /** 备份项目的类型：文件 文件夹 注册表 */
-  type: 'file' | 'registry'
+  type: 'file' | 'registry' // TODO 支持更多内容：系统或者环境变量
   /**
    * 源路径 支持以下环境变量和：
    * %installDir% 软件安装路径 不带/

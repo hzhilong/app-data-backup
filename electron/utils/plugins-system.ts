@@ -2,29 +2,27 @@ import fs from 'fs'
 import { ipcMain } from 'electron'
 import path from 'path'
 import { pathToFileURL } from 'url'
-import { IPC_CHANNELS } from '@/models/ipc-channels'
+import { IPC_CHANNELS } from '@/types/IpcChannels'
 import WinUtil from './win-util'
-import { CommonError } from '@/models/common-error'
-import { BuResult, execBusiness } from '@/models/bu-result'
+import { CommonError } from '@/types/CommonError'
+import { BuResult, execBusiness } from '@/types/BuResult'
 import { Plugin } from './plugins'
 import { Mutex } from 'async-mutex'
-import { InstalledSoftware } from '@/models/software'
+import { InstalledSoftware } from '@/types/Software'
 import BaseUtil from '@/utils/base-util'
 import nLogger from './log4js'
-import { getAppBasePath } from './app-path'
 import {
   OpenPluginConfigSourcePathOptions,
   OpenTaskConfigPathOptions,
   PluginExecTask,
   TaskItemResult,
-} from '@/plugins/plugin-task'
-import { loadPluginConfig, ValidatedPluginConfig } from '@/plugins/plugin-config'
-import BrowserWindow = Electron.BrowserWindow
-import { throws } from 'assert'
+} from '@/types/PluginTask'
+import { loadPluginConfig, ValidatedPluginConfig } from '@/types/PluginConfig'
 import axios from 'axios'
+import { AppPath } from './app-path'
+import BrowserWindow = Electron.BrowserWindow
 
-const pluginRootDir = process.env.VITE_DEV_SERVER_URL ? 'dist/' : 'resources/'
-const pluginRootPath = path.join(getAppBasePath(), pluginRootDir)
+const pluginRootPath = AppPath.pluginRootPath
 
 // 初始化互斥锁
 const initMutex = new Mutex()
@@ -182,7 +180,7 @@ async function initPlugins(softList?: InstalledSoftware[]): Promise<ValidatedPlu
     }
   }
   initialized = true
-  nLogger.info('插件系统初始化成功', activePlugins)
+  nLogger.info('插件系统初始化成功', activePlugins.size)
   return loadedPluginConfigs
 }
 
@@ -298,12 +296,13 @@ interface GitHubFileEntry {
 
 const downloadPlugins = async () => {
   nLogger.info('准备更新本地插件...')
+  const userAgent = 'Electron-App'
   const apiUrl = import.meta.env.APP_PLUGINS_API_URL
   try {
     // 获取目录内容
     const response = await axios.get<GitHubFileEntry[]>(apiUrl, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
+        'User-Agent': userAgent,
         Accept: 'application/vnd.github.v3+json',
       },
     })
@@ -324,8 +323,7 @@ const downloadPlugins = async () => {
           const fileResponse = await axios.get(item.download_url!, {
             responseType: 'text',
             headers: {
-              'User-Agent':
-                'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36',
+              'User-Agent': userAgent,
             },
           })
           const localFilePath = path.join(localBasePath, item.name)

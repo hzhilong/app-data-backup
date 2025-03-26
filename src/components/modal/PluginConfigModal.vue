@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { PluginConfigModalData, PluginConfigModalOptions } from '@/components/modal/global-modal'
-import type { BackupItemConfig } from '@/plugins/plugin-config'
-import PluginUtil from '@/plugins/plugin-util'
+import type { BackupItemConfig } from '@/types/PluginConfig'
+import PluginUtil from '@/utils/plugin-util'
 import AppUtil from '@/utils/app-util'
-import type { PluginExecType } from '@/plugins/plugin-task'
+import type { PluginExecType } from '@/types/PluginTask'
 
 const visible = defineModel({ required: true, type: Boolean })
 
@@ -80,7 +80,7 @@ const getArrowClass = (plugin: PluginConfigModalData, pluginExecType?: PluginExe
                 软件名称：<span>{{ plugin.pluginName }}</span>
               </div>
               <div class="plugin-desc">
-                备份配置：<el-tooltip effect="dark" :content="plugin.pluginId" placement="top-start">
+                配置名称：<el-tooltip effect="dark" :content="plugin.pluginId" placement="top-start">
                   <span>{{ plugin.pluginId }}</span>
                 </el-tooltip>
               </div>

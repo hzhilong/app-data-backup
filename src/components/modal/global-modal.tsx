@@ -4,9 +4,9 @@ import {
   isValidatedPluginConfig,
   type PluginConfig,
   type ValidatedPluginConfig,
-} from '@/plugins/plugin-config'
+} from '@/types/PluginConfig'
 import PluginConfigModal from '@/components/modal/PluginConfigModal.vue'
-import type { PluginExecTask, PluginExecType } from '@/plugins/plugin-task'
+import type { PluginExecTask, PluginExecType } from '@/types/PluginTask'
 
 export interface PluginConfigModalData {
   pluginId: string

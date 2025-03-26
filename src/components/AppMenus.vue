@@ -2,7 +2,7 @@
 import AppUtil from '@/utils/app-util'
 import { useRoute } from 'vue-router'
 import { computed, onMounted, ref } from 'vue'
-import { RouterUtil } from '@/router/router-util'
+import { RouterUtil } from '@/utils/router-util'
 import { ElMenuItem } from 'element-plus'
 import { useStartTaskAnimation } from '@/components/animation/task-animation'
 

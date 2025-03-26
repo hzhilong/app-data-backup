@@ -1,38 +1,39 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { initTable } from '@/table/table'
-import { RouterUtil } from '@/router/router-util'
-import { usePluginConfigTable } from '@/table/plugin-config-table'
+import { useTable } from '@/composables/table/useTable'
+import { RouterUtil } from '@/utils/router-util'
+import { usePluginConfigTable } from '@/composables/table/usePluginConfigTable'
 import type { TableInstance } from 'element-plus'
-import type { MyPluginConfig } from '@/plugins/plugin-config'
+import type { MyPluginConfig } from '@/types/PluginConfig'
 import AppUtil from '@/utils/app-util'
 import BackupUtil from '@/utils/backup-util'
 import { useAppSettingsStore } from '@/stores/app-settings'
+import { CommonError } from '@/types/CommonError'
 
 const refTable = ref<TableInstance>()
-const { tableData, tableColumns, queryParams, loading, searchData, refreshData } = initTable(
-  usePluginConfigTable(true, true)
+const { tableData, tableColumns, queryParams, loading, searchData, refreshData } = useTable(
+  usePluginConfigTable(true, true),
 )
 const settings = useAppSettingsStore()
 
-const bulkBackup = () => {
+const getSelectionRows = () => {
   const list = refTable.value?.getSelectionRows() as MyPluginConfig[]
   if (!list || list.length == 0) {
-    return AppUtil.showFailedMessage('未选择配置')
+    throw new CommonError('未选择配置')
   }
-  BackupUtil.startBackupData('manual', list, settings.bulkBackupShowMsg).then((r) => {
-    AppUtil.message('批量备份中...')
-  })
+  return list
 }
 
-const bulkRestoreRecent = () => {
-  const list = refTable.value?.getSelectionRows() as MyPluginConfig[]
-  if (!list || list.length == 0) {
-    return AppUtil.showFailedMessage('未选择配置')
-  }
-  BackupUtil.bulkRestoreRecent('manual',list, settings.bulkBackupShowMsg).then((r) => {
-    AppUtil.message('批量还原中...')
-  })
+const bulkBackup = async () => {
+  const list = getSelectionRows()
+  await BackupUtil.startBackupData('manual', list, settings.bulkBackupShowMsg)
+  AppUtil.message('批量备份中...')
+}
+
+const bulkRestoreRecent = async () => {
+  const list = getSelectionRows()
+  await BackupUtil.bulkRestoreRecent('manual', list, settings.bulkBackupShowMsg)
+  AppUtil.message('批量还原中...')
 }
 </script>
 <template>

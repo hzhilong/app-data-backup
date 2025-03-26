@@ -2,9 +2,9 @@ import { defineStore } from 'pinia'
 import { reactive, watch } from 'vue'
 import { debounce } from '@/utils/base-util'
 import { db } from '@/db/db'
-import { logger } from '@/utils/logger'
+import { logger } from '@/utils/logger-util'
 import { cloneDeep } from 'lodash'
-import type { PluginExecTask } from '@/plugins/plugin-task'
+import type { PluginExecTask } from '@/types/PluginTask'
 import type { IDType } from 'dexie'
 
 /**
@@ -21,7 +21,7 @@ const handleInitData = (list: PluginExecTask[]) => {
       item.message = '任务已暂停'
     }
     // 测试
-    if (item.id === 'rhxaMRrc10U9c_VyKUHym') {
+    if (import.meta.env.DEV && item.id === 'rhxaMRrc10U9c_VyKUHym') {
       item.success = undefined
       item.currProgress = 0
       item.taskResults.forEach((taskResult) => {

@@ -1,36 +1,37 @@
 <script setup lang="ts">
-import { initTable } from '@/table/table'
+import { useTable } from '@/composables/table/useTable'
 import { ref } from 'vue'
-import { usePluginConfigTable } from '@/table/plugin-config-table'
+import { usePluginConfigTable } from '@/composables/table/usePluginConfigTable'
 import { type TableInstance } from 'element-plus'
 import AppUtil from '@/utils/app-util'
-import type { MyPluginConfig, ValidatedPluginConfig } from '@/plugins/plugin-config'
+import type { MyPluginConfig, ValidatedPluginConfig } from '@/types/PluginConfig'
 import BaseUtil from '@/utils/base-util'
 import { db } from '@/db/db'
 import { cloneDeep } from 'lodash'
+import { CommonError } from '@/types/CommonError'
+
 const refTable = ref<TableInstance>()
-const { tableData, tableColumns, queryParams, loading, searchData, refreshDB } = initTable(
+const { tableData, tableColumns, queryParams, loading, searchData, refreshDB } = useTable(
   usePluginConfigTable(true, false),
 )
-const addToMyConfig = () => {
+
+const getSelectionRows = () => {
   const list = refTable.value?.getSelectionRows() as ValidatedPluginConfig[]
   if (!list || list.length == 0) {
-    return AppUtil.showFailedMessage('未选择配置')
+    throw new CommonError('未选择配置')
   }
+  return list
+}
+
+const addToMyConfig = async () => {
+  const list = getSelectionRows()
   const cTime = BaseUtil.getFormatedDateTime()
-  db.myConfig
-    .bulkPut(
-      cloneDeep(list).map((item) => {
-        item.cTime = cTime
-        return item as MyPluginConfig
-      }),
-    )
-    .then(() => {
-      AppUtil.message('添加成功')
-    })
-    .catch((e) => {
-      AppUtil.showErrorMessage(e)
-    })
+  const myPlugins = cloneDeep(list).map((item) => {
+    item.cTime = cTime
+    return item as MyPluginConfig
+  })
+  await db.myConfig.bulkPut(myPlugins)
+  AppUtil.message('添加成功')
 }
 </script>
 <template>
@@ -68,7 +69,15 @@ const addToMyConfig = () => {
       <div class="header-right"></div>
     </div>
     <div class="table-wrapper">
-      <el-table ref="refTable" :data="tableData" style="width: 100%" height="100%" border highlight-current-row v-loading="loading">
+      <el-table
+        ref="refTable"
+        :data="tableData"
+        style="width: 100%"
+        height="100%"
+        border
+        highlight-current-row
+        v-loading="loading"
+      >
         <el-table-column v-bind="item" v-for="item in tableColumns" :key="item.label"></el-table-column>
       </el-table>
     </div>

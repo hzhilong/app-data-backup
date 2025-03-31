@@ -7,7 +7,7 @@ import WinUtil from './utils/win-util'
 import { getIconBase64, getInstalledSoftware } from './utils/software-util'
 import { execBusiness } from '@/types/BuResult'
 import fs from 'fs'
-import nLogger from './utils/log4js'
+import nLogger, { LOG_DIR } from './utils/log4js'
 import { AppLog } from '@/types/AppLog'
 import BrowserWindow = Electron.BrowserWindow
 import OpenDialogOptions = Electron.OpenDialogOptions
@@ -105,6 +105,12 @@ export default {
       } else {
         nLogger.info(appLog.contents)
       }
+    })
+
+    ipcMain.handle(IPC_CHANNELS.OPEN_LOGS_DIR, async (event, fileOrDir: string) => {
+      return await execBusiness(async () => {
+        return await WinUtil.openPath(LOG_DIR)
+      })
     })
   },
 }

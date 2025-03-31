@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import TaskList from '@/components/TaskList.vue'
+import TaskList from '@/components/task/TaskList.vue'
 import { ref } from 'vue'
 
 const activeTab = ref('未完成')
 </script>
 
 <template>
-  <div class="page-content">
+  <div class="page-container">
     <el-tabs class="task-tabs" v-model="activeTab">
       <el-tab-pane class="task-tab" label="未完成" name="未完成">
         <TaskList

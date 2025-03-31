@@ -9,11 +9,11 @@
   :deep(.soft-icon) {
     position: absolute;
     border-radius: 50%;
-    border: 2px solid $app-color-primary-light-7;
+    border: 2px solid var(--el-color-primary-light-7);
     background-repeat: no-repeat;
     background-position: center center;
     background-size: 68%;
-    background-color: $app-fill-color-blank;
+    background-color: var(--el-fill-color-blank);
     transition: transform 0.3s ease-in 0s;
     cursor: pointer;
 
@@ -21,7 +21,7 @@
       z-index: 1;
       transform: scale(1.2);
       border-color: transparent;
-      box-shadow: 0 0 4px $app-color-primary-light-1;
+      box-shadow: 0 0 4px var(--el-color-primary-light-1);
     }
   }
 }

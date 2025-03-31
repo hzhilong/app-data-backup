@@ -30,30 +30,32 @@ const newThemeMode: Ref<AppThemeMode> = computed(() => {
 </script>
 
 <template>
-  <div class="page-content about">
-    <div class="app-logo" @click="ThemeUtil.switchDefaultTheme()"></div>
-    <div class="app-title" @click="ThemeUtil.toggleDarkTheme(newThemeMode)">{{ appTitle }}</div>
-    <div class="infos">
-      <div class="info">
-        <span class="title">版本：</span>
-        <span class="desc">{{ appVersion }}</span>
-      </div>
-      <div class="info">
-        <span class="title">描述：</span>
-        <span class="desc">{{ env.APP_DESCRIPTION }}</span>
-      </div>
-      <div class="info">
-        <span class="title">作者：</span>
-        <span class="desc">{{ env.APP_AUTHOR_NAME }}</span>
-      </div>
-      <div class="info">
-        <span class="title">邮箱：</span>
-        <span class="desc">{{ env.APP_AUTHOR_EMAIL }}</span>
-      </div>
-      <div class="info">
-        <div class="title">开源：</div>
-        <div class="desc">
-          <div class="url" @click.prevent="AppUtil.browsePage(env.APP_AUTHOR_URL)">{{ env.APP_AUTHOR_URL }}</div>
+  <div class="page-container__single-child">
+    <div class="about">
+      <div class="about__app-logo" @click="ThemeUtil.switchDefaultTheme()"></div>
+      <div class="about__app-title" @click="ThemeUtil.toggleThemeMode(newThemeMode)">{{ appTitle }}</div>
+      <div class="about__info-list">
+        <div class="about__info-list__item">
+          <span class="about__info-list__item__title">版本：</span>
+          <span class="about__info-list__item__desc">{{ appVersion }}</span>
+        </div>
+        <div class="about__info-list__item">
+          <span class="about__info-list__item__title">描述：</span>
+          <span class="about__info-list__item__desc">{{ env.APP_DESCRIPTION }}</span>
+        </div>
+        <div class="about__info-list__item">
+          <span class="about__info-list__item__title">作者：</span>
+          <span class="about__info-list__item__desc">{{ env.APP_AUTHOR_NAME }}</span>
+        </div>
+        <div class="about__info-list__item">
+          <span class="about__info-list__item__title">邮箱：</span>
+          <span class="about__info-list__item__desc">{{ env.APP_AUTHOR_EMAIL }}</span>
+        </div>
+        <div class="about__info-list__item">
+          <span class="about__info-list__item__title">开源：</span>
+          <span class="about__info-list__item__desc url" @click.prevent="AppUtil.browsePage(env.APP_AUTHOR_URL)">{{
+            env.APP_AUTHOR_URL
+          }}</span>
         </div>
       </div>
     </div>

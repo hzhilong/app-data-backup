@@ -1,0 +1,43 @@
+@use '@/assets/scss/global' as *;
+
+.task-list {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  > .header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0 6px 10px 6px;
+    box-sizing: border-box;
+
+    &__item {
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      gap: 4px;
+
+    }
+  }
+
+  .scroll-container {
+    width: 100%;
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px;
+    box-sizing: border-box;
+
+    .scroll-content{
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      .task-item{
+      }
+    }
+  }
+
+}

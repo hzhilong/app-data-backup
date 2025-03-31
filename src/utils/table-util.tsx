@@ -1,5 +1,9 @@
-import { h } from 'vue'
+import { h, useTemplateRef } from 'vue'
 import type { OptionButton, Tag } from '@/types/Table'
+import type { ComponentExposed } from 'vue-component-type-helpers'
+import TablePageWithConfig from '@/components/table/TablePageWithConfig.vue'
+import type { MyPluginConfig } from '@/types/PluginConfig'
+import type TablePage from '@/components/table/TablePage.vue'
 
 export default class TableUtil {
   /**
@@ -7,7 +11,7 @@ export default class TableUtil {
    */
   static createOptions<T>(row: T, list: OptionButton<T>[]) {
     return (
-      <div class="table-option-list">
+      <div class="cell-options">
         {list.map((item) => {
           if (item.confirmContent) {
             return (
@@ -20,14 +24,14 @@ export default class TableUtil {
                   item.onClick(row, e)
                 }}
                 v-slots={{
-                  reference: () => <span class="table-option-btn">{item.text}</span>,
+                  reference: () => <span class="cell-options__item">{item.text}</span>,
                 }}
               ></el-popconfirm>
             )
           } else {
             return (
               <span
-                class="table-option-btn"
+                class="cell-options__item"
                 onClick={(e) => {
                   item.onClick(row, e)
                 }}
@@ -50,18 +54,23 @@ export default class TableUtil {
     }
     if (tags.every((tag) => typeof tag === 'string')) {
       return (
-        <div class="table-tag-list">
+        <div class="cell-tags">
           {tags.map((tag) => {
-            return <el-tag type="primary">{tag}</el-tag>
+            return (
+              <el-tag class="cell-tags__item" type="primary">
+                {tag}
+              </el-tag>
+            )
           })}
         </div>
       )
     } else {
       return (
-        <div class="table-tag-list">
+        <div class="cell-tags">
           {tags.map((tag) => {
             return (
               <el-tag
+                class="cell-tags__item"
                 type="primary"
                 disable-transitions
                 style={{ cursor: tag.onClick ? 'pointer' : 'unset' }}
@@ -78,5 +87,13 @@ export default class TableUtil {
         </div>
       )
     }
+  }
+
+  static getTablePage<T>(refName: string) {
+    return useTemplateRef<ComponentExposed<typeof TablePage<T>>>(refName)
+  }
+
+  static getTablePageWithConfig<T>(refName: string) {
+    return useTemplateRef<ComponentExposed<typeof TablePageWithConfig<T>>>(refName)
   }
 }

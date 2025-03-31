@@ -3,7 +3,7 @@ import { RouterView } from 'vue-router'
 import { ref } from 'vue'
 import AppUtil from '@/utils/app-util'
 import { AppSessionStore } from '@/stores/app-session'
-import AppMenus from '@/components/AppMenus.vue'
+import AppMenu from '@/components/AppMenu.vue'
 
 const appTitle = ref(import.meta.env.APP_PRODUCT_NAME as string)
 
@@ -18,34 +18,34 @@ const switchWindowMax = () => {
 </script>
 
 <template>
-  <div class="home-container">
-    <div class="left-side">
-      <div class="app-infos">
-        <div class="app-title">
-          <div class="app-logo"></div>
-          {{ appTitle }}
-        </div>
+  <div class="home">
+    <div class="home__left">
+      <div class="home__left__app-title">
+        <div class="home__left__app-title__logo"></div>
+        {{ appTitle }}
       </div>
-      <AppMenus></AppMenus>
+      <AppMenu></AppMenu>
     </div>
-    <div class="right-side">
-      <div class="top-bar">
-        <div class="top-bar-btn-list">
-          <div class="btn icon-minimize" @click="AppUtil.minApp()"/>
-          <div
-            class="btn"
+    <div class="home__right">
+      <div class="home__top-bar">
+        <div class="window-options">
+          <span class="window-options__item icon-minimize" @click="AppUtil.minApp()" />
+          <span
+            class="window-options__item"
             :class="windowMax ? 'icon-cancel-maximize' : 'icon-maximize'"
             @click="switchWindowMax"
-          ></div>
-          <div class="btn icon-close" @click="AppUtil.exitApp()"></div>
+          ></span>
+          <span class="window-options__item icon-close" @click="AppUtil.exitApp()"></span>
         </div>
       </div>
-      <div class="page-wrapper">
-        <router-view v-slot="{ Component }">
-          <keep-alive exclude="SettingView">
-            <component :is="Component" class="page"/>
-          </keep-alive>
-        </router-view>
+      <div class="home__content-border">
+        <div class="home__content">
+          <router-view v-slot="{ Component }">
+            <keep-alive exclude="SettingView">
+              <component :is="Component" />
+            </keep-alive>
+          </router-view>
+        </div>
       </div>
     </div>
   </div>

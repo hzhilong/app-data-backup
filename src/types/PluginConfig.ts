@@ -1,4 +1,5 @@
 import { CommonError } from '@/types/CommonError'
+import { cloneDeep } from 'lodash'
 
 /**
  * 备份配置 可根据该配置快速进行备份还原 也可自己实现备份还原方法
@@ -163,7 +164,7 @@ export function loadPluginConfig(config: Record<string, unknown>, cTime: string,
  * @param list 插件配置
  */
 export function parsePluginConfigGroup(list: PluginConfig[]): PluginConfigGroup {
-  const groupData: PluginConfigGroup = { ...BACKUP_PLUGIN_TYPE }
+  const groupData: PluginConfigGroup = { ...cloneDeep(BACKUP_PLUGIN_TYPE) }
   for (const key in groupData) {
     groupData[key as BackupPluginTypeKey].list = []
   }

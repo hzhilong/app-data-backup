@@ -13,7 +13,7 @@ import BaseUtil from '@/utils/base-util'
 import nLogger from './log4js'
 import {
   OpenPluginConfigSourcePathOptions,
-  OpenTaskConfigPathOptions,
+  OpenPluginConfigTargetPathOptions,
   PluginExecTask,
   TaskItemResult,
 } from '@/types/PluginTask'
@@ -106,12 +106,15 @@ function initPluginSystem(mainWindow: BrowserWindow) {
       })
     },
   )
-  // IPC 事件监听【打开任务备份配置路径】
-  ipcMain.handle(IPC_CHANNELS.OPEN_TASK_CONFIG_PATH, async (event, options: OpenTaskConfigPathOptions) => {
-    return await execBusiness(async () => {
-      return await openTaskConfigPath(options)
-    })
-  })
+  // IPC 事件监听【打开备份配置保存路径】
+  ipcMain.handle(
+    IPC_CHANNELS.OPEN_PLUGIN_CONFIG_TARGET_PATH,
+    async (event, options: OpenPluginConfigTargetPathOptions) => {
+      return await execBusiness(async () => {
+        return await openPluginConfigTargetPath(options)
+      })
+    },
+  )
   // 先在主进程初始化一次
   initPlugins().then((r) => {})
 }
@@ -270,21 +273,16 @@ async function openPluginConfigSourcePath(options: OpenPluginConfigSourcePathOpt
 }
 
 /**
- * 打开任务备份配置路径
+ * 打开备份配置保存路径
  * @param options
  */
-async function openTaskConfigPath(options: OpenTaskConfigPathOptions) {
-  const optPath = options.type === 'source' ? options.itemConfig.sourcePath : options.itemConfig.targetRelativePath
-  if (options.itemConfig.type === 'registry' && options.type === 'source') {
-    return WinUtil.openRegedit(optPath)
-  } else {
-    const resolvePath = Plugin.resolvePath(optPath, WinUtil.getEnv(), options.softInstallDir)
-    if (options.type === 'source') {
-      return WinUtil.openPath(resolvePath)
-    } else {
-      return WinUtil.openPath(path.join(options.backupPath, resolvePath))
-    }
-  }
+async function openPluginConfigTargetPath(options: OpenPluginConfigTargetPathOptions) {
+  const resolvePath = Plugin.resolvePath(
+    options.itemConfig.targetRelativePath,
+    WinUtil.getEnv(),
+    options.softInstallDir,
+  )
+  return WinUtil.openPath(path.join(options.backupPath, resolvePath))
 }
 
 interface GitHubFileEntry {

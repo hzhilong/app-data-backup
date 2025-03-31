@@ -1,22 +1,24 @@
 <script setup lang="ts">
-import { useTable } from '@/composables/table/useTable'
 import { ref } from 'vue'
 import { usePluginConfigTable } from '@/composables/table/usePluginConfigTable'
-import { type TableInstance } from 'element-plus'
 import AppUtil from '@/utils/app-util'
 import type { MyPluginConfig, ValidatedPluginConfig } from '@/types/PluginConfig'
 import BaseUtil from '@/utils/base-util'
 import { db } from '@/db/db'
 import { cloneDeep } from 'lodash'
 import { CommonError } from '@/types/CommonError'
+import type { TablePageWithConfigProps } from '@/types/Table'
+import TableUtil from '@/utils/table-util'
+import TablePageWithConfig from '@/components/table/TablePageWithConfig.vue'
 
-const refTable = ref<TableInstance>()
-const { tableData, tableColumns, queryParams, loading, searchData, refreshDB } = useTable(
-  usePluginConfigTable(true, false),
-)
+const loading = ref(false)
+const config = {
+  tableConfig: usePluginConfigTable(true, false),
+} satisfies TablePageWithConfigProps<ValidatedPluginConfig, 'id'>
+const table = TableUtil.getTablePageWithConfig<ValidatedPluginConfig>('tableRef')
 
 const getSelectionRows = () => {
-  const list = refTable.value?.getSelectionRows() as ValidatedPluginConfig[]
+  const list = table.value?.getSelectionRows() as ValidatedPluginConfig[]
   if (!list || list.length == 0) {
     throw new CommonError('未选择配置')
   }
@@ -35,52 +37,12 @@ const addToMyConfig = async () => {
 }
 </script>
 <template>
-  <div class="page-content">
-    <div class="header">
-      <div class="header-left">
-        <div class="search-item">
-          <span class="label">类型</span>
-          <el-select
-            class="value"
-            v-model="queryParams.type.value"
-            placeholder=""
-            size="small"
-            clearable
-            @change="searchData"
-          >
-            <el-option v-for="(item, key) in queryParams.type.options" :key="key" :label="item" :value="key" />
-          </el-select>
-        </div>
-        <div class="search-item">
-          <span class="label">名称</span>
-          <el-input
-            class="value"
-            v-model="queryParams.id.value"
-            placeholder=""
-            size="small"
-            clearable
-            @change="searchData"
-          />
-        </div>
-        <el-button type="primary" @click="searchData" :loading="loading">搜索</el-button>
-        <el-button type="primary" @click="refreshDB" :loading="loading">刷新</el-button>
+  <div class="page-container">
+    <TablePageWithConfig ref="tableRef" v-bind="config" v-model:loading="loading">
+      <template #query-options>
         <el-button type="primary" @click="addToMyConfig" :loading="loading">添加到我的配置</el-button>
-      </div>
-      <div class="header-right"></div>
-    </div>
-    <div class="table-wrapper">
-      <el-table
-        ref="refTable"
-        :data="tableData"
-        style="width: 100%"
-        height="100%"
-        border
-        highlight-current-row
-        v-loading="loading"
-      >
-        <el-table-column v-bind="item" v-for="item in tableColumns" :key="item.label"></el-table-column>
-      </el-table>
-    </div>
+      </template>
+    </TablePageWithConfig>
   </div>
 </template>
 

@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "productName": "软件数据备份",
   "description": "Windows 软件数据备份还原工具。Windows software data backup and restore tool.",
-  "appDescription": "Windows 上免费且开源的软件数据备份还原工具。\n一键备份或还原数据指定数据，方便更换设备/系统时实现用户数据迁移。\n目前支持的软件较少，有需要新增的软件请到github上提issue，或者发邮件告知。",
+  "appDescription": "Windows 上免费且开源的软件数据备份还原工具。一键备份或还原数据指定数据，方便更换设备/系统时实现用户数据迁移。目前支持的软件较少，有需要新增的软件请到github上提issue，或者发邮件告知。",
   "author": {
     "name": "hzhilong",
     "email": "hzhilong777@outlook.com",
@@ -43,6 +43,7 @@
     "remixicon": "^4.6.0",
     "rxjs": "^7.8.2",
     "vue": "^3.5.13",
+    "vue-component-type-helpers": "^2.2.8",
     "vue-i18n": "^12.0.0-alpha.2",
     "vue-router": "^4.5.0"
   },

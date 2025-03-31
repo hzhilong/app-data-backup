@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { onUnmounted, ref, watch } from 'vue'
+import { watch } from 'vue'
+import { useCountdown } from '@/composables/useCountdown'
 
 /**
  * 倒计时弹窗
@@ -26,28 +27,17 @@ const props = withDefaults(defineProps<CountdownDialogProps>(), {
 })
 
 const visible = defineModel<boolean>({ required: true })
-const countdown = ref(props.countdown)
-
 const emit = defineEmits(['onConfirm', 'onCancel'])
-
-// 计时器
-let interval: ReturnType<typeof setInterval> | null = null
+const { countdown, start: startCountdown, stop: stopCountdown } = useCountdown(props.countdown)
 // 是否准备关闭
 let isPrepareClose = false
-
-onUnmounted(() => {
-  if (interval) clearInterval(interval)
-})
 
 const closeDialog = (type: 'confirm' | 'cancel') => {
   // 防止倒计时快结束的时候点击按钮重复触发
   if (isPrepareClose) return
   // 标记对话框准备关闭
   isPrepareClose = true
-  if (interval) {
-    clearInterval(interval)
-    interval = null
-  }
+  stopCountdown()
   visible.value = false
   emit(type === 'confirm' ? 'onConfirm' : 'onCancel', type)
 }
@@ -55,29 +45,16 @@ const closeDialog = (type: 'confirm' | 'cancel') => {
 const handleConfirm = () => closeDialog('confirm')
 const handleCancel = () => closeDialog('cancel')
 
-// 倒计时开始
-const startCountdown = () => {
-  countdown.value = props.countdown
-  isPrepareClose = false
-  interval = setInterval(() => {
-    if (countdown.value > 1) {
-      countdown.value -= 1
-    } else {
-      // 倒计时结束
-      handleCancel()
-    }
-  }, 1000)
-}
 // 主动开始倒计时
 const show = () => {
   // 重置倒计时状态
   visible.value = true
-  startCountdown()
+  startCountdown(handleCancel)
 }
 // 弹窗展示时自动开始倒计时
 watch(visible, (newVal, oldVal) => {
   if (newVal && !oldVal) {
-    startCountdown()
+    startCountdown(handleCancel)
   }
 })
 
@@ -88,24 +65,22 @@ defineExpose({ show })
   <!-- 只留一个右上角的关闭按钮 -->
   <el-dialog
     v-model="visible"
-    :title="props.title"
-    :width="props.width"
+    :title="title"
+    :width="width"
     :close-on-click-modal="false"
     :close-on-press-escape="false"
     @close="handleCancel"
     :append-to-body="true"
   >
-    <div>{{ props.content }}</div>
+    <div>{{ content }}</div>
     <div>{{ countdown }}秒后自动取消</div>
     <template #footer>
       <div class="dialog-footer">
-        <el-button @click="handleCancel">{{ props.cancelBtnText }}({{ countdown }}s)</el-button>
-        <el-button type="primary" @click="handleConfirm">{{ props.confirmBtnText }}</el-button>
+        <el-button @click="handleCancel">{{ cancelBtnText }}({{ countdown }}s)</el-button>
+        <el-button type="primary" :disabled="countdown <= 0" @click="handleConfirm">{{ confirmBtnText }}</el-button>
       </div>
     </template>
   </el-dialog>
 </template>
 
-<style scoped lang="scss">
-@use '@/assets/scss/components/dialog/countdown-dialog';
-</style>
+<style scoped lang="scss"></style>

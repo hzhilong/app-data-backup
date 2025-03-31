@@ -17,18 +17,20 @@ import { IPC_CHANNELS } from '@/types/IpcChannels'
 import BaseUtil from '@/utils/base-util'
 import { eventBus } from '@/utils/event-bus'
 import BackupUtil from '@/utils/backup-util'
-import { GPluginConfigModal } from '@/components/modal/global-modal'
+import { GlobalModal } from '@/components/modal/global-modal'
 import type { IDType } from 'dexie'
 import { ipcInvoke } from '@/utils/electron-api'
 import TableUtil from '@/utils/table-util'
-import type { TableConfig, OptionButton } from '@/types/Table'
+import type { OptionButton, TableConfig } from '@/types/Table'
 
 const queryParams = {
   id: {
+    title: '名称',
     connector: 'like' as const,
     value: '',
   },
   type: {
+    title: '类型',
     connector: 'eq' as const,
     value: undefined as BackupPluginTypeKey | undefined,
     options: createParamOptions(BACKUP_PLUGIN_TYPE, 'title'),
@@ -126,12 +128,12 @@ export function usePluginConfigTable<T extends boolean = false>(selection: boole
             if (row.softInstallDir) {
               return (
                 <div
-                  class="bind-soft"
+                  class="bind-installed-soft"
                   onClick={() => {
                     RouterUtil.gotoSoft({ name: row.softName })
                   }}
                 >
-                  <img src={row.softBase64Icon || defaultIcon} class="soft-icon" alt="" />
+                  <img src={row.softBase64Icon || defaultIcon} class="bind-installed-soft__icon" alt="" />
                   {row.softName}
                 </div>
               )
@@ -141,7 +143,7 @@ export function usePluginConfigTable<T extends boolean = false>(selection: boole
           } else {
             return (
               <div
-                style={{ cursor: 'pointer' }}
+                class="bind-soft-path"
                 onClick={() => {
                   AppUtil.openPath(row.softInstallDir).then()
                 }}
@@ -160,7 +162,7 @@ export function usePluginConfigTable<T extends boolean = false>(selection: boole
           list.push({
             text: '查看',
             onClick: () => {
-              GPluginConfigModal.showPluginConfig([row], {
+              GlobalModal.showPluginConfig([row], {
                 showCancel: false,
               }).then((r) => {})
             },
@@ -217,7 +219,7 @@ export function usePluginConfigTable<T extends boolean = false>(selection: boole
       tableColumns: tableColumns,
       queryParams: queryParams,
       table: db.myConfig,
-    } as TableConfig<MyPluginConfig, typeof queryParams, 'id'>
+    } as TableConfig<MyPluginConfig, 'id'>
   } else {
     const initData = async (): Promise<DataType[]> => {
       return ipcInvoke<DataType[]>(IPC_CHANNELS.REFRESH_PLUGINS, await db.installedSoftware.toArray())
@@ -227,6 +229,6 @@ export function usePluginConfigTable<T extends boolean = false>(selection: boole
       queryParams: queryParams,
       initData: initData,
       table: db.pluginConfig,
-    } as TableConfig<ValidatedPluginConfig, typeof queryParams, 'id'>
+    } as TableConfig<ValidatedPluginConfig, 'id'>
   }
 }

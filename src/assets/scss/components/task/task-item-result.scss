@@ -1,0 +1,41 @@
+@use '@/assets/scss/global' as *;
+
+.task-item-result {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  box-sizing: border-box;
+  overflow: hidden;
+
+  .flex-col {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    padding: 2px 4px;
+    border-radius: 4px;
+
+    > i {
+      margin-right: 2px;
+    }
+
+    &.arrow {
+      margin: 0 10px;
+    }
+
+    &:has(.task-item-result__path) {
+      &:hover {
+        background: var(--app-color-primary-transparent-10);
+      }
+    }
+  }
+
+  &__path, &__path {
+  }
+
+  &__path {
+    cursor: pointer;
+  }
+
+}

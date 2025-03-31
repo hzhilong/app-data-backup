@@ -34,6 +34,7 @@ export default class AppUtil {
   }
 
   static async openPath(path?: string) {
+    if (!path) return
     await ipcInvoke(IPC_CHANNELS.OPEN_PATH, path)
   }
 
@@ -159,5 +160,9 @@ export default class AppUtil {
         type: 'error',
       })
     }
+  }
+
+  static async openLogsDir() {
+    await ipcInvoke(IPC_CHANNELS.OPEN_LOGS_DIR)
   }
 }

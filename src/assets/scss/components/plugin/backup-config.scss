@@ -1,0 +1,32 @@
+@use '@/assets/scss/global' as *;
+
+.backup-config {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  background: var(--app-bg-color-overlay);
+  border: 1px solid var(--el-border-color);
+  border-radius: 4px;
+  padding: 6px 16px;
+  box-sizing: border-box;
+
+  &__name {
+    color: var(--el-text-color-regular);
+    margin-bottom: 6px;
+
+    > i {
+      margin-right: 4px;
+    }
+  }
+
+  &__items {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-left: 10px;
+    box-sizing: border-box;
+    color: var(--el-text-color-secondary);
+  }
+}

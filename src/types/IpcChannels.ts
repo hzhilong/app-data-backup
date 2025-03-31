@@ -24,12 +24,14 @@ export const IPC_CHANNELS = {
   SHOW_OPEN_DIALOG: 'SHOW_OPEN_DIALOG',
   CREATE_BACKUP_DIR: 'CREATE_BACKUP_DIR',
   SAVE_LOG: 'SAVE_LOG',
-  /** 打开插件备份配置源路径 参数 OpenPluginConfigPathOptions */
+  /** 打开插件备份配置源路径的选项 参数 OpenPluginConfigSourcePathOptions */
   OPEN_PLUGIN_CONFIG_SOURCE_PATH: 'OPEN_PLUGIN_CONFIG_SOURCE_PATH',
-  /** 打开任务备份配置路径 参数 OpenTaskConfigPathOptions */
-  OPEN_TASK_CONFIG_PATH: 'OPEN_TASK_CONFIG_PATH',
+  /** 打开插件备份配置保存路径的选项 参数 OpenPluginConfigTargetPathOptions */
+  OPEN_PLUGIN_CONFIG_TARGET_PATH: 'OPEN_PLUGIN_CONFIG_TARGET_PATH',
   /** 更新本地插件 返回类型和REFRESH_PLUGINS一样*/
   UPDATE_LOCAL_PLUGINS: 'UPDATE_LOCAL_PLUGINS',
+  /* 打开日志文件目录 */
+  OPEN_LOGS_DIR: 'OPEN_LOGS_DIR',
 } as const
 
 export type IpcChannels = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS]

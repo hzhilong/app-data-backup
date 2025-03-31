@@ -124,7 +124,7 @@ export interface PluginExecTask {
 }
 
 /**
- * 打开插件备份配置路径的选项
+ * 打开插件备份配置源路径的选项
  */
 export interface OpenPluginConfigSourcePathOptions {
   itemConfig: BackupItemConfig
@@ -133,10 +133,11 @@ export interface OpenPluginConfigSourcePathOptions {
 }
 
 /**
- * 打开任务备份配置路径的选项
+ * 打开插件备份配置保存路径的选项
  */
-export interface OpenTaskConfigPathOptions extends OpenPluginConfigSourcePathOptions{
-  type: 'source' | 'target'
+export interface OpenPluginConfigTargetPathOptions {
+  itemConfig: BackupItemConfig
+  softName: string
   softInstallDir: string
   backupPath: string
 }

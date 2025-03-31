@@ -18,7 +18,7 @@ import PluginUtil from '@/utils/plugin-util'
 import { cloneDeep } from 'lodash'
 import { useRestoreTasksStore } from '@/stores/restore-task'
 import AppUtil from '@/utils/app-util'
-import { GPluginConfigModal } from '@/components/modal/global-modal'
+import { GlobalModal } from '@/components/modal/global-modal'
 import { db } from '@/db/db'
 
 const getFileDateName = (data?: Date) => {
@@ -338,7 +338,7 @@ export default class BackupUtil {
 
     const settingsStore = useAppSettingsStore()
     if (settingsStore.confirmBeforeRestore) {
-      const ret = await GPluginConfigModal.showTask(backupTasks, {
+      const ret = await GlobalModal.showTasks(backupTasks, {
         title: '是否还原以下项目？',
         showCancel: true,
       })

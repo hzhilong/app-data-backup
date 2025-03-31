@@ -1,11 +1,12 @@
 @use '@/assets/scss/global' as *;
-@use '@/assets/scss/table-page' as *;
 
-.table-wrapper{
-  :deep(.soft-icon) {
-    display: block;
-    width: 32px;
-    height: 32px;
-    object-fit: cover;
+.page-container {
+  display: flex;
+  flex-direction: column;
+
+  .table-page {
+    flex: 1;
+    overflow: auto;
   }
+
 }

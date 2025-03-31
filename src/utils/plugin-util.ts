@@ -1,12 +1,12 @@
 import { IPC_CHANNELS } from '@/types/IpcChannels'
-import { type BackupItemConfig, type ValidatedPluginConfig } from '@/types/PluginConfig'
+import { type ValidatedPluginConfig } from '@/types/PluginConfig'
 import { CommonError } from '@/types/CommonError'
-import type {
-  OpenPluginConfigSourcePathOptions,
-  OpenTaskConfigPathOptions,
-  PluginExecTask,
-  TaskItemResult,
-  TaskMonitor
+import {
+  type OpenPluginConfigSourcePathOptions,
+  type OpenPluginConfigTargetPathOptions,
+  type PluginExecTask,
+  type TaskItemResult,
+  type TaskMonitor,
 } from '@/types/PluginTask'
 import { cloneDeep } from 'lodash'
 import AppUtil from '@/utils/app-util'
@@ -62,34 +62,14 @@ export default class PluginUtil {
     return ipcInvoke(IPC_CHANNELS.EXEC_PLUGIN, task)
   }
 
-  static async openPluginConfigSourcePath(
-    pluginName: string,
-    softInstallDir: string,
-    itemConfig: BackupItemConfig,
-    showFailedMsg: boolean = true,
-  ) {
-    ipcInvoke(IPC_CHANNELS.OPEN_PLUGIN_CONFIG_SOURCE_PATH, {
-      softName: pluginName,
-      softInstallDir: softInstallDir,
-      itemConfig: cloneDeep(itemConfig),
-    } satisfies OpenPluginConfigSourcePathOptions).catch((err) => {
+  static async openPluginConfigSourcePath(options: OpenPluginConfigSourcePathOptions, showFailedMsg: boolean = true) {
+    ipcInvoke(IPC_CHANNELS.OPEN_PLUGIN_CONFIG_SOURCE_PATH, cloneDeep(options)).catch((err) => {
       showFailedMsg && AppUtil.handleError(err)
     })
   }
 
-  static async openTaskConfigPath(
-    task: Pick<PluginExecTask, 'pluginName' | 'softInstallDir' | 'backupPath'>,
-    itemConfig: BackupItemConfig,
-    isSource: boolean,
-    showFailedMsg: boolean = true,
-  ) {
-    ipcInvoke(IPC_CHANNELS.OPEN_TASK_CONFIG_PATH, {
-      softName: task.pluginName,
-      softInstallDir: task.softInstallDir,
-      itemConfig: cloneDeep(itemConfig),
-      type: isSource ? 'source' : 'target',
-      backupPath: task.backupPath,
-    } satisfies OpenTaskConfigPathOptions).catch((err) => {
+  static async openPluginConfigTargetPath(options: OpenPluginConfigTargetPathOptions, showFailedMsg: boolean = true) {
+    ipcInvoke(IPC_CHANNELS.OPEN_PLUGIN_CONFIG_TARGET_PATH, cloneDeep(options)).catch((err) => {
       showFailedMsg && AppUtil.handleError(err)
     })
   }

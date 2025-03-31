@@ -37,10 +37,11 @@ db.version(11).stores({
   restoreTask: '++id,[pluginId+cTime],runType,state,finished,success,pluginId,pluginName,softInstallDir,cTime',
 })
 
-export type QueryParam<O extends Record<string, any> = Record<string, any>, OVK extends string = never> = {
+export type QueryParam = {
+  title: string
   value: any
   connector: 'eq' | 'like'
-  options?: ParamOptions<O, OVK>
+  options?: Record<string, any>
 }
 
 export function createParamOptions<O extends Record<string, any>, OVK extends string = never>(
@@ -62,8 +63,8 @@ export function createParamOptions<O extends Record<string, any>, OVK extends st
   return ret
 }
 
-export type QueryParams<T extends Record<string, QueryParam>> = {
-  [K in keyof T]: T[K]
+export type QueryParams = {
+  [K: string]: QueryParam
 }
 
 export type ParamOptions<O extends Record<string, any>, OVK extends string = never> = {
@@ -75,11 +76,11 @@ export type ParamOptions<O extends Record<string, any>, OVK extends string = nev
 }
 
 export class DBUtil {
-  static query<T, Q extends Record<string, QueryParam>,
-    TKeyPropName extends keyof T = never, TInsertType = InsertType<T, TKeyPropName>>(
-    table: DexieTable<T, TKeyPropName>,
-    queryParams?: QueryParams<Q>,
-  ): Promise<Array<T>> {
+  static query<
+    T,
+    TKeyPropName extends keyof T = never,
+    TInsertType = InsertType<T, TKeyPropName>,
+  >(table: DexieTable<T, TKeyPropName>, queryParams?: QueryParams): Promise<Array<T>> {
     logger.debug('DBUtil query', table.name, queryParams)
     if (!queryParams) {
       return table.toArray()

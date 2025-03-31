@@ -1,8 +1,8 @@
 @use '@/assets/scss/global' as *;
 
-.page-content {
+.page-container {
   overflow: hidden;
-  background: $app-bg-color;
+  //background: $app-bg-color;
 
   .task-tabs {
     width: 100%;

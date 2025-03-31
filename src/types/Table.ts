@@ -1,4 +1,4 @@
-import type { DexieTable, QueryParam, QueryParams } from '@/db/db'
+import type { DexieTable, QueryParams } from '@/db/db'
 import type { InsertType } from 'dexie'
 import TableColumn from 'element-plus/es/components/table/src/tableColumn'
 import type { Ref } from 'vue'
@@ -6,15 +6,10 @@ import type { Ref } from 'vue'
 /**
  * 表格配置
  */
-export interface TableConfig<
-  T,
-  Q extends Record<string, QueryParam> = Record<string, QueryParam>,
-  TKeyPropName extends keyof T = never,
-  TInsertType = InsertType<T, TKeyPropName>,
-> {
+export interface TableConfig<T, TKeyPropName extends keyof T = never, TInsertType = InsertType<T, TKeyPropName>> {
   initData?: () => Promise<T[]>
   tableColumns: Partial<typeof TableColumn>
-  queryParams: QueryParams<Q>
+  queryParams: QueryParams
   table: DexieTable<T, TKeyPropName>
   parseData?: (list: T[]) => Promise<T[]>
 }
@@ -46,4 +41,25 @@ export interface OptionButton<T> {
   text: string
   onClick: (row: T, e?: MouseEvent) => void
   confirmContent?: (row: T) => string
+}
+
+/**
+ * 表格页面
+ */
+export interface TablePageProps<T> {
+  tableColumns: Partial<typeof TableColumn>
+  data: T[]
+}
+
+/**
+ * 表格页面（使用TableConfig配置）
+ */
+export interface TablePageWithConfigProps<T, TKeyPropName extends keyof T = never> {
+  tableConfig: TableConfig<T, TKeyPropName>
+  showRefreshOption?: boolean
+  refreshOptionText?: string
+  showRefreshDBOption?: boolean
+  refreshDBOptionText?: string
+  onAfterTableRefresh?: (data: T[]) => void
+  onCurrentChange?: (curr: T) => void
 }

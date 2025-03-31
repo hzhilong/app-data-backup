@@ -17,10 +17,12 @@ type DataType = ExtendedInstalledSoftware
 
 const queryParams = {
   name: {
+    title: '名称',
     connector: 'like' as const,
     value: '',
   },
   regeditGroupKey: {
+    title: '类型',
     connector: 'eq' as const,
     value: undefined as SoftwareRegeditGroupKey | undefined,
     options: createParamOptions(SOFTWARE_REGEDIT_GROUP, 'title'),
@@ -35,10 +37,10 @@ export function useInstalledSoftwareTable(isExtendData: boolean = true) {
   const tableColumns = [
     {
       label: '图标',
-      prop: 'iconPath',
+      prop: 'size',
       width: '50',
       align: 'center',
-      fixed: true,
+      showOverflowTooltip: true,
       formatter: (row: DataType): VNode | string => {
         return <img src={row.base64Icon ? row.base64Icon : defaultIcon} class="soft-icon" alt="" />
       },
@@ -107,5 +109,5 @@ export function useInstalledSoftwareTable(isExtendData: boolean = true) {
     initData: initData,
     table: db.installedSoftware,
     parseData: parseData,
-  } as TableConfig<DataType, typeof queryParams, 'regeditDir'>
+  } as TableConfig<DataType, 'regeditDir'>
 }

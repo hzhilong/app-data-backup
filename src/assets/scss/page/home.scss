@@ -1,161 +1,180 @@
 @use '@/assets/scss/global' as *;
 
-.home-container {
+$app-top-bar-height: var(--app-top-bar-height, 30px);
+$app-left-side-width: var(--app-left-side-width, 166px);
+$app-content-border-width: var(--app-content-border-width, 6px);
+
+.home {
   width: 100%;
   height: 100%;
   display: flex;
   position: relative;
-  background: $app-bg-color-menu;
-  color: $app-text-color-regular;
+  color: var(--el-text-color-regular);
 
+  /* 可拖动的标题栏 */
   &:before {
-    position: absolute;
     content: '';
-    width: 100%;
-    height: $app-top-bar-height;
+    position: absolute;
     top: 0;
     left: 0;
+    width: 100%;
+    height: $app-top-bar-height;
     app-region: drag;
   }
 
-  > .left-side {
+  &__left {
     height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    --el-aside-width: $app-left-side-width;
     width: $app-left-side-width;
     user-select: none;
+    background: var(--app-bg-color-menus);
 
-    > .app-infos {
+    &__app-title {
       display: flex;
       align-items: center;
-      padding: 20px 0;
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--app-color-logo);
+      margin: 20px 0;
 
-      > .app-title {
-        display: flex;
-        align-items: center;
-        font-size: 18px;
-        font-weight: bold;
-        color: $app-color-primary;
-
-        > .app-logo {
-          width: 28px;
-          height: 28px;
-          margin-right: 4px;
-          display: inline-block;
-          mask: url('@/assets/logo.svg') no-repeat center / contain;
-          -webkit-mask: url('@/assets/logo.svg') no-repeat center / contain;
-          background: $app-color-primary;
-        }
+      &__logo {
+        width: 28px;
+        height: 28px;
+        margin-right: 4px;
+        @include app-logo-style(var(--app-color-logo));
       }
-
     }
   }
 
-  > .right-side {
+
+  &__right {
     width: calc(100% - $app-left-side-width);
     height: 100%;
     display: flex;
     flex-direction: column;
     align-items: start;
+    position: relative;
 
-    > .top-bar {
-      width: 100%;
-      height: $app-top-bar-height;
-      display: flex;
-      align-items: center;
-      padding-left: 12px;
-      font-size: 16px;
-      font-weight: bold;
-      box-sizing: border-box;
-      position: relative;
-
-      > .top-bar-btn-list {
-        display: flex;
-        align-items: center;
-        app-region: no-drag;
-        margin-left: auto;
-        margin-right: 4px;
-        gap: 4px;
-
-        > .btn {
-          width: calc($app-top-bar-height - 4px);
-          height: calc($app-top-bar-height - 4px);
-          font-size: 16px;
-          text-align: center;
-          display: inline-block;
-          user-select: none;
-          cursor: pointer;
-          position: relative;
-
-          &:before{
-            content: '';
-            position: absolute;
-            left: 4px;
-            top: 4px;
-            right: 4px;
-            bottom: 4px;
-            mask: url('@/assets/logo.svg') no-repeat center / contain;
-            -webkit-mask: url('@/assets/logo.svg') no-repeat center / contain;
-            background: $app-text-color-primary;
-            z-index: 1;
-          }
-
-          &.icon-minimize:before {
-            mask: url('@/assets/image/icon-minimize.svg') no-repeat center / contain;
-            -webkit-mask: url('@/assets/image/icon-minimize.svg') no-repeat center / contain;
-          }
-
-          &.icon-maximize:before {
-            mask: url('@/assets/image/icon-maximize.svg') no-repeat center / contain;
-            -webkit-mask: url('@/assets/image/icon-maximize.svg') no-repeat center / contain;
-          }
-
-          &.icon-cancel-maximize:before {
-            mask: url('@/assets/image/icon-cancel-maximize.svg') no-repeat center / contain;
-            -webkit-mask: url('@/assets/image/icon-cancel-maximize.svg') no-repeat center / contain;
-          }
-
-          &.icon-close:before {
-            mask: url('@/assets/image/icon-close.svg') no-repeat center / contain;
-            -webkit-mask: url('@/assets/image/icon-close.svg') no-repeat center / contain;
-          }
-
-          &:hover {
-            background: $app-color-primary-light-4;
-          }
-
-          &:nth-child(3):hover {
-            color: #FFF;
-            background: #ff2323;
-          }
-
-        }
-      }
+    /* 内容区域边框背景（mask设置，不应该内容区域的不透明背景叠加效果） */
+    &:before {
+      content: '';
+      position: absolute;
+      top: $app-top-bar-height;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--app-bg-color-menus);
+      mask: linear-gradient(to bottom, #000, #000) content-box, linear-gradient(to bottom, #FFF, #FFF);
+      mask-composite: exclude;
+      padding: $app-content-border-width;
+      pointer-events: none;
     }
 
-    // 补全右边和底边的边框
-    > .page-wrapper {
-      width: 100%;
-      height: calc(100% - $app-top-bar-height);
-      padding: $app-main-content-margin;
-      box-sizing: border-box;
+    /* 内容区域圆角以外的背景（mask设置，不应该内容区域的不透明背景叠加效果） */
+    &:after {
+      content: '';
+      position: absolute;
+      top: calc($app-top-bar-height + $app-content-border-width);
+      left: $app-content-border-width;
+      right: $app-content-border-width;
+      bottom: $app-content-border-width;
+      background: var(--app-bg-color-menus);
+      padding: 10px;
+      mask: url('@/assets/image/mask-home-content.svg'), linear-gradient(to bottom, #FFF, #FFF);
+      mask-composite: exclude;
+      mask-position: 0 0;
+      mask-size: 100% 100%;
+      mask-repeat: no-repeat;
+      pointer-events: none;
+    }
+  }
 
-      > .page {
-        height: 100%;
-        width: 100%;
-        box-sizing: border-box;
-        padding: $app-main-content-padding;
-        background: $app-bg-color-page;
-        border-radius: 10px;
-        color: $app-text-color-regular;
-        border: 1px solid $app-border-color-light;
-        overflow: auto;
+  &__top-bar {
+    width: 100%;
+    height: $app-top-bar-height;
+    display: flex;
+    align-items: center;
+    padding-left: 12px;
+    font-size: 16px;
+    box-sizing: border-box;
+    position: relative;
+    background: var(--app-bg-color-menus);
+  }
 
-        &.page-content {
-          background: $app-bg-color;
-        }
+  /* 内容边框 */
+  &__content-border {
+    width: 100%;
+    height: calc(100% - $app-top-bar-height);
+    box-sizing: border-box;
+    padding: $app-content-border-width;
+  }
+
+  /* 内容 */
+  &__content {
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    background: var(--app-bg-color-page);
+    border: 1px solid var(--app-color-primary-transparent-5);
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  /* 页面容器 */
+  &__page-container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-items: start;
+    color: var(--el-text-color-regular);
+    box-sizing: border-box;
+    overflow: auto;
+  }
+}
+
+/* 窗口操作按钮 */
+.window-options {
+  display: flex;
+  align-items: center;
+  app-region: no-drag;
+  margin-left: auto;
+  margin-right: 4px;
+  gap: 4px;
+
+  &__item {
+    display: inline-block;
+    width: calc($app-top-bar-height - 4px);
+    height: calc($app-top-bar-height - 4px);
+    text-align: center;
+    user-select: none;
+    cursor: pointer;
+    position: relative;
+
+    &:hover {
+      background: var(--el-color-primary-light-4);
+    }
+
+    &.icon-minimize {
+      @include pseudo-svg-icon(url('@/assets/image/icon-minimize.svg'));
+    }
+
+    &.icon-maximize {
+      @include pseudo-svg-icon(url('@/assets/image/icon-maximize.svg'));
+    }
+
+    &.icon-cancel-maximize {
+      @include pseudo-svg-icon(url('@/assets/image/icon-cancel-maximize.svg'));
+    }
+
+    &.icon-close {
+      @include pseudo-svg-icon(url('@/assets/image/icon-close.svg'));
+
+      &:hover {
+        color: #FFF;
+        background: #ff2323;
       }
     }
   }

@@ -4,9 +4,10 @@ import { logger } from '@/utils/logger-util'
 
 export const DEFAULT_PRIMARY_COLORS = [
   '#6284DF',
-  '#EE5253',
-  '#FF9F43',
-  '#FECA57',
+  '#474747',
+  '#B04040',
+  '#F7A456',
+  '#D39C1F',
   '#079307',
   '#21AB86',
   '#00AEEC',
@@ -45,8 +46,9 @@ export const useAppThemeStore = defineStore('AppThemeStore', {
       this.primaryColor = color
       return this.primaryColor
     },
-    setThemeMode(themeMode: AppThemeMode) {
+    setThemeMode(themeMode: AppThemeMode, dark: boolean) {
       this.themeMode = themeMode
+      this.dark = dark
       return this.themeMode
     },
   },

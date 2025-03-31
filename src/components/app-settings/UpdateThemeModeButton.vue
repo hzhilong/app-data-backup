@@ -7,7 +7,7 @@ const appThemeStore = useAppThemeStore()
 const { themeMode } = storeToRefs(appThemeStore)
 
 const toggleTheme = () => {
-  ThemeUtil.toggleDarkTheme(themeMode.value)
+  ThemeUtil.toggleThemeMode(themeMode.value)
 }
 </script>
 

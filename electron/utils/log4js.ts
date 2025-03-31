@@ -3,7 +3,7 @@ import path from 'path'
 import { AppPath } from './app-path'
 
 // 定义日志目录路径
-const LOG_DIR = path.join(AppPath.programRoot, '/logs')
+export const LOG_DIR = path.join(AppPath.programRoot, '/logs')
 
 log4js.configure({
   appenders: {

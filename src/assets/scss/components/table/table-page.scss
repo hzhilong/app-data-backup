@@ -1,0 +1,128 @@
+@use '@/assets/scss/global' as *;
+
+.table-page {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  &__query {
+    flex-shrink: 0; // 防止被压缩
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+
+    &__item {
+      display: flex;
+      align-items: center;
+
+      &__label {
+        white-space: nowrap;
+        margin-right: 8px;
+      }
+
+      &__value {
+        width: 120px;
+      }
+    }
+
+    &__options {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      :deep(.el-button) {
+        margin-left: 0;
+      }
+    }
+  }
+
+  &__table-wrapper {
+    flex: 1;
+    overflow: auto;
+    //min-height: 0;
+  }
+
+  /* 软件图标 */
+  :deep(.soft-icon) {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    object-fit: cover;
+    vertical-align: middle;
+  }
+
+  /* 配置关联的软件图标 */
+  :deep(.bind-installed-soft) {
+    color: var(--el-text-color-primary);
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    cursor: pointer;
+
+    .bind-installed-soft__icon {
+      display: block;
+      width: 20px;
+      height: 20px;
+      margin-right: 4px;
+      object-fit: cover;
+    }
+  }
+
+  /* 配置关联的软件路径 */
+  :deep(.bind-soft-path) {
+    cursor: pointer;
+  }
+
+  /* 单元格里面的操作按钮 */
+  :deep(.cell-options) {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    .cell-options__item {
+      line-height: 1em;
+      padding: 4px 2px;
+      box-sizing: border-box;
+      border-radius: 4px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--el-color-primary);
+      user-select: none;
+      cursor: pointer;
+      white-space: nowrap;
+
+      &:hover {
+        background: var(--el-color-primary-light-8);
+      }
+    }
+  }
+
+  /* 单元格里面的标签 */
+  :deep(.cell-tags) {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    .cell-tags__item {
+      user-select: none;
+      color: var(--el-color-primary);
+      background-color: var(--el-color-primary-light-9);
+      border-color: var(--el-color-primary-light-8);
+      margin-right: 6px;
+
+      &:last-child {
+        margin-right: 0;
+      }
+
+      &.actionable {
+        &:hover {
+          background-color: var(--el-color-primary-light-7);
+        }
+      }
+    }
+  }
+}

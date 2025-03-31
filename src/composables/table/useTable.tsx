@@ -1,4 +1,4 @@
-import { db, DBUtil, type QueryParam, type QueryParams } from '@/db/db'
+import { db, DBUtil, type QueryParams } from '@/db/db'
 import { onMounted, onUnmounted, type Ref, ref, watch } from 'vue'
 import { cloneDeep } from 'lodash'
 import { type RouteLocationNormalized, type RouteLocationNormalizedLoaded, useRoute, useRouter } from 'vue-router'
@@ -15,12 +15,10 @@ import type { InitTableOptions, TableConfig } from '@/types/Table'
  * @param config 表格配置
  * @param options
  */
-export function useTable<
-  T,
-  Q extends Record<string, QueryParam>,
-  TKeyPropName extends keyof T = never,
-  TInsertType = InsertType<T, TKeyPropName>,
->(config: TableConfig<T, Q, TKeyPropName>, options?: InitTableOptions) {
+export function useTable<T, TKeyPropName extends keyof T = never, TInsertType = InsertType<T, TKeyPropName>>(
+  config: TableConfig<T, TKeyPropName>,
+  options?: InitTableOptions,
+) {
   // 获取参数
   let loading = options?.loading
   let routeQueryKeys = options?.routeQueryKeys
@@ -41,7 +39,7 @@ export function useTable<
   // 表格列
   const tableColumns = ref(cloneDeep(config.tableColumns))
   // 默认查询参数
-  const defaultQueryParams: QueryParams<Q> = cloneDeep(config.queryParams)
+  const defaultQueryParams: QueryParams = cloneDeep(config.queryParams)
   // 查询参数
   const queryParams = ref(cloneDeep(config.queryParams))
   // 路由参数
@@ -58,10 +56,10 @@ export function useTable<
       try {
         loading.value = true
         let data = await parseData(await DBUtil.query(table, queryParams.value))
-        afterTableRefresh?.(queryParams.value)
-        logger.debug(`[${table.name}] liveQuery result`, data)
         tableData.value.length = 0
         tableData.value.push(...data)
+        afterTableRefresh?.(queryParams.value)
+        logger.debug(`[${table.name}] liveQuery result`, data)
         return data
       } finally {
         loading.value = false

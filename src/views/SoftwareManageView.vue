@@ -1,125 +1,36 @@
 <script setup lang="ts">
 import { useInstalledSoftwareTable } from '@/composables/table/useInstalledSoftwareTable'
-import { useTable } from '@/composables/table/useTable'
 import { type InstalledSoftware } from '@/types/Software'
 import { type Ref, ref } from 'vue'
-import defaultIcon from '../assets/image/software-icon-default.png'
-import RegeditUtil from '@/utils/regedit-util'
-import AppUtil from '@/utils/app-util'
-import type { TableInstance } from 'element-plus'
+import type { TablePageWithConfigProps } from '@/types/Table'
+import TableUtil from '@/utils/table-util'
+import TablePageWithConfig from '@/components/table/TablePageWithConfig.vue'
 
-const softTable = ref<TableInstance | null>(null)
-const { tableColumns, queryParams, tableData, searchData, loading, onAfterTableRefresh } =
-  useTable(useInstalledSoftwareTable())
-const currentData: Ref<InstalledSoftware | null> = ref(null)
-onAfterTableRefresh(() => {
-  if (tableData.value?.length === 1) {
-    softTable.value?.setCurrentRow(tableData.value?.[0])
-  }
-})
+const loading = ref(false)
+const currentData: Ref<InstalledSoftware | undefined> = ref(undefined)
+const table = TableUtil.getTablePageWithConfig<InstalledSoftware>('tableRef')
+const config = {
+  tableConfig: useInstalledSoftwareTable(),
+  onCurrentChange: (curr: InstalledSoftware) => {
+    currentData.value = curr
+  },
+  onAfterTableRefresh: (data) => {
+    if (data.length === 1) {
+      table.value?.setCurrentRow(data[0])
+    }
+  },
+} satisfies TablePageWithConfigProps<InstalledSoftware, 'regeditDir'>
 </script>
 
 <template>
-  <div class="page-content">
-    <div class="header">
-      <div class="header-left">
-        <div class="search-item">
-          <span class="label"> 类型 </span>
-          <el-select
-            class="value"
-            v-model="queryParams.regeditGroupKey.value"
-            placeholder=""
-            size="small"
-            clearable
-            @change="searchData"
-          >
-            <el-option
-              v-for="(item, key) in queryParams.regeditGroupKey.options"
-              :key="key"
-              :label="item"
-              :value="key"
-            />
-          </el-select>
-        </div>
-        <div class="search-item">
-          <span class="label"> 名称 </span>
-          <el-input
-            class="value"
-            v-model="queryParams.name.value"
-            placeholder=""
-            size="small"
-            clearable
-            @change="searchData"
-          />
-        </div>
-        <el-button type="primary" @click="searchData" :loading="loading">搜索</el-button>
-      </div>
-      <div class="header-right"></div>
-    </div>
-    <div class="table-wrapper">
-      <el-table
-        ref="softTable"
-        :data="tableData"
-        style="width: 100%"
-        height="100%"
-        border
-        highlight-current-row
-        @current-change="(curr: InstalledSoftware) => (currentData = curr)"
-        v-loading="loading"
-      >
-        <el-table-column v-bind="item" v-for="item in tableColumns" :key="item.label"></el-table-column>
-      </el-table>
-    </div>
-    <div class="footer" v-show="currentData">
-      <img class="soft-icon" alt="" :src="currentData?.base64Icon ? currentData?.base64Icon : defaultIcon" />
-      <div class="soft-infos">
-        <div class="line">
-          <div class="info-item">
-            <span class="label">软件名称</span>
-            <span class="value" :title="currentData?.name">{{ currentData?.name }}</span>
-          </div>
-          <div class="info-item">
-            <span class="label">发布者　</span>
-            <span class="value" :title="currentData?.publisher">{{ currentData?.publisher }}</span>
-          </div>
-        </div>
-        <div class="line">
-          <div class="info-item">
-            <span class="label">安装位置</span>
-            <span
-              class="value actionable"
-              :title="currentData?.installDir"
-              @click="AppUtil.openPath(currentData?.installDir)"
-              >{{ currentData?.installDir }}</span
-            >
-          </div>
-          <div class="info-item">
-            <span class="label">卸载命令</span>
-            <span class="value" :title="currentData?.uninstallString">{{ currentData?.uninstallString }}</span>
-          </div>
-        </div>
-        <div class="line">
-          <div class="info-item">
-            <span class="label">图标位置</span>
-            <span
-              class="value actionable"
-              :title="currentData?.iconPath"
-              @click="AppUtil.openPath(currentData?.iconPath)"
-              >{{ currentData?.iconPath }}</span
-            >
-          </div>
-          <div class="info-item">
-            <div class="label">注册表　</div>
-            <span
-              class="value actionable"
-              :title="currentData?.regeditDir"
-              @click="RegeditUtil.openRegedit(currentData?.regeditDir)"
-              >{{ currentData?.regeditDir }}</span
-            >
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="page-container">
+    <TablePageWithConfig
+      class="table-page"
+      ref="tableRef"
+      v-bind="config"
+      v-model:loading="loading"
+    ></TablePageWithConfig>
+    <SoftwareInfo v-show="currentData" :soft="currentData" type="double column" />
   </div>
 </template>
 

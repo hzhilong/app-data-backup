@@ -1,23 +1,23 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useTable } from '@/composables/table/useTable'
 import { RouterUtil } from '@/utils/router-util'
 import { usePluginConfigTable } from '@/composables/table/usePluginConfigTable'
-import type { TableInstance } from 'element-plus'
 import type { MyPluginConfig } from '@/types/PluginConfig'
 import AppUtil from '@/utils/app-util'
 import BackupUtil from '@/utils/backup-util'
 import { useAppSettingsStore } from '@/stores/app-settings'
 import { CommonError } from '@/types/CommonError'
+import TablePageWithConfig from '@/components/table/TablePageWithConfig.vue'
+import TableUtil from '@/utils/table-util'
+import type { TablePageWithConfigProps } from '@/types/Table'
 
-const refTable = ref<TableInstance>()
-const { tableData, tableColumns, queryParams, loading, searchData, refreshData } = useTable(
-  usePluginConfigTable(true, true),
-)
+const config = {
+  tableConfig: usePluginConfigTable(true, true),
+  showRefreshOption: true,
+} satisfies TablePageWithConfigProps<MyPluginConfig, 'id'>
+const table = TableUtil.getTablePageWithConfig<MyPluginConfig>('tableRef')
 const settings = useAppSettingsStore()
-
 const getSelectionRows = () => {
-  const list = refTable.value?.getSelectionRows() as MyPluginConfig[]
+  const list = table.value?.getSelectionRows() as MyPluginConfig[]
   if (!list || list.length == 0) {
     throw new CommonError('未选择配置')
   }
@@ -37,60 +37,20 @@ const bulkRestoreRecent = async () => {
 }
 </script>
 <template>
-  <div class="page-content">
-    <div class="header">
-      <div class="header-left">
-        <div class="search-item">
-          <span class="label">类型</span>
-          <el-select
-            class="value"
-            v-model="queryParams.type.value"
-            placeholder=""
-            size="small"
-            clearable
-            @change="searchData"
-          >
-            <el-option v-for="(item, key) in queryParams.type.options" :key="key" :label="item" :value="key" />
-          </el-select>
-        </div>
-        <div class="search-item">
-          <span class="label">名称</span>
-          <el-input
-            class="value"
-            v-model="queryParams.id.value"
-            placeholder=""
-            size="small"
-            clearable
-            @change="searchData"
-          />
-        </div>
-        <el-button type="primary" @click="searchData" :loading="loading">搜索</el-button>
-        <el-button type="primary" @click="refreshData" :loading="loading">刷新</el-button>
+  <div class="page-container">
+    <TablePageWithConfig ref="tableRef" v-bind="config">
+      <template #query-options>
         <el-button type="primary" @click="bulkBackup">批量备份</el-button>
         <el-button type="primary" @click="bulkRestoreRecent">批量还原最近备份的数据</el-button>
-      </div>
-      <div class="header-right"></div>
-    </div>
-    <div class="table-wrapper">
-      <el-table
-        ref="refTable"
-        :data="tableData"
-        style="width: 100%"
-        height="100%"
-        border
-        highlight-current-row
-        v-loading="loading"
-      >
-        <template #empty>
-          <div class="empty-hint">
-            当前数据为空。<br />
-            可前往<span class="link" @click="RouterUtil.gotoPluginConfig()">配置仓库</span>添加需要备份的配置。<br />
-            后续可在当前页面一键备份所有配置。
-          </div>
-        </template>
-        <el-table-column v-bind="item" v-for="item in tableColumns" :key="item.label"></el-table-column>
-      </el-table>
-    </div>
+      </template>
+      <template #empty>
+        <div class="empty-hint">
+          当前数据为空。<br />
+          可前往<span class="link" @click="RouterUtil.gotoPluginConfig()">配置仓库</span>添加需要备份的配置。<br />
+          后续可在当前页面一键备份所有配置。
+        </div>
+      </template>
+    </TablePageWithConfig>
   </div>
 </template>
 

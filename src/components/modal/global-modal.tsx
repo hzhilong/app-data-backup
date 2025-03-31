@@ -1,26 +1,20 @@
-import { createVNode, render, type VNode } from 'vue'
-import {
-  type BackupConfig,
-  isValidatedPluginConfig,
-  type PluginConfig,
-  type ValidatedPluginConfig,
-} from '@/types/PluginConfig'
+import { createVNode, render, type VNode, type VNodeTypes } from 'vue'
+import { type MyPluginConfig, type ValidatedPluginConfig } from '@/types/PluginConfig'
 import PluginConfigModal from '@/components/modal/PluginConfigModal.vue'
-import type { PluginExecTask, PluginExecType } from '@/types/PluginTask'
-
-export interface PluginConfigModalData {
-  pluginId: string
-  pluginName: string
-  totalItemNum: number
-  configs: BackupConfig[]
-  cTime?: string
-  softInstallDir?: string
-  pluginExecType?: PluginExecType
-  backupPath?: string
-}
+import type { PluginExecTask } from '@/types/PluginTask'
+import TaskModal from '@/components/modal/TaskModal.vue'
 
 export interface PluginConfigModalOptions {
-  plugins: PluginConfigModalData[]
+  plugins: ValidatedPluginConfig[] | MyPluginConfig[]
+  modal?: boolean
+  title?: string
+  showCancel?: boolean
+  confirmBtnText?: string
+  onBeforeClose?: () => boolean
+}
+
+export interface TaskModalOptions {
+  tasks: PluginExecTask[]
   modal?: boolean
   title?: string
   showCancel?: boolean
@@ -33,60 +27,32 @@ let instances: VNode[] = []
 /**
  * 全局弹窗
  */
-export const GPluginConfigModal = {
+export const GlobalModal = {
   /**
    * 显示插件配置详细信息
    * @param pluginConfigs
    * @param modalOptions
    */
   showPluginConfig(
-    pluginConfigs: PluginConfig[] | ValidatedPluginConfig[],
+    pluginConfigs: ValidatedPluginConfig[] | MyPluginConfig[],
     modalOptions: Omit<PluginConfigModalOptions, 'plugins'>,
   ): Promise<'confirm' | 'cancel'> {
-    return this.show({
+    return this.show(PluginConfigModal, {
       title: '配置详情',
-      plugins: pluginConfigs.map((pluginConfig) => {
-        return {
-          pluginId: pluginConfig.id,
-          pluginName: pluginConfig.name,
-          totalItemNum: pluginConfig.totalItemNum,
-          configs: pluginConfig.backupConfigs,
-          cTime: pluginConfig.cTime,
-          softInstallDir: isValidatedPluginConfig(pluginConfig) ? pluginConfig.softInstallDir : undefined,
-        } satisfies PluginConfigModalData
-      }),
+      plugins: pluginConfigs,
       confirmBtnText: modalOptions.showCancel ? '确定' : '关闭',
       ...modalOptions,
     })
   },
-  /**
-   * 显示任务的插件配置详细信息
-   * @param tasks
-   * @param modalOptions
-   */
-  showTask(
-    tasks: PluginExecTask[],
-    modalOptions: Omit<PluginConfigModalOptions, 'plugins'>,
-  ): Promise<'confirm' | 'cancel'> {
-    return this.show({
-      title: '任务配置详情',
-      plugins: tasks.map((task) => {
-        return {
-          pluginId: task.pluginId,
-          pluginName: task.pluginName,
-          totalItemNum: task.totalProgress,
-          configs: task.taskResults.map((item) => ({ name: item.configName, items: item.configItems })),
-          cTime: task.cTime,
-          softInstallDir: task.softInstallDir,
-          pluginExecType: task.pluginExecType,
-          backupPath: task.backupPath,
-        }
-      }),
+  showTasks(tasks: PluginExecTask[], modalOptions: Omit<TaskModalOptions, 'tasks'>): Promise<'confirm' | 'cancel'> {
+    return this.show(TaskModal, {
+      title: '配置详情',
+      tasks: tasks,
       confirmBtnText: modalOptions.showCancel ? '确定' : '关闭',
       ...modalOptions,
     })
   },
-  show(options: PluginConfigModalOptions): Promise<'confirm' | 'cancel'> {
+  show(vNodeTypes: VNodeTypes, options: any): Promise<'confirm' | 'cancel'> {
     return new Promise((resolve) => {
       // 创建容器
       const container = document.createElement('div')
@@ -102,7 +68,7 @@ export const GPluginConfigModal = {
         }, 300)
       }
       // 创建虚拟节点
-      const vNode = createVNode(PluginConfigModal, {
+      const vNode = createVNode(vNodeTypes, {
         modelValue: true,
         modal: true,
         ...options,

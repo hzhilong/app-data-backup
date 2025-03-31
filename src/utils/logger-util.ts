@@ -11,7 +11,7 @@ import { ipcSend } from '@/utils/electron-api'
 // level 0: fatal、error
 // level 1: warn
 // level 2: log
-// level 3: info、success、ready、start
+// level 3: plugin、success、ready、start
 // level 4: debug
 // level 5: trace、verbose
 // 根据环境控制日志级别

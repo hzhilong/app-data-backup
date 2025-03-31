@@ -1,22 +1,6 @@
 @use '@/assets/scss/global' as *;
-@use '@/assets/scss/table-page' as *;
 
 .table-wrapper {
-  :deep(.bind-soft) {
-    color: $app-text-color-primary;
-    display: flex;
-    align-items: center;
-    white-space: nowrap;
-    cursor: pointer;
-  }
-
-  :deep(.soft-icon) {
-    display: block;
-    width: 20px;
-    height: 20px;
-    margin-right: 4px;
-    object-fit: cover;
-  }
 
   :deep(.empty-hint) {
     line-height: 1.4;
@@ -24,12 +8,12 @@
     user-select: none;
 
     .link{
-      color: $app-color-primary;
+      color: var(--el-color-primary);
       padding: 0 2px;
       cursor: pointer;
 
       &:hover{
-        background: $app-color-primary-light-8;
+        background: var(--el-color-primary-light-8);
       }
     }
   }

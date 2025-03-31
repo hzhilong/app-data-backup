@@ -1,0 +1,20 @@
+@use '@/assets/scss/global' as *;
+
+.content-container {
+  width: 100%;
+  max-height: 400px;
+  overflow: auto;
+  padding-right: 10px;
+  box-sizing: border-box;
+
+  .plugins {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .plugin {
+
+    }
+  }
+
+}

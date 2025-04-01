@@ -8,7 +8,7 @@ import type { TablePageProps } from '@/types/Table'
 const refTable = ref<TableInstance>()
 const loading = defineModel('loading', { type: Boolean, required: false, default: false })
 const queryParams = defineModel<QueryParams>('queryParams', { required: false })
-defineProps<TablePageProps<T>>()
+const props = defineProps<TablePageProps<T>>()
 const emit = defineEmits<{
   (e: 'onSearchData'): void
   (e: 'onCurrentChange', curr: T): void
@@ -43,7 +43,9 @@ const handleCurrentChange = (curr: T) => {
               clearable
               @change="handleSearchData"
             >
-              <el-option v-for="(item, key) in param.options" :key="key" :label="item" :value="key" />
+              <template v-for="(item, key) in param.options" :key="key">
+                <el-option v-if="item" :label="item" :value="key" />
+              </template>
             </el-select>
             <el-input
               v-else
@@ -69,7 +71,7 @@ const handleCurrentChange = (curr: T) => {
         style="width: 100%"
         height="100%"
         border
-        highlight-current-row
+        :highlight-current-row="!!highlightCurrentRow"
         @current-change="handleCurrentChange"
         v-loading="loading"
       >

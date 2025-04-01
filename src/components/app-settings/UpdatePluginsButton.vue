@@ -5,7 +5,7 @@ import { ref } from 'vue'
 import AppUtil from '@/utils/app-util'
 import PluginUtil from '@/utils/plugin-util'
 
-const { refreshDB: refreshPluginDB } = useTable(usePluginConfigTable(true, false))
+const { refreshDB: refreshPluginDB } = useTable(usePluginConfigTable({ selection: true, isGetMyPluginConfig: false }))
 const updatingLocalPlugins = ref(false)
 const updateLocalPlugins = async () => {
   try {

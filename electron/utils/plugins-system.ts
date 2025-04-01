@@ -17,12 +17,12 @@ import {
   PluginExecTask,
   TaskItemResult,
 } from '@/types/PluginTask'
-import { loadPluginConfig, ValidatedPluginConfig } from '@/types/PluginConfig'
+import { loadPluginConfig, MyPluginConfig, ValidatedPluginConfig } from '@/types/PluginConfig'
 import axios from 'axios'
 import { AppPath } from './app-path'
 import BrowserWindow = Electron.BrowserWindow
 
-const pluginRootPath = AppPath.pluginRootPath
+const pluginRootPath = path.join(AppPath.pluginRootPath, 'plugins')
 
 // 初始化互斥锁
 const initMutex = new Mutex()
@@ -30,10 +30,17 @@ const initMutex = new Mutex()
 let initialized = false
 // 初始化加载的插件配置
 const loadedPluginConfigs: ValidatedPluginConfig[] = []
-// 启用的插件 插件id->
+// 启用的插件 插件type-id ->
 const activePlugins = new Map<string, Plugin>()
 // 终止信号 任务id->
 const abortSignals = new Map<string, AbortController>()
+const delActivePlugin = (id: string) => {
+  activePlugins.delete(id)
+}
+const getActivePlugin = (id: string) => activePlugins.get(id)
+const setActivePlugin = (id: string, plugin: Plugin) => {
+  activePlugins.set(id, plugin)
+}
 
 // 初始化插件系统
 function initPluginSystem(mainWindow: BrowserWindow) {
@@ -115,6 +122,18 @@ function initPluginSystem(mainWindow: BrowserWindow) {
       })
     },
   )
+  // IPC 事件监听【保存自定义插件】
+  ipcMain.handle(IPC_CHANNELS.SAVE_CUSTOM_PLUGIN, async (event, myPluginConfig: MyPluginConfig) => {
+    return await execBusiness(async () => {
+      return await saveCustomPlugin(myPluginConfig)
+    })
+  })
+  // IPC 事件监听【删除自定义插件】
+  ipcMain.handle(IPC_CHANNELS.DELETE_CUSTOM_PLUGIN, async (event, myPluginConfig: MyPluginConfig) => {
+    return await execBusiness(async () => {
+      return await deleteCustomPlugin(myPluginConfig)
+    })
+  })
   // 先在主进程初始化一次
   initPlugins().then((r) => {})
 }
@@ -147,7 +166,7 @@ async function initPlugins(softList?: InstalledSoftware[]): Promise<ValidatedPlu
   abortSignals.clear()
 
   // 获取这两个目录下的插件
-  const pluginFiles = getPluginFiles('plugins/core', 'plugins/custom')
+  const pluginFiles = getPluginFiles('core', 'custom')
   // 环境变量
   let env = WinUtil.getEnv()
 
@@ -172,10 +191,14 @@ async function initPlugins(softList?: InstalledSoftware[]): Promise<ValidatedPlu
       }
       // 如果传递已安装的软件信息，则进行插件验证
       if (softList) {
-        Object.assign(validatedPluginConfig, getValidatedFields(plugin.detect(softList, env)))
+        try {
+          Object.assign(validatedPluginConfig, getValidatedFields(plugin.detect(softList, env)))
+        } catch (e) {
+          nLogger.error('插件校验出错：', e)
+        }
       }
       // 初始化换成
-      activePlugins.set(pluginConfig.id, plugin)
+      setActivePlugin(pluginConfig.id, plugin)
       loadedPluginConfigs.push(validatedPluginConfig)
       nLogger.info(`插件加载成功: ${fileName}`)
     } catch (error) {
@@ -223,7 +246,7 @@ async function execPlugin(task: PluginExecTask, mainWindow: Electron.BrowserWind
   const pluginId = task.pluginId
   nLogger.info(`准备执行插件[${pluginId}] 任务：`, task)
   const taskId = task.id
-  const plugin = activePlugins.get(pluginId)
+  const plugin = getActivePlugin(pluginId)
   if (!plugin) {
     nLogger.info(`未找到插件[${pluginId}]，可能已被删除`)
     throw new CommonError(`未找到插件，可能已被删除`)
@@ -307,7 +330,7 @@ const downloadPlugins = async () => {
     nLogger.debug('API响应内容：', response)
 
     // 创建基础目录（如果不存在）
-    const localBasePath = path.join(pluginRootPath, 'plugins/core/')
+    const localBasePath = path.join(pluginRootPath, 'core/')
     if (!fs.existsSync(localBasePath)) {
       fs.mkdirSync(localBasePath, { recursive: true })
     }
@@ -336,6 +359,55 @@ const downloadPlugins = async () => {
     nLogger.error('无法访问github', error)
     throw new CommonError('无法访问github')
   }
+}
+
+const getCustomPluginPath = (config: MyPluginConfig) => path.join(pluginRootPath, 'custom', `${config.name}.js`)
+
+const saveCustomPlugin = async (config: MyPluginConfig) => {
+  const filePath = getCustomPluginPath(config)
+  WinUtil.ensureDirectoryExistence(filePath)
+  const backupConfigs: string[] = []
+  config.backupConfigs.forEach((backup) => {
+    backupConfigs.push(`{
+      name: '${backup.name}',
+      items: [
+        ${backup.items
+          .map(
+            (item) => `{
+          type: '${item.type}',
+          sourcePath: '${item.sourcePath}',
+          targetRelativePath: '${item.targetRelativePath}',
+        }`,
+          )
+          .join(',')}
+      ],
+    }`)
+  })
+  const content = `module.exports = {
+  type: 'CUSTOM',
+  id: '${config.id}',
+  name: '${config.name}',
+  backupConfigs: [
+    ${backupConfigs.join(',')}
+  ],
+  detect(list, env) {
+    return this.detectByCustom(list, '${config.softInstallDir}')
+  },
+}
+
+  `
+  nLogger.info('即将添加自定义配置：', content)
+  fs.writeFileSync(filePath, content, 'utf8')
+  nLogger.info('添加自定义配置成功')
+}
+
+const deleteCustomPlugin = async (config: MyPluginConfig) => {
+  fs.unlinkSync(getCustomPluginPath(config))
+  const oldDataIndex = loadedPluginConfigs.indexOf(config)
+  if (oldDataIndex > -1) {
+    loadedPluginConfigs.splice(oldDataIndex, 1)
+  }
+  delActivePlugin(config.id)
 }
 
 export { initPluginSystem }

@@ -33,50 +33,70 @@ export type SoftwareQueryParams = {
   [P in keyof typeof queryParams]?: (typeof queryParams)[P]['value']
 }
 
-export function useInstalledSoftwareTable(isExtendData: boolean = true) {
-  const tableColumns = [
-    {
-      label: '图标',
-      prop: 'size',
-      width: '50',
-      align: 'center',
-      showOverflowTooltip: true,
-      formatter: (row: DataType): VNode | string => {
-        return <img src={row.base64Icon ? row.base64Icon : defaultIcon} class="soft-icon" alt="" />
+export interface UseInstalledSoftwareTableOptions {
+  // 获取扩展的数据（可备份的内容）
+  isExtendData?: boolean
+  // 单选、多选
+  selection?: boolean
+}
+
+export function useInstalledSoftwareTable({
+  selection = false,
+  isExtendData = true,
+}: UseInstalledSoftwareTableOptions = {}) {
+  let tableColumns = []
+  if (selection) {
+    tableColumns.push({
+      type: 'selection',
+      width: '40',
+      minWidth: '40',
+    })
+  }
+  tableColumns.push(
+    ...[
+      {
+        label: '图标',
+        prop: 'size',
+        width: '50',
+        align: 'center',
+        showOverflowTooltip: true,
+        formatter: (row: DataType): VNode | string => {
+          return <img src={row.base64Icon ? row.base64Icon : defaultIcon} class="soft-icon" alt="" />
+        },
       },
-    },
-    { label: '软件名', prop: 'name', minWidth: '100', showOverflowTooltip: true, sortable: true },
-    { label: '安装日期', prop: 'installDate', width: '90', sortable: true },
-    { label: '大小', prop: 'formatSize', width: '70', sortable: true, sortBy: 'size' },
-    {
-      label: '类型',
-      prop: 'regeditGroupKey',
-      width: '100',
-      formatter: (row: DataType) => {
-        return row.regeditGroupKey ? SOFTWARE_REGEDIT_GROUP[row.regeditGroupKey].title : '-'
+      { label: '软件名', prop: 'name', minWidth: '100', showOverflowTooltip: true, sortable: true },
+      { label: '安装日期', prop: 'installDate', width: '90', sortable: true },
+      { label: '大小', prop: 'formatSize', width: '70', sortable: true, sortBy: 'size' },
+      {
+        label: '类型',
+        prop: 'regeditGroupKey',
+        width: '100',
+        formatter: (row: DataType) => {
+          return row.regeditGroupKey ? SOFTWARE_REGEDIT_GROUP[row.regeditGroupKey].title : '-'
+        },
+        sortable: true,
       },
-      sortable: true,
-    },
-    { label: '版本', prop: 'version', width: '130', showOverflowTooltip: true },
-    {
-      label: '可备份的内容',
-      minWidth: '100',
-      showOverflowTooltip: true,
-      formatter: (row: DataType) => {
-        return TableUtil.createTags(
-          row,
-          row?.supportPlugins?.map((item) => {
-            return {
-              text: item.id,
-              onClick: (row: DataType) => {
-                RouterUtil.gotoPluginConfig({ id: item.id })
-              },
-            } as Tag<DataType>
-          }),
-        )
+      { label: '版本', prop: 'version', width: '130', showOverflowTooltip: true },
+      {
+        label: '可备份的内容',
+        minWidth: '100',
+        showOverflowTooltip: true,
+        formatter: (row: DataType) => {
+          return TableUtil.createTags(
+            row,
+            row?.supportPlugins?.map((item) => {
+              return {
+                text: item.id,
+                onClick: (row: DataType) => {
+                  RouterUtil.gotoPluginConfig({ id: item.id })
+                },
+              } as Tag<DataType>
+            }),
+          )
+        },
       },
-    },
-  ]
+    ],
+  )
 
   const initData = async () => {
     return await RegeditUtil.getInstalledSoftwareList()

@@ -79,7 +79,7 @@ export const BACKUP_PLUGIN_TYPE: BackupPluginType = {
  * 插件配置
  */
 export interface PluginConfig {
-  /** 类型：内置|自定义*/
+  /** 类型：安装程序|便捷软件|自定义*/
   type: BackupPluginTypeKey
   /** 插件唯一标识符 为空则取文件名 建议设置为【MusicBee设置和插件】这种格式*/
   id: string

@@ -2,7 +2,7 @@
 interface IconButtonProps {
   confirm?: string
   icon: string
-  tip: string
+  tip?: string
 }
 
 const props = defineProps<IconButtonProps>()
@@ -21,12 +21,17 @@ const handleClick = () => {
       </template>
     </el-popconfirm>
   </template>
-  <template v-else>
+  <template v-else-if="tip">
     <el-tooltip effect="dark" :content="tip" placement="top">
       <slot name="default">
         <i class="icon-btn" :class="icon" @click="handleClick"></i>
       </slot>
     </el-tooltip>
+  </template>
+  <template v-else>
+    <slot name="default">
+      <i class="icon-btn" :class="icon" @click="handleClick"></i>
+    </slot>
   </template>
 </template>
 

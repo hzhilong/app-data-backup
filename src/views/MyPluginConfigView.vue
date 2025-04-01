@@ -9,9 +9,10 @@ import { CommonError } from '@/types/CommonError'
 import TablePageWithConfig from '@/components/table/TablePageWithConfig.vue'
 import TableUtil from '@/utils/table-util'
 import type { TablePageWithConfigProps } from '@/types/Table'
+import { ref } from 'vue'
 
 const config = {
-  tableConfig: usePluginConfigTable(true, true),
+  tableConfig: usePluginConfigTable({ selection: true, isGetMyPluginConfig: true }),
   showRefreshOption: true,
 } satisfies TablePageWithConfigProps<MyPluginConfig, 'id'>
 const table = TableUtil.getTablePageWithConfig<MyPluginConfig>('tableRef')
@@ -35,6 +36,12 @@ const bulkRestoreRecent = async () => {
   await BackupUtil.bulkRestoreRecent('manual', list, settings.bulkBackupShowMsg)
   AppUtil.message('批量还原中...')
 }
+const editVisible = ref(false)
+const editData = ref<MyPluginConfig | undefined>()
+const addData = () => {
+  editData.value = undefined
+  editVisible.value = true
+}
 </script>
 <template>
   <div class="page-container">
@@ -42,6 +49,7 @@ const bulkRestoreRecent = async () => {
       <template #query-options>
         <el-button type="primary" @click="bulkBackup">批量备份</el-button>
         <el-button type="primary" @click="bulkRestoreRecent">批量还原最近备份的数据</el-button>
+        <el-button type="primary" @click="addData">自定义</el-button>
       </template>
       <template #empty>
         <div class="empty-hint">
@@ -51,6 +59,7 @@ const bulkRestoreRecent = async () => {
         </div>
       </template>
     </TablePageWithConfig>
+    <EditMyPluginConfigModal v-model="editVisible" :plugin="editData"></EditMyPluginConfigModal>
   </div>
 </template>
 

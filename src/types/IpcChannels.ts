@@ -32,6 +32,9 @@ export const IPC_CHANNELS = {
   UPDATE_LOCAL_PLUGINS: 'UPDATE_LOCAL_PLUGINS',
   /* 打开日志文件目录 */
   OPEN_LOGS_DIR: 'OPEN_LOGS_DIR',
+  /* 自定义插件 */
+  SAVE_CUSTOM_PLUGIN: 'SAVE_CUSTOM_PLUGIN',
+  DELETE_CUSTOM_PLUGIN: 'DELETE_CUSTOM_PLUGIN',
 } as const
 
 export type IpcChannels = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS]

@@ -3,6 +3,7 @@ import { type MyPluginConfig, type ValidatedPluginConfig } from '@/types/PluginC
 import PluginConfigModal from '@/components/modal/PluginConfigModal.vue'
 import type { PluginExecTask } from '@/types/PluginTask'
 import TaskModal from '@/components/modal/TaskModal.vue'
+import EditMyPluginConfigModal from '@/components/modal/EditMyPluginConfigModal.vue'
 
 export interface PluginConfigModalOptions {
   plugins: ValidatedPluginConfig[] | MyPluginConfig[]
@@ -50,6 +51,11 @@ export const GlobalModal = {
       tasks: tasks,
       confirmBtnText: modalOptions.showCancel ? '确定' : '关闭',
       ...modalOptions,
+    })
+  },
+  editMyPluginConfig(config: MyPluginConfig): Promise<'confirm' | 'cancel'> {
+    return this.show(EditMyPluginConfigModal, {
+      plugin: config,
     })
   },
   show(vNodeTypes: VNodeTypes, options: any): Promise<'confirm' | 'cancel'> {

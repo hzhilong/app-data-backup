@@ -22,6 +22,7 @@ import type { IDType } from 'dexie'
 import { ipcInvoke } from '@/utils/electron-api'
 import TableUtil from '@/utils/table-util'
 import type { OptionButton, TableConfig } from '@/types/Table'
+import PluginUtil from '@/utils/plugin-util'
 
 const queryParams = {
   id: {
@@ -41,7 +42,16 @@ export type PluginConfigQueryParams = {
   [P in keyof typeof queryParams]?: (typeof queryParams)[P]['value']
 }
 
-export function usePluginConfigTable<T extends boolean = false>(selection: boolean, getMyPluginConfig: T) {
+export interface UsePluginConfigTableOptions<T extends boolean = false> {
+  // 获取我的配置
+  isGetMyPluginConfig: T
+  isGetCustom?: boolean
+  // 单选、多选
+  selection?: boolean
+}
+
+export function usePluginConfigTable<T extends boolean = false>(options: UsePluginConfigTableOptions<T>) {
+  const { selection, isGetMyPluginConfig, isGetCustom } = options
   type DataType = T extends true ? MyPluginConfig : ValidatedPluginConfig
   const { maxWindow } = storeToRefs(AppSessionStore())
   const cTimeWidth = computed(() => {
@@ -51,7 +61,6 @@ export function usePluginConfigTable<T extends boolean = false>(selection: boole
   if (selection) {
     tableColumns.push({
       type: 'selection',
-      fixed: true,
       width: '40',
       minWidth: '40',
       selectable: (row: DataType, index: number) => row.softInstallDir,
@@ -59,7 +68,8 @@ export function usePluginConfigTable<T extends boolean = false>(selection: boole
   }
   tableColumns.push(
     ...[
-      { label: '配置', fixed: !selection, prop: 'id', minWidth: '80', showOverflowTooltip: true, sortable: true },
+      { label: '软件名称', prop: 'name', minWidth: '60', showOverflowTooltip: true, sortable: true },
+      { label: '备份配置', prop: 'id', minWidth: '80', showOverflowTooltip: true, sortable: true },
       {
         label: '类型',
         prop: 'type',
@@ -84,37 +94,6 @@ export function usePluginConfigTable<T extends boolean = false>(selection: boole
             >
               {maxWindow.value ? row.cTime : row.cTime?.split(' ')[0]}
             </el-tooltip>
-          )
-        },
-      },
-      {
-        label: '备份项目和数量',
-        prop: 'type',
-        formatter: (row: DataType) => {
-          const configs = row.backupConfigs
-          return (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }} key={row.id}>
-              {configs.map(({ name, items }) => {
-                return (
-                  <el-tooltip
-                    placement="top"
-                    v-slots={{
-                      content: () => (
-                        <>
-                          {items.map((item, index) => (
-                            <div key={index}>{item.sourcePath}</div>
-                          ))}
-                        </>
-                      ),
-                    }}
-                  >
-                    <span class="">
-                      {name}({items.length})
-                    </span>
-                  </el-tooltip>
-                )
-              })}
-            </div>
           )
         },
       },
@@ -167,16 +146,36 @@ export function usePluginConfigTable<T extends boolean = false>(selection: boole
               }).then((r) => {})
             },
           })
-          if (getMyPluginConfig) {
+          if (isGetMyPluginConfig && row.type === 'CUSTOM') {
             list.push({
-              text: '移除',
-              confirmContent: (row: DataType) => {
-                return `是否从我的配置中移除[${row.id}]？`
-              },
+              text: '编辑',
               onClick: () => {
-                db.myConfig.delete(row.id as IDType<MyPluginConfig, never>)
+                GlobalModal.editMyPluginConfig(row).then(() => {})
               },
             })
+          }
+          if (isGetMyPluginConfig) {
+            if (row.type === 'CUSTOM') {
+              list.push({
+                text: '删除',
+                confirmContent: (row: DataType) => {
+                  return `确定删除？`
+                },
+                onClick: () => {
+                  PluginUtil.deleteCustomPlugin(row).then(() => {})
+                },
+              })
+            } else {
+              list.push({
+                text: '移除',
+                confirmContent: (row: DataType) => {
+                  return `确定移除？`
+                },
+                onClick: () => {
+                  db.myConfig.delete(row.id)
+                },
+              })
+            }
           }
           if (row.softInstallDir) {
             list.push({
@@ -190,7 +189,7 @@ export function usePluginConfigTable<T extends boolean = false>(selection: boole
                 BackupUtil.startBackupData('manual', [data], true).then((r) => {})
               },
             })
-            if (!getMyPluginConfig) {
+            if (!isGetMyPluginConfig) {
               list.push({
                 text: '添加到我的配置',
                 onClick: () => {
@@ -214,7 +213,7 @@ export function usePluginConfigTable<T extends boolean = false>(selection: boole
       },
     ],
   )
-  if (getMyPluginConfig) {
+  if (isGetMyPluginConfig) {
     return {
       tableColumns: tableColumns,
       queryParams: queryParams,
@@ -222,12 +221,18 @@ export function usePluginConfigTable<T extends boolean = false>(selection: boole
     } as TableConfig<MyPluginConfig, 'id'>
   } else {
     const initData = async (): Promise<DataType[]> => {
-      return ipcInvoke<DataType[]>(IPC_CHANNELS.REFRESH_PLUGINS, await db.installedSoftware.toArray())
+      return await ipcInvoke<DataType[]>(IPC_CHANNELS.REFRESH_PLUGINS, await db.installedSoftware.toArray())
     }
+    const parseData = async (list: ValidatedPluginConfig[]): Promise<ValidatedPluginConfig[]> => {
+      return list.filter((item) => isGetCustom || item.type !== 'CUSTOM')
+    }
+    const newQueryParams = cloneDeep(queryParams)
+    newQueryParams.type.options.CUSTOM = ''
     return {
       tableColumns: tableColumns,
-      queryParams: queryParams,
+      queryParams: newQueryParams,
       initData: initData,
+      parseData: parseData,
       table: db.pluginConfig,
     } as TableConfig<ValidatedPluginConfig, 'id'>
   }

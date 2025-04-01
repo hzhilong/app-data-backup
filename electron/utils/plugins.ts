@@ -88,11 +88,24 @@ export class Plugin implements PluginConfig {
   /**
    * 验证插件支持的软件源（通过安装路径的文件夹名）
    * @param list
-   * @param env
    */
   public detectByInstallLocationDir(list: InstalledSoftware[]) {
     for (const soft of list) {
       if (new RegExp(`[/\\\\]${this.name}\$`).test(soft.installLocation)) {
+        return soft
+      }
+    }
+  }
+
+  /**
+   * 验证插件支持的软件源（通过自定义时关联的路径）
+   * @param list
+   * @param softInstallDir
+   */
+  public detectByCustom(list: InstalledSoftware[], softInstallDir: string) {
+    const resolveCustom = path.resolve(softInstallDir)
+    for (const soft of list) {
+      if (path.resolve(soft.installLocation) === resolveCustom) {
         return soft
       }
     }

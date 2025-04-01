@@ -9,6 +9,7 @@ const loading = defineModel('loading', { type: Boolean, required: false, default
 const props = withDefaults(defineProps<TablePageWithConfigProps<T, TKeyPropName>>(), {
   refreshOptionText: '刷新',
   refreshDBOptionText: '刷新',
+  highlightCurrentRow: true
 })
 const { tableData, tableColumns, queryParams, searchData, refreshData, onAfterTableRefresh, refreshDB } = useTable(
   props.tableConfig,
@@ -40,6 +41,7 @@ const handleCurrentChange = (curr: T) => {
     :data="tableData"
     v-model:loading="loading"
     v-model:query-params="queryParams"
+    :highlight-current-row="highlightCurrentRow"
     @on-search-data="searchData"
     @on-current-change="handleCurrentChange"
   >

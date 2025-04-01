@@ -1,5 +1,5 @@
 import { IPC_CHANNELS } from '@/types/IpcChannels'
-import { type ValidatedPluginConfig } from '@/types/PluginConfig'
+import { type MyPluginConfig, type ValidatedPluginConfig } from '@/types/PluginConfig'
 import { CommonError } from '@/types/CommonError'
 import {
   type OpenPluginConfigSourcePathOptions,
@@ -11,6 +11,7 @@ import {
 import { cloneDeep } from 'lodash'
 import AppUtil from '@/utils/app-util'
 import { ipcInvoke, ipcOff, ipcOn } from '@/utils/electron-api'
+import { db } from '@/db/db'
 
 /**
  * 插件工具
@@ -79,5 +80,24 @@ export default class PluginUtil {
    */
   static async updateLocalPlugins() {
     return ipcInvoke<ValidatedPluginConfig[]>(IPC_CHANNELS.UPDATE_LOCAL_PLUGINS)
+  }
+
+  static async saveCustomPlugin(config: MyPluginConfig) {
+    const temp = cloneDeep(config)
+    if ((await db.pluginConfig.where({ id: temp.id }).count()) > 0) {
+      throw new CommonError('配置仓库已有该备份配置，请修改[备份信息]')
+    }
+    await ipcInvoke(IPC_CHANNELS.SAVE_CUSTOM_PLUGIN, temp)
+    await db.myConfig.put(temp)
+    AppUtil.message('保存成功')
+    ipcInvoke(IPC_CHANNELS.REFRESH_PLUGINS, await db.installedSoftware.toArray()).then(() => {})
+  }
+
+  static async deleteCustomPlugin(config: MyPluginConfig) {
+    const temp = cloneDeep(config)
+    await ipcInvoke(IPC_CHANNELS.DELETE_CUSTOM_PLUGIN, temp)
+    await db.myConfig.delete(temp.id)
+    AppUtil.message('删除成功')
+    ipcInvoke(IPC_CHANNELS.REFRESH_PLUGINS, await db.installedSoftware.toArray()).then(() => {})
   }
 }

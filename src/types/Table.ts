@@ -48,7 +48,8 @@ export interface OptionButton<T> {
  */
 export interface TablePageProps<T> {
   tableColumns: Partial<typeof TableColumn>
-  data: T[]
+  data: T[],
+  highlightCurrentRow?: boolean
 }
 
 /**
@@ -61,5 +62,6 @@ export interface TablePageWithConfigProps<T, TKeyPropName extends keyof T = neve
   showRefreshDBOption?: boolean
   refreshDBOptionText?: string
   onAfterTableRefresh?: (data: T[]) => void
-  onCurrentChange?: (curr: T) => void
+  onCurrentChange?: (curr: T) => void,
+  highlightCurrentRow?: boolean
 }

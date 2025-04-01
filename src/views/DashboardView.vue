@@ -8,7 +8,7 @@ import { useInstalledSoftwareTable } from '@/composables/table/useInstalledSoftw
 import { usePluginConfigTable } from '@/composables/table/usePluginConfigTable'
 import { useBackupTasksStore } from '@/stores/backup-task'
 import { storeToRefs } from 'pinia'
-import { parsePluginConfigGroup } from '@/types/PluginConfig'
+import { type BackupPluginTypeKey, parsePluginConfigGroup } from '@/types/PluginConfig'
 import Card from '@/components/card/Card.vue'
 import CardData from '@/components/card/CardData.vue'
 
@@ -16,14 +16,24 @@ const loading1 = ref(true)
 const loading2 = ref(false)
 const loadingText = ref('正在获取已安装的软件列表，请稍候...')
 
-const { refreshDB: refreshInstalledList, tableData: softwareList } = useTable(useInstalledSoftwareTable(false), {
-  loading: loading1,
-  isTryInit: true,
-})
-const { refreshDB: refreshPluginList, tableData: pluginList } = useTable(usePluginConfigTable(false, false), {
-  loading: loading2,
-  isTryInit: true,
-})
+const { refreshDB: refreshInstalledList, tableData: softwareList } = useTable(
+  useInstalledSoftwareTable({ isExtendData: false }),
+  {
+    loading: loading1,
+    isTryInit: true,
+  },
+)
+const { refreshDB: refreshPluginList, tableData: pluginList } = useTable(
+  usePluginConfigTable({
+    selection: false,
+    isGetMyPluginConfig: false,
+    isGetCustom: true,
+  }),
+  {
+    loading: loading2,
+    isTryInit: true,
+  },
+)
 
 const allInstalledSoftware = computed(() => parseAllInstalledSoftware(softwareList.value ?? []))
 const pluginConfigGroup = computed(() => parsePluginConfigGroup(pluginList.value ?? []))
@@ -40,6 +50,13 @@ const refGraph = ref<InstanceType<typeof SoftwareGraph> | null>(null)
 RouterUtil.onCurrRouteUpdate(() => {
   refGraph.value?.refreshGraph()
 })
+const gotoPluginConfig = (key: BackupPluginTypeKey) => {
+  if (key !== 'CUSTOM') {
+    RouterUtil.gotoPluginConfig({ type: key })
+  } else {
+    RouterUtil.gotoMyPluginConfig({ type: key })
+  }
+}
 </script>
 
 <template>
@@ -84,7 +101,7 @@ RouterUtil.onCurrRouteUpdate(() => {
           :key="key"
           :name="type.title"
           :value="type.list?.length ?? 0"
-          :on-click="() => RouterUtil.gotoPluginConfig({ type: key })"
+          :on-click="() => gotoPluginConfig(key)"
         />
       </Card>
     </div>

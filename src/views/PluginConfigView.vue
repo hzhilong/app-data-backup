@@ -13,7 +13,8 @@ import TablePageWithConfig from '@/components/table/TablePageWithConfig.vue'
 
 const loading = ref(false)
 const config = {
-  tableConfig: usePluginConfigTable(true, false),
+  tableConfig: usePluginConfigTable({ selection: true, isGetMyPluginConfig: false }),
+  showRefreshDBOption: true,
 } satisfies TablePageWithConfigProps<ValidatedPluginConfig, 'id'>
 const table = TableUtil.getTablePageWithConfig<ValidatedPluginConfig>('tableRef')
 

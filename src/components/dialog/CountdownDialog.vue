@@ -40,6 +40,7 @@ const closeDialog = (type: 'confirm' | 'cancel') => {
   stopCountdown()
   visible.value = false
   emit(type === 'confirm' ? 'onConfirm' : 'onCancel', type)
+  isPrepareClose = false
 }
 
 const handleConfirm = () => closeDialog('confirm')
@@ -69,7 +70,7 @@ defineExpose({ show })
     :width="width"
     :close-on-click-modal="false"
     :close-on-press-escape="false"
-    @close="handleCancel"
+    :show-close="false"
     :append-to-body="true"
   >
     <div>{{ content }}</div>

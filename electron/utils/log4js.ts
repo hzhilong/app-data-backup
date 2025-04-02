@@ -15,13 +15,18 @@ log4js.configure({
     },
     error: {
       type: 'dateFile',
+      level: 'ERROR',
       filename: path.join(LOG_DIR, 'error-logs.log'),
       compress: true,
     },
+    errorFilter: {
+      type: 'logLevelFilter',
+      level: 'ERROR',
+      appender: 'error'
+    },
   },
   categories: {
-    default: { appenders: ['all', 'console'], level: import.meta.env.APP_LOG_LEVEL },
-    error: { appenders: ['error'], level: 'error' },
+    default: { appenders: ['all', 'console', 'errorFilter'], level: import.meta.env.APP_LOG_LEVEL || 'info' },
   },
 })
 

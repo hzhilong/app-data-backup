@@ -88,10 +88,16 @@ export class Plugin implements PluginConfig {
   /**
    * 验证插件支持的软件源（通过安装路径的文件夹名）
    * @param list
+   * @param dirName
    */
-  public detectByInstallLocationDir(list: InstalledSoftware[]) {
+  public detectByInstallLocationDir(list: InstalledSoftware[], dirName?: string) {
     for (const soft of list) {
-      if (new RegExp(`[/\\\\]${this.name}\$`).test(soft.installLocation)) {
+      if (new RegExp(`[/\\\\]${dirName ? dirName : this.name}[\\\\/]?$`).test(soft.installLocation)) {
+        return soft
+      } else if (
+        soft.installDir &&
+        new RegExp(`[/\\\\]${dirName ? dirName : this.name}[\\\\/]?$`).test(soft.installDir)
+      ) {
         return soft
       }
     }
@@ -128,6 +134,55 @@ export class Plugin implements PluginConfig {
     const state = fs.statSync(path.resolve(appDataPath))
     if (state.isDirectory()) {
       return appDataPath
+    }
+  }
+
+  /**
+   * 验证插件支持的软件源（直接判断路径文件/文件夹是否存在）
+   */
+  public detectByPath(
+    env: {
+      [key: string]: string | undefined
+    },
+    fileOrDirPath: string,
+  ) {
+    const appDataPath = Plugin.resolvePath(path.normalize(fileOrDirPath), env)
+    if (fs.existsSync(path.resolve(appDataPath))) {
+      return appDataPath
+    }
+  }
+
+  /**
+   * 验证插件支持的软件源（通过软件名称开头是否包含配置name）
+   */
+  public detectByIncludeName(list: InstalledSoftware[]) {
+    for (const soft of list) {
+      if (soft.name.startsWith(this.name)) {
+        return soft
+      }
+    }
+  }
+
+  /**
+   * 验证插件支持的软件源（查找常见的程序目录）
+   */
+  public detectByCommonProgram(
+    env: {
+      [key: string]: string | undefined
+    },
+    dirName?: string,
+  ) {
+    const list = [
+      'C:\\Program Files (x86)\\',
+      'C:\\Program Files\\',
+      'D:\\Program Files (x86)\\',
+      'D:\\Program Files\\',
+    ]
+    for (const root of list) {
+      let programPath = path.join(root, dirName ? dirName : this.name)
+      if (fs.existsSync(path.resolve(programPath))) {
+        return programPath
+      }
     }
   }
 
@@ -323,9 +378,11 @@ export class Plugin implements PluginConfig {
     if (installDir) {
       newList = path.replace(/%installDir%/gi, installDir)
     }
-    return newList.replace(/%(\w+)%/gi, (_: string, key: string): string => {
+    let result = newList.replace(/%(\w+)%/gi, (_: string, key: string): string => {
       const value = env[key]
       return value !== undefined ? value : `%${key}%`
     })
+    nLogger.debug(`解析路径 ${path} -> ${result}`)
+    return result
   }
 }

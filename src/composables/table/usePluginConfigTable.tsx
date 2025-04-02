@@ -68,8 +68,8 @@ export function usePluginConfigTable<T extends boolean = false>(options: UsePlug
   }
   tableColumns.push(
     ...[
-      { label: '软件名称', prop: 'name', minWidth: '60', showOverflowTooltip: true, sortable: true },
-      { label: '备份配置', prop: 'id', minWidth: '80', showOverflowTooltip: true, sortable: true },
+      { label: '软件名称', prop: 'name', minWidth: '80', showOverflowTooltip: true, sortable: true },
+      { label: '备份配置', prop: 'id', minWidth: isGetMyPluginConfig?'110':'80', showOverflowTooltip: true, sortable: true },
       {
         label: '类型',
         prop: 'type',
@@ -101,10 +101,10 @@ export function usePluginConfigTable<T extends boolean = false>(options: UsePlug
         label: '关联的软件',
         prop: 'softName',
         showOverflowTooltip: true,
-        minWidth: '100',
+        minWidth: isGetMyPluginConfig?'160':'100',
         formatter: (row: DataType) => {
           if (row.type === 'INSTALLER') {
-            if (row.softInstallDir) {
+            if (row.softInstallDir || row.softRegeditDir) {
               return (
                 <div
                   class="bind-installed-soft"
@@ -177,7 +177,7 @@ export function usePluginConfigTable<T extends boolean = false>(options: UsePlug
               })
             }
           }
-          if (row.softInstallDir) {
+          if (row.softInstallDir || row.softRegeditDir) {
             list.push({
               text: '备份',
               onClick: (data: MyPluginConfig, e?: MouseEvent) => {

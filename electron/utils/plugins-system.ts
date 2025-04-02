@@ -161,6 +161,7 @@ function getPluginFiles(...paths: string[]): string[] {
 
 // 初始化插件
 async function initPlugins(softList?: InstalledSoftware[]): Promise<ValidatedPluginConfig[]> {
+  nLogger.info('初始化插件')
   loadedPluginConfigs.length = 0
   activePlugins.clear()
   abortSignals.clear()
@@ -182,6 +183,7 @@ async function initPlugins(softList?: InstalledSoftware[]): Promise<ValidatedPlu
       const cTime = BaseUtil.getFormatedDateTime(fs.statSync(filePath).birthtime)
       // 实例化插件配置
       const pluginConfig = loadPluginConfig(moduleConfig, cTime, fileName)
+      nLogger.debug('加载插件配置：', JSON.stringify(pluginConfig))
       // 实例化插件
       const plugin = new Plugin(pluginConfig, moduleConfig)
       // 已验证的插件
@@ -206,7 +208,11 @@ async function initPlugins(softList?: InstalledSoftware[]): Promise<ValidatedPlu
     }
   }
   initialized = true
-  nLogger.info('插件系统初始化成功', activePlugins.size)
+  nLogger.debug('插件系统初始化成功')
+  loadedPluginConfigs.forEach(config => {
+    nLogger.debug(config.id, JSON.stringify(config.backupConfigs))
+    nLogger.debug('============================')
+  })
   return loadedPluginConfigs
 }
 
@@ -223,7 +229,7 @@ function getValidatedFields(detectResult: InstalledSoftware | string | undefined
       softName: detectResult.name,
       softBase64Icon: detectResult.base64Icon,
       softIconPath: detectResult.iconPath,
-      softInstallDir: detectResult.installDir,
+      softInstallDir: detectResult.installDir || detectResult.uninstallDir,
       softRegeditDir: detectResult.regeditDir,
     }
   }
@@ -255,6 +261,7 @@ async function execPlugin(task: PluginExecTask, mainWindow: Electron.BrowserWind
   abortSignals.set(taskId, abortController)
 
   nLogger.info(`开始执行插件[${pluginId}] 任务 ${taskId}`)
+  WinUtil.ensureDirectoryExistence(`${task.backupPath}/test`)
   const ranTask = await plugin.execPlugin(
     task,
     WinUtil.getEnv(),

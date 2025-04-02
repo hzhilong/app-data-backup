@@ -31,5 +31,5 @@ coverage
 *.tsbuildinfo
 
 release
-logs
 .backup-data
+.backup

@@ -95,8 +95,8 @@ export default class PluginUtil {
 
   static async deleteCustomPlugin(config: MyPluginConfig) {
     const temp = cloneDeep(config)
-    await ipcInvoke(IPC_CHANNELS.DELETE_CUSTOM_PLUGIN, temp)
-    await db.myConfig.delete(temp.id)
+    ipcInvoke(IPC_CHANNELS.DELETE_CUSTOM_PLUGIN, temp).catch()
+    db.myConfig.delete(temp.id)
     AppUtil.message('删除成功')
     ipcInvoke(IPC_CHANNELS.REFRESH_PLUGINS, await db.installedSoftware.toArray()).then(() => {})
   }

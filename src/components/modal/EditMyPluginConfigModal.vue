@@ -153,7 +153,7 @@ const handleCancel = () => closeModal('cancel')
     :close-on-press-escape="false"
     :show-close="false"
   >
-    <div class="plugin" spellcheck="false">
+    <div class="plugin">
       <el-form ref="formRef" :inline="true" :size="'default'" :model="pluginLocal" :rules="pluginRules">
         <el-form-item label="软件名称" prop="name">
           <el-input v-model="pluginLocal.name" placeholder="示例：MusicBee" />
@@ -203,9 +203,10 @@ const handleCancel = () => closeModal('cancel')
                           <el-popover v-if="item.type === 'file'" placement="top" :width="320" trigger="hover">
                             <template #default>
                               <div>
-                                支持以下变量：
+                                支持环境变量，包括但不限于：
                                 <div>
                                   <span>%installDir%</span>：关联的软件路径
+                                  <span>%USERPROFILE%</span>：C:\Users\用户名
                                   <span>%APPDATA%</span>：C:\Users\用户名\AppData
                                 </div>
                               </div>

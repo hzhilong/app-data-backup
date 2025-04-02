@@ -15,7 +15,6 @@ declare module 'vue' {
     ChooseBackupRootButton: typeof import('./src/components/app-settings/ChooseBackupRootButton.vue')['default']
     ClearIconCacheButton: typeof import('./src/components/app-settings/ClearIconCacheButton.vue')['default']
     CountdownDialog: typeof import('./src/components/dialog/CountdownDialog.vue')['default']
-    CustomPluginModal: typeof import('./src/components/modal/CustomPluginModal.vue')['default']
     EditMyPluginConfigModal: typeof import('./src/components/modal/EditMyPluginConfigModal.vue')['default']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElColorPicker: typeof import('element-plus/es')['ElColorPicker']

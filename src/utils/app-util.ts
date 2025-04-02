@@ -4,7 +4,7 @@ import type { BuResult } from '@/types/BuResult'
 import { db } from '@/db/db'
 import BaseUtil from '@/utils/base-util'
 import { getPluginExecName, getTaskStateText, type PluginExecTask } from '@/types/PluginTask'
-import { logger } from '@/utils/logger-util'
+import { logger, saveLog } from '@/utils/logger-util'
 import { ipcInvoke, ipcSend } from '@/utils/electron-api'
 
 export default class AppUtil {
@@ -154,6 +154,7 @@ export default class AppUtil {
     if (!error) {
       logger.error('[app]:未知错误')
     } else {
+      saveLog('error', error)
       logger.error('[app]:出现错误', error)
       AppUtil.message({
         message: BaseUtil.getErrorMessage(error),

@@ -1,0 +1,161 @@
+@echo off
+color 3F
+:: "申请管理员权限"
+if exist "%SystemRoot%\SysWOW64" path %path%;%windir%\SysNative;%SystemRoot%\SysWOW64;%~dp0
+bcdedit >nul
+if '%errorlevel%' NEQ '0' (goto UACPrompt) else (goto UACAdmin)
+:UACPrompt
+%1 start "" mshta vbscript:createobject("shell.application").shellexecute("""%~0""","::",,"runas",1)(window.close)&exit
+exit /B
+:UACAdmin
+cd /d "%~dp0"
+:: =================================================================================================
+set app_name=WinSCP
+set installLocation=
+setlocal enabledelayedexpansion
+
+echo ------------------------------------------
+echo 正在查找 %app_name% 的安装目录...
+call :find_install_location "%app_name%"
+if "%installLocation%"=="" (
+    if exist "C:\Program Files (x86)\%app_name%" ( set "installLocation=C:\Program Files (x86)\%app_name%")
+    if exist "D:\Program Files (x86)\%app_name%" ( set "installLocation=D:\Program Files (x86)\%app_name%")
+    if exist "C:\Program Files\%app_name%" ( set "installLocation=C:\Program Files\%app_name%")
+    if exist "D:\Program Files\%app_name%" ( set "installLocation=D:\Program Files\%app_name%")
+)
+if "%installLocation%"=="" ( call :not_installed_then_exit "%app_name%" )
+echo 软件安装目录：%installLocation%
+echo ------------------------------------------
+echo 正在查找 %app_name% 的备份文件...
+if not exist .backup (
+    echo 缺少备份文件
+    call :failed
+)
+set /a ii=0
+for /d %%i in (".backup\*") do (
+    echo [!ii!].%%~ni
+    set "backup!ii!=%%i"
+    set /a ii+=1
+)
+
+if "!ii!"=="0" (
+    echo 缺少备份文件
+    call :failed
+)
+
+
+:input_pos
+set /p pos=请输入要还原的序号:
+
+if %pos% lss 0 (
+    echo 输入错误，请重新输入
+    goto input_pos
+)
+if %pos% geq !ii! (
+    echo 输入错误，请重新输入
+    goto input_pos
+)
+
+echo 正在还原!backup%pos%!
+
+if not exist "!backup%pos%!\flag" (
+    echo 缺少配置文件 flag
+    call :failed
+)
+
+set /p flag=<!backup%pos%!\flag
+
+if "!flag!"=="1" (
+    echo 当前配置文件存储在注册表
+    reg import "!backup%pos%!\backup1.reg" >nul || call :failed
+    del /Q "!installLocation!\WinSCP.ini"
+) ^
+else if "!flag!"=="2" (
+    echo 当前配置文件存储在程序目录：!installLocation!\WinSCP.ini
+    if not exist "!backup%pos%!\WinSCP.ini" (
+        echo WinSCP.ini文件不存在
+        call :failed
+    )
+    copy /y "!backup%pos%!\WinSCP.ini" "!installLocation!\" >nul 2>&1 || call :failed
+) ^
+else if "!flag!"=="3" (
+    set /p custom_path=<"!backup%pos%!\custom_path"
+    echo 当前配置文件存储在自定义目录：!custom_path!
+    if not exist "!backup%pos%!\WinSCP.ini" (
+        echo WinSCP.ini文件不存在
+        call :failed
+    )
+    copy /y "!backup%pos%!\WinSCP.ini" "!custom_path!" >nul 2>&1 || call :failed
+)
+reg import "!backup%pos%!\backup2.reg" >nul 2>&1
+
+echo ------------------------------------------
+
+call :succeed
+goto :eof
+
+:: =================================================================================================
+
+:exit
+exit
+
+:succeed
+call :delay_exit 3 操作成功
+goto :eof
+
+:failed
+echo 操作失败，按任意键退出...
+pause>nul
+goto exit
+goto :eof
+
+:: "延迟退出，参数%1:延迟秒数 %2:提示文字"
+:delay_exit 
+for /l %%i in (%1,-1,1) do (
+    echo %2，%%i秒后自动关闭窗口...
+    choice /t 1 /d y /n >nul
+)
+goto exit
+goto :eof
+
+:: "提示未安装%1，按任意键退出"
+:not_installed_then_exit
+echo 未安装%~1，按任意键退出...
+pause >nul
+goto exit
+goto :eof
+
+:: "查找软件安装目录 参数%1:"软件名称"。安装路径不以\结尾"
+:find_install_location
+    set installLocation=
+    call :find_install_location_temp HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall %1
+    if "!installLocation!"=="" call :find_install_location_temp HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall %1
+    if "!installLocation!"=="" call :find_install_location_temp HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall %1
+)
+goto :eof
+
+:find_install_location_temp
+    set tempvar=
+    for /f "tokens=*" %%i in ('reg query "%1"') do (
+        reg query "%%i" /v "DisplayName" 2>nul | findstr /i /c:"%~2" >nul 2>&1 && (
+            reg query "%%i" /v "InstallLocation" >nul 2>&1 && (
+                for /f "skip=2 tokens=2,*" %%j in ('reg query "%%i" /v "InstallLocation" ') do (
+                    set "installLocation=%%~k"
+                    if "!installLocation:~-1!"=="\" ( 
+                        set "installLocation=!installLocation:~0,-1!"
+                    )
+                    goto :eof
+                )
+            ) || ( reg query "%%i" /v "DisplayIcon" >nul 2>&1 && (
+                    for /f "skip=2 tokens=2,*" %%j in ('reg query "%%i" /v "DisplayIcon" ') do (
+                        for %%a in ("%%k") do set installLocation=%%~dpa
+                        if "!installLocation:~-1!"=="\" ( 
+                            set "installLocation=!installLocation:~0,-1!"
+                        )
+                        goto :eof
+                    )
+                )
+            )
+        )
+    )
+goto :eof

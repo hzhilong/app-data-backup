@@ -103,7 +103,6 @@ async function baseUpdateThemeColor(primaryColor: string, themeMode: AppThemeMod
   vars['--app-bg-color-page'] = isDark ? `rgba(${r}, ${g}, ${b}, 0.05)` : 'transparent'
 
   vars['--el-border-color'] = mixColor(primaryColor, background, 30)
-  ;`rgba(${r}, ${g}, ${b}, 0.3)`
   vars['--el-border-color-light'] = mixColor(primaryColor, background, 25)
   vars['--el-border-color-lighter'] = mixColor(primaryColor, background, 20)
   vars['--el-border-color-extra-light'] = mixColor(primaryColor, background, 10)

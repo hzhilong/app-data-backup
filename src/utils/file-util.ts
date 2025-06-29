@@ -29,4 +29,17 @@ export default class FileUtil {
       ),
     )
   }
+
+  // 选择文件
+  static async chooseFile(options?: OpenDialogOptions) {
+    return this.showOpenDialog(
+      Object.assign(
+        {
+          buttonLabel: '选择',
+          properties: ['openFile'],
+        },
+        options,
+      ),
+    )
+  }
 }

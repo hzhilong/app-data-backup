@@ -7,6 +7,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AppDataBackupOptions: typeof import('./src/components/app-settings/AppDataBackupOptions.vue')['default']
     AppMenu: typeof import('./src/components/AppMenu.vue')['default']
     BackupConfig: typeof import('./src/components/plugin/BackupConfig.vue')['default']
     BackupItemConfig: typeof import('./src/components/plugin/BackupItemConfig.vue')['default']
@@ -16,6 +17,26 @@ declare module 'vue' {
     ClearIconCacheButton: typeof import('./src/components/app-settings/ClearIconCacheButton.vue')['default']
     CountdownDialog: typeof import('./src/components/dialog/CountdownDialog.vue')['default']
     EditMyPluginConfigModal: typeof import('./src/components/modal/EditMyPluginConfigModal.vue')['default']
+    ElButton: typeof import('element-plus/es')['ElButton']
+    ElColorPicker: typeof import('element-plus/es')['ElColorPicker']
+    ElDialog: typeof import('element-plus/es')['ElDialog']
+    ElEmpty: typeof import('element-plus/es')['ElEmpty']
+    ElForm: typeof import('element-plus/es')['ElForm']
+    ElFormItem: typeof import('element-plus/es')['ElFormItem']
+    ElInput: typeof import('element-plus/es')['ElInput']
+    ElOption: typeof import('element-plus/es')['ElOption']
+    ElPopconfirm: typeof import('element-plus/es')['ElPopconfirm']
+    ElPopover: typeof import('element-plus/es')['ElPopover']
+    ElProgress: typeof import('element-plus/es')['ElProgress']
+    ElRadioButton: typeof import('element-plus/es')['ElRadioButton']
+    ElRadioGroup: typeof import('element-plus/es')['ElRadioGroup']
+    ElSelect: typeof import('element-plus/es')['ElSelect']
+    ElSwitch: typeof import('element-plus/es')['ElSwitch']
+    ElTable: typeof import('element-plus/es')['ElTable']
+    ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
+    ElTabPane: typeof import('element-plus/es')['ElTabPane']
+    ElTabs: typeof import('element-plus/es')['ElTabs']
+    ElTooltip: typeof import('element-plus/es')['ElTooltip']
     IconButton: typeof import('./src/components/common/IconButton.vue')['default']
     IconLabel: typeof import('./src/components/common/IconLabel.vue')['default']
     PluginConfig: typeof import('./src/components/plugin/PluginConfig.vue')['default']
@@ -37,5 +58,8 @@ declare module 'vue' {
     UpdatePluginsButton: typeof import('./src/components/app-settings/UpdatePluginsButton.vue')['default']
     UpdateThemeColorButton: typeof import('./src/components/app-settings/UpdateThemeColorButton.vue')['default']
     UpdateThemeModeButton: typeof import('./src/components/app-settings/UpdateThemeModeButton.vue')['default']
+  }
+  export interface ComponentCustomProperties {
+    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
   }
 }

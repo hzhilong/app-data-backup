@@ -112,5 +112,17 @@ export default {
         return await WinUtil.openPath(LOG_DIR)
       })
     })
+
+    ipcMain.handle(IPC_CHANNELS.READ_JSON_FILE, async (event, filePath: string) => {
+      return await execBusiness(async () => {
+        return await WinUtil.readJsonFile(filePath)
+      })
+    })
+
+    ipcMain.handle(IPC_CHANNELS.WRITE_JSON_FILE, async (event, filePath: string, data: unknown) => {
+      return await execBusiness(async () => {
+        return WinUtil.writeJsonFile(filePath, data)
+      })
+    })
   },
 }

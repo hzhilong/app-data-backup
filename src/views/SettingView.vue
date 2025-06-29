@@ -37,6 +37,9 @@ const { backupRootDir, confirmBeforeRestore, autoBackupBeforeRestore, bulkBackup
       </SettingItem>
     </SettingGroup>
     <SettingGroup name="应用设置">
+      <SettingItem title="应用数据导入导出">
+        <AppDataBackupOptions />
+      </SettingItem>
       <SettingItem title="主题颜色">
         <UpdateThemeColorButton />
       </SettingItem>
